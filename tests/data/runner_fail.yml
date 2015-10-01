@@ -1,0 +1,10 @@
+test:
+    condition1:
+        type: "filesize"
+        nice: 0
+        lbound: "1 KB" 
+        hbound: "-1"
+        action: "-q test.q -pe galaxy 4 -l h_vmem=2G"
+
+default:
+    destinationID: "waffles_default"

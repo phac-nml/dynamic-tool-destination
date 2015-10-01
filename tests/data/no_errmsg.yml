@@ -1,0 +1,16 @@
+test_no_errmsg:
+    condition1:
+        type: "filesize"
+        nice: "0"
+        lbound: "1 KB" 
+        hbound: "infinity"
+        action: "-q test.q -pe galaxy 4 -l h_vmem=2G"
+    condition2:
+        type: "filesize"
+        nice: "0"
+        lbound: "0"
+        hbound: "4 KB"
+        action: "fail"
+    condition3:
+        type: "default"
+        action: "-q test.q -pe galaxy 16 -l h_vmem=2G"

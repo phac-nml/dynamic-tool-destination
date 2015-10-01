@@ -1,0 +1,92 @@
+test:
+    condition1:
+        type: "filesize"
+        nice: "0"
+        lbound: "1 KB" 
+        hbound: "infinity"
+        action: "-q test.q -pe galaxy 4 -l h_vmem=2G"
+    condition2:
+        type: "filesize"
+        nice: "0"
+        lbound: "0"
+        hbound: "1 KB"
+        err_msg: "File size too small"
+        action: "fail"
+    condition3:
+        type: "default"
+        action: "-q test.q -pe galaxy 16 -l h_vmem=2G"
+
+test_overlap:
+    condition1:
+        type: "filesize"
+        nice: "0"
+        lbound: "1 KB"
+        hbound: "infinity"
+        action: "-q test.q -pe galaxy 4 -l h_vmem=2G"
+    condition2:
+        type: "filesize"
+        nice: "0"
+        lbound: "0"
+        hbound: "4 KB"
+        action: "-q test.q -pe galaxy 4 -l h_vmem=2G"
+    condition3:
+        type: "default"
+        action: "-q test.q -pe galaxy 16 -l h_vmem=2G"
+
+test_tooldefault:
+    condition1:
+        type: "default"
+        action: "-q test.q -pe galaxy 16 -l h_vmem=2G"
+
+test_db:
+    condition1:
+        type: "records"
+        nice: "0"
+        lbound: "1 KB" 
+        hbound: "infinity"
+        err_msg: "File size too small"
+        action: "fail"
+    condition2:
+        type: "records"
+        nice: "0"
+        lbound: "0"
+        hbound: "1 KB"
+        action: "-q test.q -pe galaxy 4 -l h_vmem=2G"
+    condition3:
+        type: "default"
+        action: "-q test.q -pe galaxy 16 -l h_vmem=2G"
+
+test_db_high:
+    condition1:
+        type: "records"
+        nice: "0"
+        lbound: "0"
+        hbound: "infinity"
+        action: "-q test.q -pe galaxy 4 -l h_vmem=2G"
+    condition2:
+        type: "default"
+        action: "-q test.q -pe galaxy 16 -l h_vmem=2G"
+
+test_parameter:
+    condition1:
+        type: "parameter"
+        nice: "0"
+        args:
+            careful: true
+        action: "-q test.q -pe galaxy 4 -l h_vmem=2G"
+    condition2:
+        type: "default"
+        action: "-q test.q -pe galaxy 16 -l h_vmem=2G"
+
+test_custom_runner:
+    condition1:
+        type: "records"
+        nice: "0"
+        lbound: "0"
+        hbound: "infinity"
+        runner: "custom_runner"
+        action: "-q test.q -pe galaxy 4 -l h_vmem=2G"
+
+default:
+    destinationID: "waffles_default"
+    runner: "drmaa"
