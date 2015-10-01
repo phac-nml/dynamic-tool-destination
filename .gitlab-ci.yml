@@ -1,0 +1,8 @@
+job1:
+  script: ".test-scripts/test_install.sh"
+job2:
+  script: ".test-scripts/test_py26.sh"
+job3:
+  script: ".test-scripts/test_py27.sh"
+job4:
+  script: ".test-scripts/test_flake8.sh"
