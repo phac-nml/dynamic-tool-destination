@@ -285,9 +285,9 @@ log = logging.getLogger(__name__)
 
 def map_tool_to_destination(job, app, tool, test=False,
     path="/config/tool_destinations.yml"):
-    """
-    Dynamically allocate resources
-    """
+        """
+        Dynamically allocate resources
+        """
         importer(test)
 
         # Get all inputs from tool and databases
