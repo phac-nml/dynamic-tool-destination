@@ -170,7 +170,7 @@ def test_tools(obj):
                             error = "Unrecognized " + str(condition) + " type "
                             error += str(cond_type) + " in " + str(tool)
                             raise TypeError(error)
-                    except TypeError, e:
+                    except TypeError as e:
                         log.error(e)
                         error = "Deleting " + str(condition)
                         error += " in " + str(tool) + "..."
@@ -283,182 +283,182 @@ def importer(test):
 log = logging.getLogger(__name__)
 
 
-def map_tool_to_destination(job, app, tool, test=False,
-    path="/config/tool_destinations.yml"):
-        """
-        Dynamically allocate resources
-        """
-        importer(test)
+def map_tool_to_destination(
+        job, app, tool, test=False, path="/config/tool_destinations.yml"):
+    """
+    Dynamically allocate resources
+    """
+    importer(test)
 
-        # Get all inputs from tool and databases
-        inp_data = dict([(da.name, da.dataset) for da in job.input_datasets])
-        inp_data.update([(da.name, da.dataset) for da in job.input_library_datasets])
-        file_size = 0
-        records = 0
+    # Get all inputs from tool and databases
+    inp_data = dict([(da.name, da.dataset) for da in job.input_datasets])
+    inp_data.update([(da.name, da.dataset) for da in job.input_library_datasets])
+    file_size = 0
+    records = 0
 
+    try:
+        # If you're going to the vfdb do this.
+        for this_tool in tool.installed_tool_dependencies:
+            if this_tool.name == "vfdb":
+                bact = job.get_param_values(app, True)["mlst_or_genedb"]["vfdb_in"]
+                instal_dir = str(this_tool.installation_directory(app))
+                _file = glob.glob(instal_dir + "/vfdb/?" + bact[1:] + "*")
+                inp_db = open(str(_file[0]))
+                log.debug("Loading file: " + _file[0])
+    except(KeyError, IndexError, TypeError):
+        log.info("No virulence factors database")
+
+    # Loop through the database and look for amount of records
+    try:
+        for line in inp_db:
+            if line[0] == ">":
+                records += 1
+    except NameError:
+        pass
+
+    # Loop through each input file and adds the size to the total
+    # or looks through db for records
+    for da in inp_data:
         try:
-            # If you're going to the vfdb do this.
-            for this_tool in tool.installed_tool_dependencies:
-                if this_tool.name == "vfdb":
-                    bact = job.get_param_values(app, True)["mlst_or_genedb"]["vfdb_in"]
-                    instal_dir = str(this_tool.installation_directory(app))
-                    _file = glob.glob(instal_dir + "/vfdb/?" + bact[1:] + "*")
-                    inp_db = open(str(_file[0]))
-                    log.debug("Loading file: " + _file[0])
-        except(KeyError, IndexError, TypeError):
-            log.info("No virulence factors database")
+            # If the input is a file, check and add the size
+            if os.path.isfile(str(inp_data[da].file_name)):
+                log.debug("Loading file: " + str(da) + str(inp_data[da].file_name))
 
-        # Loop through the database and look for amount of records
-        try:
-            for line in inp_db:
-                if line[0] == ">":
-                    records += 1
-        except NameError:
-            pass
+                # Add to records if the file type is fasta
+                if inp_data[da].datatype.file_ext == "fasta":
+                    inp_db = open(inp_data[da].file_name)
 
-        # Loop through each input file and adds the size to the total
-        # or looks through db for records
-        for da in inp_data:
-            try:
-                # If the input is a file, check and add the size
-                if os.path.isfile(str(inp_data[da].file_name)):
-                    log.debug("Loading file: " + str(da) + str(inp_data[da].file_name))
+                    # Try to find automatically computed sequences
+                    metadata = inp_data[da].get_metadata()
 
-                    # Add to records if the file type is fasta
-                    if inp_data[da].datatype.file_ext == "fasta":
-                        inp_db = open(inp_data[da].file_name)
-
-                        # Try to find automatically computed sequences
-                        metadata = inp_data[da].get_metadata()
-
-                        try:
-                            records += int(metadata.get("sequences"))
-                        except (TypeError, KeyError):
-                            for line in inp_db:
-                                if line[0] == ">":
-                                    records += 1
-                    else:
-                        query_file = str(inp_data[da].file_name)
-                        file_size += os.path.getsize(query_file)
-            except AttributeError:
-                # Otherwise, say that input isn't a file
-                log.debug("Not a file: " + str(inp_data[da]))
-
-        log.debug("Total size: " + bytes_to_str(file_size))
-        log.debug("Total amount of records: " + str(records))
-
-        # Chooses behaviour based on tool
-
-        # Get configuration from tool_options.yml
-        try:
-            behaviour = parse_yaml(path)
-        except MalformedYMLException, e:
-            raise JobMappingException(e)
-
-        native_spec = {}
-        try:
-            # For each different condition for the tool that's running
-            for key in behaviour[str(tool.old_id)]:
-                condition = behaviour[str(tool.old_id)][key]
-
-                if condition["type"] == "filesize":
-                    hbound = str_to_bytes(condition["hbound"])
-                    lbound = str_to_bytes(condition["lbound"])
-
-                    if hbound == -1:
-                        if lbound <= file_size:
-                            native_spec = apply_magnitude(behaviour,
-                                                          condition,
-                                                          native_spec,
-                                                          file_size,
-                                                          test)
-                    else:
-                        if lbound <= file_size and file_size < hbound:
-                            native_spec = apply_magnitude(behaviour,
-                                                          condition,
-                                                          native_spec,
-                                                          file_size,
-                                                          test)
-                elif condition["type"] == "records":
-                    hbound = str_to_bytes(condition["hbound"])
-                    lbound = str_to_bytes(condition["lbound"])
-
-                    if hbound == -1:
-                        if lbound <= records:
-                            native_spec = apply_magnitude(behaviour,
-                                                          condition,
-                                                          native_spec,
-                                                          records,
-                                                          test)
-                    else:
-                        if lbound <= records and records < hbound:
-                            native_spec = apply_magnitude(behaviour,
-                                                          condition,
-                                                          native_spec,
-                                                          records,
-                                                          test)
-                elif condition["type"] == "parameter":
-                    # TODO: This accepts the condition if any parameter is correct,
-                    #       we should probably change it to if all are correct
-
-                    options = job.get_param_values(app)
-                    for arg in condition["args"].keys():
-                        if arg in options:
-                            if condition["args"][arg] == options[arg]:
-                                native_spec = apply_parameter(behaviour,
-                                                              condition,
-                                                              native_spec,
-                                                              test)
-                            else:
-                                error = "Parameter value unequal -- " + str(tool.old_id)
-                                error += " parameter:" + str(options[arg]) + " != "
-                                error += "tool_options parameter:"
-                                error += str(condition["args"][arg])
-                                log.debug(error)
-                elif condition["type"] == "default":
                     try:
-                        cond_runner = condition["runner"]
-                    except KeyError:
-                        cond_runner = behaviour["default"]["runner"]
+                        records += int(metadata.get("sequences"))
+                    except (TypeError, KeyError):
+                        for line in inp_db:
+                            if line[0] == ">":
+                                records += 1
+                else:
+                    query_file = str(inp_data[da].file_name)
+                    file_size += os.path.getsize(query_file)
+        except AttributeError:
+            # Otherwise, say that input isn't a file
+            log.debug("Not a file: " + str(inp_data[da]))
 
-                    defaultCondition = {
-                        "action": condition["action"],
-                        "runner": cond_runner,
-                    }
+    log.debug("Total size: " + bytes_to_str(file_size))
+    log.debug("Total amount of records: " + str(records))
 
-            # If nothing has been found, use the default option
-            try:
-                native_spec["action"]
-                native_spec["runner"]
-            except(KeyError, NameError, TypeError):
-                raise KeyError()
-        except KeyError:
-            try:
-                # Find default in job_options under the tool
-                action = defaultCondition["action"]
-                curr_runner = defaultCondition["runner"]
-                dest = JobDestination(id="Dynamic " + str(tool.old_id) + " Default",
-                                      runner=curr_runner,
-                                      params={"nativeSpecification": action})
-            except NameError:
-                # Find default in job_options under default tool
-                log.debug("Possible unconfigured tool: \"" + tool.old_id + "\"")
+    # Chooses behaviour based on tool
+
+    # Get configuration from tool_options.yml
+    try:
+        behaviour = parse_yaml(path)
+    except MalformedYMLException as e:
+        raise JobMappingException(e)
+
+    native_spec = {}
+    try:
+        # For each different condition for the tool that's running
+        for key in behaviour[str(tool.old_id)]:
+            condition = behaviour[str(tool.old_id)][key]
+
+            if condition["type"] == "filesize":
+                hbound = str_to_bytes(condition["hbound"])
+                lbound = str_to_bytes(condition["lbound"])
+
+                if hbound == -1:
+                    if lbound <= file_size:
+                        native_spec = apply_magnitude(behaviour,
+                                                      condition,
+                                                      native_spec,
+                                                      file_size,
+                                                      test)
+                else:
+                    if lbound <= file_size and file_size < hbound:
+                        native_spec = apply_magnitude(behaviour,
+                                                      condition,
+                                                      native_spec,
+                                                      file_size,
+                                                      test)
+            elif condition["type"] == "records":
+                hbound = str_to_bytes(condition["hbound"])
+                lbound = str_to_bytes(condition["lbound"])
+
+                if hbound == -1:
+                    if lbound <= records:
+                        native_spec = apply_magnitude(behaviour,
+                                                      condition,
+                                                      native_spec,
+                                                      records,
+                                                      test)
+                else:
+                    if lbound <= records and records < hbound:
+                        native_spec = apply_magnitude(behaviour,
+                                                      condition,
+                                                      native_spec,
+                                                      records,
+                                                      test)
+            elif condition["type"] == "parameter":
+                # TODO: This accepts the condition if any parameter is correct,
+                #       we should probably change it to if all are correct
+
+                options = job.get_param_values(app)
+                for arg in condition["args"].keys():
+                    if arg in options:
+                        if condition["args"][arg] == options[arg]:
+                            native_spec = apply_parameter(behaviour,
+                                                          condition,
+                                                          native_spec,
+                                                          test)
+                        else:
+                            error = "Parameter value unequal -- " + str(tool.old_id)
+                            error += " parameter:" + str(options[arg]) + " != "
+                            error += "tool_options parameter:"
+                            error += str(condition["args"][arg])
+                            log.debug(error)
+            elif condition["type"] == "default":
                 try:
-                    loc = behaviour["default"]["destinationID"]
-                    dest = app.job_config.get_destination(loc)
+                    cond_runner = condition["runner"]
                 except KeyError:
-                    # Only arrive here if parse_yaml fails
-                    raise JobMappingException("No default in tool_options.yml")
+                    cond_runner = behaviour["default"]["runner"]
+
+                defaultCondition = {
+                    "action": condition["action"],
+                    "runner": cond_runner,
+                }
+
+        # If nothing has been found, use the default option
         try:
-            # If a default has been defined, ust it.
-            return dest
+            native_spec["action"]
+            native_spec["runner"]
+        except(KeyError, NameError, TypeError):
+            raise KeyError()
+    except KeyError:
+        try:
+            # Find default in job_options under the tool
+            action = defaultCondition["action"]
+            curr_runner = defaultCondition["runner"]
+            dest = JobDestination(id="Dynamic " + str(tool.old_id) + " Default",
+                                  runner=curr_runner,
+                                  params={"nativeSpecification": action})
         except NameError:
-            # Else use the specified parameter for the destination.
-            if test:
-                logging.shutdown()
-            return JobDestination(id="Dynamically_mapped " + tool.old_id,
-                                  runner=native_spec["runner"],
-                                  params={"nativeSpecification": native_spec["action"]})
+            # Find default in job_options under default tool
+            log.debug("Possible unconfigured tool: \"" + tool.old_id + "\"")
+            try:
+                loc = behaviour["default"]["destinationID"]
+                dest = app.job_config.get_destination(loc)
+            except KeyError:
+                # Only arrive here if parse_yaml fails
+                raise JobMappingException("No default in tool_options.yml")
+    try:
+        # If a default has been defined, ust it.
+        return dest
+    except NameError:
+        # Else use the specified parameter for the destination.
+        if test:
+            logging.shutdown()
+        return JobDestination(id="Dynamically_mapped " + tool.old_id,
+                              runner=native_spec["runner"],
+                              params={"nativeSpecification": native_spec["action"]})
 
 
 def apply_magnitude(behaviour, condition, _native_spec, magnitude, test=False):
@@ -572,7 +572,7 @@ def apply_parameter(behaviour, condition, _native_spec, test=False):
 
                 native_spec = condition
                 native_spec["runner"] = cond_runner
-    except KeyError, x:
+    except KeyError as x:
         log.debug(x)
 
     return native_spec
