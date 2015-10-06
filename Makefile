@@ -35,18 +35,14 @@ test:
 	make install
 	test -e $(GALAXY_PATH)/config/tool_destinations.yml
 	test -e $(GALAXY_PATH)/lib/galaxy/jobs/rules/DynamicToolDestination.py
-	test -e $(GALAXY_PATH)/lib/galaxy/jobs/rules/helperMethods.py
 	make clean
 	! test -e $(GALAXY_PATH)/config/tool_destinations.yml
 	! test -e $(GALAXY_PATH)/lib/galaxy/jobs/rules/DynamicToolDestination.py
-	! test -e $(GALAXY_PATH)/lib/galaxy/jobs/rules/helperMethods.py 
 
 install:
 	cp ./dynamic_tool_destination/DynamicToolDestination.py $(GALAXY_PATH)/lib/galaxy/jobs/rules/
-	cp ./dynamic_tool_destination/helperMethods.py $(GALAXY_PATH)/lib/galaxy/jobs/rules/
 	cp ./dynamic_tool_destination/tool_destinations.yml $(GALAXY_PATH)/config/
-	
+
 clean:
 	rm $(GALAXY_PATH)/lib/galaxy/jobs/rules/DynamicToolDestination.py
-	rm $(GALAXY_PATH)/lib/galaxy/jobs/rules/helperMethods.py
 	rm $(GALAXY_PATH)/config/tool_destinations.yml

@@ -32,7 +32,7 @@ Created on May 13, 2015
 @author: Daniel Bouchard
 """
 
-#how about "from yaml import load" 
+from yaml import load
 
 import glob
 import logging
