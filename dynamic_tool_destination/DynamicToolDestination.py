@@ -41,8 +41,10 @@ import sys
 import copy
 import string
 
+
 class MalformedYMLException(Exception):
     pass
+
 
 def parse_yaml(path="/config/tool_options.yml", test=False):
     """
@@ -63,7 +65,9 @@ def parse_yaml(path="/config/tool_options.yml", test=False):
         log.error(str(sys.exc_value))
         raise
 
+
     return tools
+
 
 def test_tools(obj):
     """
@@ -176,6 +180,7 @@ def test_tools(obj):
     except (AttributeError, TypeError):
         log.debug("Illegal object: " + str(obj))
 
+
     return obj_cp
 
 def bytes_to_str(size, unit="YB"):
@@ -279,7 +284,8 @@ def importer(test):
 log = logging.getLogger(__name__)
 
 
-def map_tool_to_destination(job, app, tool, test=False, path="/config/tool_destinations.yml"):
+def map_tool_to_destination(job, app, tool, test=False,
+    path="/config/tool_destinations.yml"):
     """
     Dynamically allocate resources
     """
