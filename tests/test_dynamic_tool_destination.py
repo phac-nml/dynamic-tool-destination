@@ -39,8 +39,6 @@ import ymltests as yt
 import dynamic_tool_destination.DynamicToolDestination as dt
 
 from dynamic_tool_destination.DynamicToolDestination import map_tool_to_destination
-from dynamic_tool_destination.DynamicToolDestination import apply_magnitude
-from dynamic_tool_destination.DynamicToolDestination import apply_parameter
 from testfixtures import log_capture
 
 
@@ -135,15 +133,6 @@ class TestDynamicToolDestination(unittest.TestCase):
         logger = logging.getLogger()
 
     #=======================map_tool_to_destination()================================
-    @log_capture()
-    def test_brokenRunnerYML(self, l):
-        self.assertRaises(mg.JobMappingException, map_tool_to_destination, runJob, theApp, vanillaTool, True, broken_runner_path)
-        l.check(
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Loading file: input1' + os.getcwd() + '/tests/data/test3.full'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total size: 3.23 KB'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total amount of records: 0'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'ERROR', 'Error getting default runner.')
-        )
 
     @log_capture()
     def test_brokenDestYML(self, l):
@@ -153,19 +142,6 @@ class TestDynamicToolDestination(unittest.TestCase):
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total size: 3.23 KB'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total amount of records: 0'),
             ('dynamic_tool_destination.DynamicToolDestination', 'ERROR', 'Error getting default destinationID.')
-        )
-
-    @log_capture()
-    def test_custom_runner(self, l):
-        job = map_tool_to_destination( runJob, theApp, customRunnerTool, True, path )
-        self.assertEquals( job.id, 'Dynamically_mapped test_custom_runner' )
-        self.assertEquals( job.nativeSpec, '-q test.q -pe galaxy 4 -l h_vmem=2G' )
-        self.assertEquals( job.runner, 'custom_runner' )
-
-        l.check(
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Loading file: input1' + os.getcwd() + '/tests/data/test3.full'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total size: 3.23 KB'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total amount of records: 0'),
         )
 
     @log_capture()
@@ -420,7 +396,7 @@ class TestDynamicToolDestination(unittest.TestCase):
             'nice': 1,
             "action": "things"
         }
-        self.assertRaises(mg.JobMappingException, apply_parameter, behaviour, condition, native_spec, True)
+        self.assertRaises(mg.JobMappingException, behaviour, condition, native_spec, True)
 
     @log_capture()
     def test_fail_parameter_no_msg(self, l):
@@ -477,9 +453,9 @@ class TestDynamicToolDestination(unittest.TestCase):
         dt.parse_yaml(path=yt.ivYMLTest11, test=True)
         l.check(
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG',
-             'Nice value goes from -20 to 20: spades condition1 nice:-21'),
+             "Nice value goes from -20 to 20; this rule's nice value is -21"),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG',
-             'Invalid nice value. Setting spades condition1 nice to 0.')
+             "Invalid nice value. Setting spades's rule's nice to 0.")
         )
 
     @log_capture()
@@ -518,7 +494,7 @@ class TestDynamicToolDestination(unittest.TestCase):
         self.assertEquals(dt.parse_yaml(path=yt.ivYMLTest4, test=True), yt.ivDict)
         l.check(
             ('dynamic_tool_destination.DynamicToolDestination', 'ERROR', 'Error getting condition1 type for spades'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Deleting condition1 in spades...')
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'YML file not properly formatted; errors found in tool spades')
         )
 
     @log_capture()
@@ -526,7 +502,7 @@ class TestDynamicToolDestination(unittest.TestCase):
         self.assertEquals(dt.parse_yaml(path=yt.ivYMLTest51, test=True), yt.ivDict)
         l.check(
             ('dynamic_tool_destination.DynamicToolDestination', 'ERROR', 'Error getting condition1 lbound in spades'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Deleting condition1 in spades...')
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'YML file not properly formatted; errors found in tool spades')
         )
 
     @log_capture()
@@ -534,7 +510,7 @@ class TestDynamicToolDestination(unittest.TestCase):
         self.assertEquals(dt.parse_yaml(path=yt.ivYMLTest52, test=True), yt.ivDict)
         l.check(
             ('dynamic_tool_destination.DynamicToolDestination', 'ERROR', 'Error getting condition1 hbound in spades'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Deleting condition1 in spades...')
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'YML file not properly formatted; errors found in tool spades')
         )
 
     @log_capture()
@@ -542,38 +518,38 @@ class TestDynamicToolDestination(unittest.TestCase):
         self.assertEquals(dt.parse_yaml(path=yt.ivYMLTest53, test=True), yt.ivDict)
         l.check(
             ('dynamic_tool_destination.DynamicToolDestination', 'ERROR', 'Error getting condition1 action in spades'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Deleting condition1 in spades...')
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'YML file not properly formatted; errors found in tool spades')
         )
 
     @log_capture()
     def test_bad_cond_type(self, l):
         self.assertEquals(dt.parse_yaml(path=yt.ivYMLTest6, test=True), yt.ivDict)
         l.check(
-            ('dynamic_tool_destination.DynamicToolDestination', 'ERROR', 'Unrecognized condition1 type iencs in spades'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Deleting condition1 in spades...')
+            ('dynamic_tool_destination.DynamicToolDestination', 'ERROR', 'Unrecognized rule type iencs in spades'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'YML file not properly formatted; errors found in tool spades')
         )
 
     @log_capture()
     def test_no_err_msg(self, l):
         self.assertEquals(dt.parse_yaml(path=yt.ivYMLTest91, test=True), yt.iv91dict)
         l.check(
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'err_msg not set for condition1 in spades'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'fail_message not set for current rule in spades'),
             ('dynamic_tool_destination.DynamicToolDestination',
              'DEBUG',
-             'Invalid nice value. Setting spades condition1 nice to 0.')
+             "Invalid nice value. Setting spades's rule's nice to 0.")
         )
 
     @log_capture()
     def test_default_fail_no_err_msg(self, l):
         self.assertEquals(dt.parse_yaml(path=yt.ivYMLTest92, test=True), yt.iv92dict)
-        l.check(('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'err_msg not set for condition1 in spades'))
+        l.check(('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'fail_message not set for current rule in spades'))
 
     @log_capture()
     def test_default_fail_no_param(self, l):
         self.assertEquals(dt.parse_yaml(path=yt.ivYMLTest10, test=True), yt.ivDict)
         l.check(
             ('dynamic_tool_destination.DynamicToolDestination', 'ERROR', 'Error getting condition1 action in spades'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Deleting condition1 in spades...')
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'YML file not properly formatted; errors found in tool spades')
         )
 
     @log_capture()
@@ -589,14 +565,14 @@ class TestDynamicToolDestination(unittest.TestCase):
     @log_capture()
     def test_parameter_no_err_msg(self, l):
         self.assertEquals(dt.parse_yaml(path=yt.ivYMLTest12, test=True), yt.iv12dict)
-        l.check(('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'err_msg not set for condition1 in spades'))
+        l.check(('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'fail_message not set for current rule in spades'))
 
     @log_capture()
     def test_parameter_no_args(self, l):
         self.assertEquals(dt.parse_yaml(path=yt.ivYMLTest131, test=True), yt.iv13dict)
         l.check(
             ('dynamic_tool_destination.DynamicToolDestination', 'ERROR', 'No args for condition1 in spades'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Deleting condition1 in spades...')
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'YML file not properly formatted; errors found in tool spades')
         )
 
     @log_capture()
@@ -604,7 +580,7 @@ class TestDynamicToolDestination(unittest.TestCase):
         self.assertEquals(dt.parse_yaml(path=yt.ivYMLTest132, test=True), yt.iv13dict)
         l.check(
             ('dynamic_tool_destination.DynamicToolDestination', 'ERROR', 'Error getting condition1 action in spades'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Deleting condition1 in spades...')
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'YML file not properly formatted; errors found in tool spades')
         )
 
 #================================Valid yaml files==============================

@@ -1,10 +1,9 @@
 test:
-    condition1:
-        type: "filesize"
-        nice: 0
-        lbound: "1 KB" 
-        hbound: "2 KB"
-        action: "-q test.q -pe galaxy 4 -l h_vmem=2G"
-
-default:
-    runner: "drmaa"
+  rules:
+    - rule_type: file_size
+      nice_value: 0
+      lower_bound: 1 KB
+      upper_bound: 2 KB
+      destination: DestinationF
+  default_destination: waffles_default
+default_destination: waffles_default

@@ -68,114 +68,135 @@ def parse_yaml(path="/config/tool_options.yml", test=False):
     return tools
 
 
+def verify_config(obj, config_valid = True):
+    new_config = {}
+
+    for tool in obj.keys():
+        if tool  == "default_destination" and isinstance(obj[tool], str):
+            new_config[tool] = obj[tool]
+            default_destination_present = True
+        elif isinstance(obj[tool]['rules'], list):
+            for rule in curr_tool['rules']:
+
+
+
+
+
+        else:
+            config_valid = False
+
+
+
+
+
+
+
 def test_tools(obj):
     """
     Check object to see if it has the correct members to be used in job configuration.
+    add option to fail if invalid, set to false by default
+    have a value config_valid set to true by default, set it to false if anything is messed up
+    default_destination is mandatory
     """
     obj_cp = copy.deepcopy(obj)
+    new_config = {}
+
     # Loops through all tools
     try:
-        for tool in obj.keys():
-            if tool == "default":
-                # Check universal default
+        for tool in obj_cp.keys():
+            if tool == "default_destination":
+                if obj[tool] is String:
+                    new_config[tool]=obj[tool]
+                # Check universal default for destination
                 curr_tool = obj[tool]
                 try:
-                    cond_action = curr_tool["destinationID"]
+                    rule_destination = curr_tool
                 except (KeyError, TypeError):
-                    raise MalformedYMLException("Error getting default destinationID.")
-
-                try:
-                    cond_action = curr_tool["runner"]
-                except (KeyError, TypeError):
-                    raise MalformedYMLException("Error getting default runner.")
+                    raise MalformedYMLException("Error getting default destination.")
             else:
-                curr_tool = obj[tool]
-                # Loops through all conditions for the current tool
-                for condition in curr_tool:
-                    # Checks if the current condition has a type,
+                curr_tool = obj_cp[tool]
+                curr_tool_rules = []
+
+                # at the end
+                new_config[tool]['rules'] == curr_tool_rules
+                # Loops through all rules for the current tool
+                for rule in curr_tool['rules']:
+                    curr_tool_rules.append(copy.deepcopy(rule)) #if the current rule passes
+                    # Checks if the current rule has a type,
                     # and, from the type, checks for other parameters.
-                    curr_cond = curr_tool[condition]
                     try:
                         try:
                             # Search for a type attribute
-                            cond_type = curr_cond["type"]
+                            rule_type = rule["rule_type"]
                         except (KeyError, TypeError):
-                            error = "Error getting " + str(condition)
+                            error = "Error getting " + str(rule)
                             error += " type for " + str(tool)
                             raise TypeError(error)
 
                         try:
-                            # Search for a condition action
-                            cond_action = curr_cond["action"]
+                            # Search for a rule destination
+                            rule_destination = rule["destination"]
 
-                            if cond_action == "fail":
+                            if rule_destination == "fail":
                                 try:
-                                    curr_cond["err_msg"]
+                                    rule["fail_message"]
                                 except (KeyError, TypeError):
-                                    error = "err_msg not set for " + str(condition)
+                                    error = "fail_message not set for current rule"
                                     error += " in " + str(tool)
                                     log.debug(error)
                         except (KeyError, TypeError):
-                            error = "Error getting " + str(condition)
-                            error += " action in " + str(tool)
+                            error = "Error getting " + str(rule)
+                            error += " destination in " + str(tool)
                             raise TypeError(error)
 
-                        if cond_type != "default":
-                            # Test the nice value if applicable
-                            try:
-                                curr_cond["nice"] = int(curr_cond["nice"])
-                                if curr_cond["nice"] < -20 or curr_cond["nice"] > 20:
-                                    error_info = "Nice value goes from -20 to 20: " + tool
-                                    error_info += " " + condition + " nice:"
-                                    error_info += str(curr_cond["nice"])
-                                    log.debug(error_info)
-                                    raise KeyError()
-                            except KeyError:
-                                error_resolve = "Invalid nice value. Setting "
-                                error_resolve += tool + " " + condition + " nice to 0."
-                                log.debug(error_resolve)
-                                obj_cp[tool][condition]["nice"] = 0
+                        try:
+                            if rule["nice_value"] < -20 or rule["nice_value"] > 20:
+                                error_info = "Nice value goes from -20 to 20; "
+                                error_info += "this rule's nice value is "
+                                error_info += str(rule["nice_value"])
+                                log.debug(error_info)
+                                raise KeyError()
+                        except KeyError:
+                            error_resolve = "Invalid nice value. Setting "
+                            error_resolve += tool + "'s rule's nice to 0."
+                            rule["nice_value"] = 0
+                            log.debug(error_resolve)
 
-                        if cond_type == "filesize" or cond_type == "records":
-                            # Test for filesize/records specific members
+                        if rule_type == "file_size" or rule_type == "records":
+                            # Test for file_size/records specific members
                             try:
-                                curr_cond["lbound"]
+                                rule["lower_bound"]
                             except (KeyError, TypeError):
-                                error = "Error getting " + str(condition)
-                                error += " lbound in " + str(tool)
+                                error = "Error getting " + str(rule)
+                                error += " lower_bound in " + str(tool)
                                 raise TypeError(error)
 
                             try:
-                                curr_cond["hbound"]
+                                rule["upper_bound"]
                             except (KeyError, TypeError):
-                                error = "Error getting " + str(condition)
-                                error += " hbound in " + str(tool)
+                                error = "Error getting " + str(rule)
+                                error += " upper_bound in " + str(tool)
                                 raise TypeError(error)
 
-                        elif cond_type == "parameter":
+                        elif rule_type == "arguments":
                             # Test for parameter specific members
                             try:
-                                curr_cond["args"]
+                                rule["arguments"]
                             except KeyError:
-                                error = "No args for " + str(condition)
+                                error = "No arguments for " + str(rule)
                                 error += " in " + str(tool)
                                 raise TypeError(error)
 
-                        elif cond_type == "default":
-                            # No members specific to default, this is needed
-                            # simply for type recognition
-                            pass
-
                         else:
-                            error = "Unrecognized " + str(condition) + " type "
-                            error += str(cond_type) + " in " + str(tool)
+                            error = "Unrecognized rule type "
+                            error += str(rule_type) + " in " + str(tool)
                             raise TypeError(error)
                     except TypeError as e:
                         log.error(e)
-                        error = "Deleting " + str(condition)
-                        error += " in " + str(tool) + "..."
+                        error = "YML file not properly formatted; errors found"
+                        error += " in tool " + str(tool)
                         log.debug(error)
-                        del obj_cp[tool][condition]
+
     except (AttributeError, TypeError):
         log.debug("Illegal object: " + str(obj))
 
@@ -347,232 +368,68 @@ def map_tool_to_destination(
     log.debug("Total size: " + bytes_to_str(file_size))
     log.debug("Total amount of records: " + str(records))
 
-    # Chooses behaviour based on tool
+    # Chooses tool based on tool
 
     # Get configuration from tool_options.yml
     try:
-        behaviour = parse_yaml(path)
+        config = parse_yaml(path)
     except MalformedYMLException as e:
         raise JobMappingException(e)
 
-    native_spec = {}
-    try:
-        # For each different condition for the tool that's running
-        for key in behaviour[str(tool.old_id)]:
-            condition = behaviour[str(tool.old_id)][key]
+    matched_rule = None
+    destination = config['default_destination']
 
-            if condition["type"] == "filesize":
-                hbound = str_to_bytes(condition["hbound"])
-                lbound = str_to_bytes(condition["lbound"])
+    # For each different rule for the tool that's running
+    for rule in config[str(tool.old_id)]['rules']:
+        #test if config[] is array
+        if rule["rule_type"] == "file_size":
+            upper_bound = str_to_bytes(rule["upper_bound"])
+            lower_bound = str_to_bytes(rule["lower_bound"])
 
-                if hbound == -1:
-                    if lbound <= file_size:
-                        native_spec = apply_magnitude(behaviour,
-                                                      condition,
-                                                      native_spec,
-                                                      file_size,
-                                                      test)
-                else:
-                    if lbound <= file_size and file_size < hbound:
-                        native_spec = apply_magnitude(behaviour,
-                                                      condition,
-                                                      native_spec,
-                                                      file_size,
-                                                      test)
-            elif condition["type"] == "records":
-                hbound = str_to_bytes(condition["hbound"])
-                lbound = str_to_bytes(condition["lbound"])
-
-                if hbound == -1:
-                    if lbound <= records:
-                        native_spec = apply_magnitude(behaviour,
-                                                      condition,
-                                                      native_spec,
-                                                      records,
-                                                      test)
-                else:
-                    if lbound <= records and records < hbound:
-                        native_spec = apply_magnitude(behaviour,
-                                                      condition,
-                                                      native_spec,
-                                                      records,
-                                                      test)
-            elif condition["type"] == "parameter":
-                # TODO: This accepts the condition if any parameter is correct,
-                #       we should probably change it to if all are correct
-
-                options = job.get_param_values(app)
-                for arg in condition["args"].keys():
-                    if arg in options:
-                        if condition["args"][arg] == options[arg]:
-                            native_spec = apply_parameter(behaviour,
-                                                          condition,
-                                                          native_spec,
-                                                          test)
-                        else:
-                            error = "Parameter value unequal -- " + str(tool.old_id)
-                            error += " parameter:" + str(options[arg]) + " != "
-                            error += "tool_options parameter:"
-                            error += str(condition["args"][arg])
-                            log.debug(error)
-            elif condition["type"] == "default":
-                try:
-                    cond_runner = condition["runner"]
-                except KeyError:
-                    cond_runner = behaviour["default"]["runner"]
-
-                defaultCondition = {
-                    "action": condition["action"],
-                    "runner": cond_runner,
-                }
-
-        # If nothing has been found, use the default option
-        try:
-            native_spec["action"]
-            native_spec["runner"]
-        except(KeyError, NameError, TypeError):
-            raise KeyError()
-    except KeyError:
-        try:
-            # Find default in job_options under the tool
-            action = defaultCondition["action"]
-            curr_runner = defaultCondition["runner"]
-            dest = JobDestination(id="Dynamic " + str(tool.old_id) + " Default",
-                                  runner=curr_runner,
-                                  params={"nativeSpecification": action})
-        except NameError:
-            # Find default in job_options under default tool
-            log.debug("Possible unconfigured tool: \"" + tool.old_id + "\"")
-            try:
-                loc = behaviour["default"]["destinationID"]
-                dest = app.job_config.get_destination(loc)
-            except KeyError:
-                # Only arrive here if parse_yaml fails
-                raise JobMappingException("No default in tool_options.yml")
-    try:
-        # If a default has been defined, ust it.
-        return dest
-    except NameError:
-        # Else use the specified parameter for the destination.
-        if test:
-            logging.shutdown()
-        return JobDestination(id="Dynamically_mapped " + tool.old_id,
-                              runner=native_spec["runner"],
-                              params={"nativeSpecification": native_spec["action"]})
-
-
-def apply_magnitude(behaviour, condition, _native_spec, magnitude, test=False):
-    """
-    Preprocesses the native specification object for a condition of type
-    filesize or records
-    """
-    if test:
-        importer(test)
-
-    action = str(condition["action"]).strip().lower()
-    error_post = " on condition: " + condition["lbound"] + " < INPUT: "
-    error_post += bytes_to_str(magnitude) + " < " + condition["hbound"]
-    native_spec = ""
-
-    if action == "fail":
-        # TODO: This will fail even if there are nice values later
-        #       on in tool_options.yml that are larger than this.
-        #       This should be fixed to delay failing of jobs until
-        #       we are certain it is the item to apply.
-
-        # Print error message and exit
-        # Check for custom error message
-        try:
-            error = condition["err_msg"].strip() + error_post
-        except KeyError:
-            error = "Error" + error_post
-
-        raise JobMappingException(error)
-    else:
-        # Check to see if the current condition has bounds overlapping
-        # with other conditions of the same type
-        try:
-            if _native_spec["type"] == condition["type"]:
-                if(_native_spec["type"] != "parameter"):
-                    error = "Malformed XML: overlapping bounds" + error_post
-                    raise JobMappingException(error)
-
-            # If the nice values are equal, precendence is given to the
-            # earliest defined condition.
-            if _native_spec["nice"] > condition["nice"]:
-                try:
-                    cond_runner = condition["runner"]
-                except KeyError:
-                    cond_runner = behaviour["default"]["runner"]
-
-                native_spec = condition
-                native_spec["runner"] = cond_runner
-        except KeyError:
-            # If _native_spec has no "type"/"nice" attr, this
-            # probably means it's the empty starting _native_spec
-            try:
-                cond_runner = condition["runner"]
-            except KeyError:
-                cond_runner = behaviour["default"]["runner"]
-
-            native_spec = condition
-            native_spec["runner"] = cond_runner
-
-    return native_spec
-
-
-def apply_parameter(behaviour, condition, _native_spec, test=False):
-    """
-    Preprocesses the native specification object for a condition of type
-    parameter
-    """
-    if test:
-        importer(test)
-
-    native_spec = ""
-    error = "Unexpeted error."
-
-    try:
-        # Raise errors for no nice values
-        try:
-            _native_spec["nice"]
-        except KeyError:
-            error = "Nice value not set for condition:"
-            error += str(_native_spec)
-            raise KeyError(error)
-
-        try:
-            condition["nice"]
-        except KeyError:
-            error = "Nice value not set for condition:"
-            error += str(condition)
-            raise KeyError(error)
-
-        # If the nice values are equal, precendence is given to the
-        # earliest defined condition.
-        if _native_spec["nice"] > condition["nice"]:
-            if condition["action"] == "fail":
-                # TODO: This will fail even if there are nice values later
-                #       on in tool_options.yml that are larger than this.
-                #       This should be fixed to delay failing of jobs until
-                #       we are certain it is the item to apply.
-                error_post = " on args: " + str(condition["args"])
-
-                try:
-                    error = condition["err_msg"].strip() + error_post
-                except KeyError:
-                    error = "Error" + error_post
-
-                raise JobMappingException(error)
+            if upper_bound == -1:
+                if lower_bound <= file_size:
+                    if matched_rule is None or rule["nice_value"] < matched_rule["nice_value"]:
+                        matched_rule = rule
             else:
-                try:
-                    cond_runner = condition["runner"]
-                except KeyError:
-                    cond_runner = behaviour["default"]["runner"]
+                if lower_bound <= file_size and file_size < upper_bound:
+                    if matched_rule is None or rule["nice_value"] < matched_rule["nice_value"]:
+                        matched_rule = rule
 
-                native_spec = condition
-                native_spec["runner"] = cond_runner
-    except KeyError as x:
-        log.debug(x)
+        elif rule["rule_type"] == "records":
+            upper_bound = str_to_bytes(rule["upper_bound"])
+            lower_bound = str_to_bytes(rule["lower_bound"])
 
-    return native_spec
+            if upper_bound == -1:
+                if lower_bound <= records:
+                    if matched_rule is None or rule["nice_value"] < matched_rule["nice_value"]:
+                        matched_rule = rule
+
+            else:
+                if lower_bound <= records and records < upper_bound:
+                    if matched_rule is None or rule["nice_value"] < matched_rule["nice_value"]:
+                        matched_rule = rule
+
+        elif rule["rule_type"] == "arguments":
+            # TODO: This accepts the rule if any arguments are correct,
+            #       we should probably change it to if all are correct
+
+            options = job.get_param_values(app)
+            matched = True
+            for arg in rule["arguments"].keys():
+                if arg in options:
+                    if rule["arguments"][arg] != options[arg]:
+                        matched = False
+                else:
+                    matched = False
+
+                if matched is True:
+                    if matched_rule is None or rule["nice_value"] < matched_rule["nice_value"]:
+                        matched_rule = rule
+
+    if matched_rule is None:
+        if "default_destination" in config[str(tool.old_id)]:
+            destination = config[str(tool.old_id)]['default_destination']
+    else:
+        destination = matched_rule["destination"]
+
+    return destination

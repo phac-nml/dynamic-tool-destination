@@ -1,92 +1,72 @@
 test:
-    condition1:
-        type: "filesize"
-        nice: "0"
-        lbound: "1 KB" 
-        hbound: "infinity"
-        action: "-q test.q -pe galaxy 4 -l h_vmem=2G"
-    condition2:
-        type: "filesize"
-        nice: "0"
-        lbound: "0"
-        hbound: "1 KB"
-        err_msg: "File size too small"
-        action: "fail"
-    condition3:
-        type: "default"
-        action: "-q test.q -pe galaxy 16 -l h_vmem=2G"
+  rules:
+    - rule_type: file_size
+      nice_value: 0
+      lower_bound: 1 KB
+      upper_bound: Infinity
+      destination: Destination1
+    - rule_type: file_size
+      nice_value: 0
+      lower_bound: 0
+      upper_bound: 1 KB
+      fail_message: File size too small
+      destination: fail
+  default_destination: waffles_default
 
 test_overlap:
-    condition1:
-        type: "filesize"
-        nice: "0"
-        lbound: "1 KB"
-        hbound: "infinity"
-        action: "-q test.q -pe galaxy 4 -l h_vmem=2G"
-    condition2:
-        type: "filesize"
-        nice: "0"
-        lbound: "0"
-        hbound: "4 KB"
-        action: "-q test.q -pe galaxy 4 -l h_vmem=2G"
-    condition3:
-        type: "default"
-        action: "-q test.q -pe galaxy 16 -l h_vmem=2G"
-
-test_tooldefault:
-    condition1:
-        type: "default"
-        action: "-q test.q -pe galaxy 16 -l h_vmem=2G"
+  rules:
+    - rule_type: file_size
+      nice_value: 0
+      lower_bound: 1 KB
+      upper_bound: Infinity
+      destination: Destination2
+    - rule_type: file_size
+      nice_value: 0
+      lower_bound: 0
+      upper_bound: 4 KB
+      destination: Destination3
+  default_destination: waffles_default
 
 test_db:
-    condition1:
-        type: "records"
-        nice: "0"
-        lbound: "1 KB" 
-        hbound: "infinity"
-        err_msg: "File size too small"
-        action: "fail"
-    condition2:
-        type: "records"
-        nice: "0"
-        lbound: "0"
-        hbound: "1 KB"
-        action: "-q test.q -pe galaxy 4 -l h_vmem=2G"
-    condition3:
-        type: "default"
-        action: "-q test.q -pe galaxy 16 -l h_vmem=2G"
+  rules:
+    - rule_type: records
+      nice_value: 0
+      lower_bound: 1 KB
+      upper_bound: Infinity
+      fail_message: File size too small
+      destination: fail
+    - rule_type: records
+      nice_value: 0
+      lower_bound: 0
+      upper_bound: 1 KB
+      destination: Destination4
+  default_destination: waffles_default
 
 test_db_high:
-    condition1:
-        type: "records"
-        nice: "0"
-        lbound: "0"
-        hbound: "infinity"
-        action: "-q test.q -pe galaxy 4 -l h_vmem=2G"
-    condition2:
-        type: "default"
-        action: "-q test.q -pe galaxy 16 -l h_vmem=2G"
+  rules:
+    - rule_type: records
+      nice_value: 0
+      lower_bound: 0
+      upper_bound: Infinity
+      destination: Destination5
+  default_destination: waffles_default
 
 test_parameter:
-    condition1:
-        type: "parameter"
-        nice: "0"
-        args:
-            careful: true
-        action: "-q test.q -pe galaxy 4 -l h_vmem=2G"
-    condition2:
-        type: "default"
-        action: "-q test.q -pe galaxy 16 -l h_vmem=2G"
+  rules:
+    - rule_type: parameter
+      nice_value: 0
+      arguments:
+        - careful: true
+      destination: Destination6
+  default_destination: waffles_default
 
 test_custom_runner:
-    condition1:
-        type: "records"
-        nice: "0"
-        lbound: "0"
-        hbound: "infinity"
-        runner: "custom_runner"
-        action: "-q test.q -pe galaxy 4 -l h_vmem=2G"
+  rules:
+    - rule_type: records
+      nice_value: 0
+      lower_bound: 0
+      upper_bound: Infinity
+      runner: custom_runner
+      destination: Destination7
 
-default:
-    destinationID: "waffles_default"
-    runner: "drmaa"
+default_destination: waffles_default

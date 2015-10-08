@@ -1,16 +1,14 @@
 test_no_errmsg:
-    condition1:
-        type: "filesize"
-        nice: "0"
-        lbound: "1 KB" 
-        hbound: "infinity"
-        action: "-q test.q -pe galaxy 4 -l h_vmem=2G"
-    condition2:
-        type: "filesize"
-        nice: "0"
-        lbound: "0"
-        hbound: "4 KB"
-        action: "fail"
-    condition3:
-        type: "default"
-        action: "-q test.q -pe galaxy 16 -l h_vmem=2G"
+  rules:
+    - rule_type: file_size
+      nice_value: 0
+      lower_bound: 1 KB
+      upper_bound: Infinity
+      destination: Destination1
+    - rule_type: file_size
+      nice_value: 0
+      lower_bound: 0
+      upper_bound: 4 KB
+      destination: fail
+  default_destination: waffles_default
+default_destination: waffles_default
