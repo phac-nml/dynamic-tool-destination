@@ -5,5 +5,3 @@ test:
       lower_bound: 1 KB
       upper_bound: 2 KB
       destination: DestinationF
-  default_destination: waffles_default
-default_destination: waffles_default

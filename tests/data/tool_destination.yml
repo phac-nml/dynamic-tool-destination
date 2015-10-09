@@ -51,9 +51,9 @@ test_db_high:
       destination: Destination5
   default_destination: waffles_default
 
-test_parameter:
+test_arguments:
   rules:
-    - rule_type: parameter
+    - rule_type: arguments
       nice_value: 0
       arguments:
         - careful: true

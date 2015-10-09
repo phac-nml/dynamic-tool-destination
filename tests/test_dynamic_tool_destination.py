@@ -102,9 +102,7 @@ dbinfTool = mg.Tool( 'test_db_high' )
 
 nomsgTool = mg.Tool( 'test_no_errmsg' )
 
-paramTool = mg.Tool( 'test_parameter' )
-
-customRunnerTool = mg.Tool( 'test_custom_runner' )
+paramTool = mg.Tool( 'test_arguments' )
 
 vfdbTool = mg.Tool( 'test_db' )
 vfdbTool.add_tool_dependency( mg.ToolDependency("vfdb", os.getcwd() + "/tests") )
@@ -112,7 +110,6 @@ vfdbTool.add_tool_dependency( mg.ToolDependency("vfdb", os.getcwd() + "/tests") 
 #=======================YML file================================
 path = "/tests/data/tool_destination.yml"
 err_path = "/tests/data/no_errmsg.yml"
-broken_runner_path = "/tests/data/runner_fail.yml"
 broken_default_dest_path = "/tests/data/dest_fail.yml"
 
 #======================Test Variables=========================
@@ -136,12 +133,13 @@ class TestDynamicToolDestination(unittest.TestCase):
 
     @log_capture()
     def test_brokenDestYML(self, l):
-        self.assertRaises(mg.JobMappingException, map_tool_to_destination, runJob, theApp, vanillaTool, True, broken_default_dest_path)
+        map_tool_to_destination(runJob, theApp, vanillaTool, True, broken_default_dest_path)
         l.check(
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Loading file: input1' + os.getcwd() + '/tests/data/test3.full'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total size: 3.23 KB'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total amount of records: 0'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'ERROR', 'Error getting default destinationID.')
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'ERROR', "Job 'test' failed; no global default destination specified in YML file!")
         )
 
     @log_capture()
@@ -188,25 +186,27 @@ class TestDynamicToolDestination(unittest.TestCase):
         job = map_tool_to_destination( runJob, theApp, vanillaTool, True, path )
         self.assertEquals( job.id, 'Dynamically_mapped test' )
         self.assertEquals( job.nativeSpec, '-q test.q -pe galaxy 4 -l h_vmem=2G' )
-        self.assertEquals( job.runner, 'drmaa' )
 
         l.check(
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Loading file: input1' + os.getcwd() + '/tests/data/test3.full'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total size: 3.23 KB'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total amount of records: 0')
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total amount of records: 0'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Unrecognized rule_type parameter found in test_parameter. Ignoring...'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'ERROR', "Job 'test_tooldefault' failed; no global default destination specified in YML file!")
         )
 
     @log_capture()
     def test_default_tool(self, l):
         job = map_tool_to_destination( runJob, theApp, defaultTool, True, path )
-        self.assertEquals( job.id, 'Dynamic test_tooldefault Default' )
-        self.assertEquals( job.nativeSpec, '-q test.q -pe galaxy 16 -l h_vmem=2G' )
-        self.assertEquals( job.runner, 'drmaa' )
+        self.assertEquals( job, 'waffles_default' )
 
         l.check(
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Loading file: input1' + os.getcwd() + '/tests/data/test3.full'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total size: 3.23 KB'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total amount of records: 0')
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total amount of records: 0'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Tool not specified in config. Using default destination.")
         )
 
     @log_capture()
@@ -214,7 +214,6 @@ class TestDynamicToolDestination(unittest.TestCase):
         job = map_tool_to_destination( paramJob, theApp, paramTool, True, path )
         self.assertEquals( job.id, 'Dynamic test_parameter Default' )
         self.assertEquals( job.nativeSpec, '-q test.q -pe galaxy 16 -l h_vmem=2G' )
-        self.assertEquals( job.runner, 'drmaa' )
 
         l.check(
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Loading file: input1' + os.getcwd() + '/tests/data/test3.full'),
@@ -228,7 +227,6 @@ class TestDynamicToolDestination(unittest.TestCase):
         job = map_tool_to_destination( argNotFoundJob, theApp, paramTool, True, path )
         self.assertEquals( job.id, 'Dynamic test_parameter Default' )
         self.assertEquals( job.nativeSpec, '-q test.q -pe galaxy 16 -l h_vmem=2G' )
-        self.assertEquals( job.runner, 'drmaa' )
 
         l.check(
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Loading file: input1' + os.getcwd() + '/tests/data/test3.full'),
@@ -243,7 +241,6 @@ class TestDynamicToolDestination(unittest.TestCase):
         job = map_tool_to_destination( runJob, theApp, unTool, True, path )
         self.assertEquals( job.id, 'waffles_default' )
         self.assertEquals( job.nativeSpec, '-q test.q' )
-        self.assertEquals( job.runner, 'drmaa' )
 
         l.check(
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG',
@@ -256,22 +253,19 @@ class TestDynamicToolDestination(unittest.TestCase):
     @log_capture()
     def test_fasta(self, l):
         job = map_tool_to_destination( dbJob, theApp, dbTool, True, path )
-        self.assertEquals( job.id, 'Dynamically_mapped test_db' )
-        self.assertEquals( job.nativeSpec, '-q test.q -pe galaxy 4 -l h_vmem=2G' )
-        self.assertEquals( job.runner, 'drmaa' )
+        self.assertEquals( job, 'Destination4' )
 
         l.check(
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Loading file: input1' + os.getcwd() + '/tests/data/test.fasta'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total size: 0.00 B'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total amount of records: 10'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...')
         )
 
     @log_capture()
     def test_fasta_count(self, l):
         job = map_tool_to_destination( dbcountJob, theApp, dbTool, True, path )
-        self.assertEquals( job.id, 'Dynamically_mapped test_db' )
-        self.assertEquals( job.nativeSpec, '-q test.q -pe galaxy 4 -l h_vmem=2G' )
-        self.assertEquals( job.runner, 'drmaa' )
+        self.assertEquals( job, 'Destination4' )
 
         l.check(
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Loading file: input1' + os.getcwd() + '/tests/data/test.fasta'),
@@ -284,7 +278,6 @@ class TestDynamicToolDestination(unittest.TestCase):
         job = map_tool_to_destination( vfJob, theApp, vfdbTool, True, path )
         self.assertEquals( job.id, 'Dynamically_mapped test_db' )
         self.assertEquals( job.nativeSpec, '-q test.q -pe galaxy 4 -l h_vmem=2G' )
-        self.assertEquals( job.runner, 'drmaa' )
 
         l.check(
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Loading file: ' + os.getcwd() + '/tests/vfdb/?bact.test'),
@@ -298,7 +291,6 @@ class TestDynamicToolDestination(unittest.TestCase):
         job = map_tool_to_destination( notvfJob, theApp, vfdbTool, True, path )
         self.assertEquals( job.id, 'Dynamically_mapped test_db' )
         self.assertEquals( job.nativeSpec, '-q test.q -pe galaxy 4 -l h_vmem=2G' )
-        self.assertEquals( job.runner, 'drmaa' )
 
         l.check(
             ('dynamic_tool_destination.DynamicToolDestination', 'INFO', 'No virulence factors database'),
@@ -381,39 +373,6 @@ class TestDynamicToolDestination(unittest.TestCase):
         self.assertEquals(apply_parameter(behaviour, condition, native_spec, True), condition)
         l.check()
 
-    @log_capture()
-    def test_fail_parameter(self, l):
-        behaviour = {"default": {"runner": "drmaa"}}
-        condition = {
-            "type": "parameter",
-            "nice": 0,
-            "args": {"careful": True},
-            "err_msg": "Failure",
-            "action": "fail"
-        }
-        native_spec = {
-            "type": "records",
-            'nice': 1,
-            "action": "things"
-        }
-        self.assertRaises(mg.JobMappingException, behaviour, condition, native_spec, True)
-
-    @log_capture()
-    def test_fail_parameter_no_msg(self, l):
-        behaviour = {"default": {"runner": "drmaa"}}
-        condition = {
-            "type": "parameter",
-            "nice": 0,
-            "args": {"careful": True},
-            "action": "fail"
-        }
-        native_spec = {
-            "type": "records",
-            'nice': 1,
-            "action": "things"
-        }
-        self.assertRaises(mg.JobMappingException, apply_parameter, behaviour, condition, native_spec, True)
-
     def test_no_spec_nice_value(self):
         behaviour = {"default": {"runner": "drmaa"}}
         condition = {
@@ -453,9 +412,9 @@ class TestDynamicToolDestination(unittest.TestCase):
         dt.parse_yaml(path=yt.ivYMLTest11, test=True)
         l.check(
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG',
-             "Nice value goes from -20 to 20; this rule's nice value is -21"),
+             "Running config validation..."),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG',
-             "Invalid nice value. Setting spades's rule's nice to 0.")
+             "Nice value goes from -20 to 20; rule 1's nice value is -21. Setting nice value to 0.")
         )
 
     @log_capture()
@@ -468,8 +427,11 @@ class TestDynamicToolDestination(unittest.TestCase):
 
     @log_capture()
     def test_empty_file(self, l):
-        self.assertEquals(dt.parse_yaml(path=yt.ivYMLTest2, test=True), None)
-        l.check(('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Illegal object: None'))
+        self.assertEquals(dt.parse_yaml(path=yt.ivYMLTest2, test=True), {})
+        l.check(
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'No (or empty) config file supplied!')
+        )
 
     @log_capture()
     def test_no_tool_name(self, l):
@@ -525,8 +487,8 @@ class TestDynamicToolDestination(unittest.TestCase):
     def test_bad_cond_type(self, l):
         self.assertEquals(dt.parse_yaml(path=yt.ivYMLTest6, test=True), yt.ivDict)
         l.check(
-            ('dynamic_tool_destination.DynamicToolDestination', 'ERROR', 'Unrecognized rule type iencs in spades'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'YML file not properly formatted; errors found in tool spades')
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Unrecognized rule_type iencs found in spades. Ignoring...'),
         )
 
     @log_capture()
@@ -540,27 +502,9 @@ class TestDynamicToolDestination(unittest.TestCase):
         )
 
     @log_capture()
-    def test_default_fail_no_err_msg(self, l):
-        self.assertEquals(dt.parse_yaml(path=yt.ivYMLTest92, test=True), yt.iv92dict)
-        l.check(('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'fail_message not set for current rule in spades'))
-
-    @log_capture()
-    def test_default_fail_no_param(self, l):
-        self.assertEquals(dt.parse_yaml(path=yt.ivYMLTest10, test=True), yt.ivDict)
-        l.check(
-            ('dynamic_tool_destination.DynamicToolDestination', 'ERROR', 'Error getting condition1 action in spades'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'YML file not properly formatted; errors found in tool spades')
-        )
-
-    @log_capture()
     def test_no_default_dest(self, l):
         self.assertRaises(dt.MalformedYMLException, dt.parse_yaml, path=yt.ivYMLTest7, test=True)
         l.check(('dynamic_tool_destination.DynamicToolDestination', 'ERROR', 'Error getting default destinationID.'))
-
-    @log_capture()
-    def test_no_default_runner(self, l):
-        self.assertRaises(dt.MalformedYMLException, dt.parse_yaml, path=yt.ivYMLTest8, test=True)
-        l.check(('dynamic_tool_destination.DynamicToolDestination', 'ERROR', 'Error getting default runner.'))
 
     @log_capture()
     def test_parameter_no_err_msg(self, l):

@@ -256,19 +256,7 @@ ivYMLTest6 = '''
 '''
 
 ivDict = {
-    'default_destination': "waffles_default",
-    'spades': {
-        'rules': [
-            {
-                'fail_message': 'No type...',
-                'nice_value': 0,
-                'upper_bound': 0,
-                'lower_bound': 0,
-                'destination': 'fail',
-                'rule_type': 'iencs'
-            }
-        ]
-    }
+    'default_destination': "waffles_default"
 }
 
 # Tool condition fail no fail_message
@@ -297,41 +285,7 @@ iv91dict = {
     'default_destination': "waffles_default"
 }
 
-# Tool default fail no fail_message
-ivYMLTest92 = '''
-    spades:
-      rules:
-        - rule_type: default
-          lower_bound: 0
-          upper_bound: 0
-          destination: fail
-    default_destination: waffles_default
-'''
-
-iv92dict = {
-    'spades': {
-        'rules': [
-            {
-                'lower_bound': '0',
-                'rule_type': 'default',
-                'upper_bound': '0',
-                'destination': 'fail'
-            }
-        ]
-    },
-    'default_destination': "waffles_default"
-}
-
 # Tool default fail no destination
-ivYMLTest10 = '''
-    spades:
-      rules:
-        - rule_type: default
-          lower_bound: 0
-          upper_bound: 0
-    default_destination: default
-'''
-
 ivYMLTest11 = '''
     spades:
       rules:
