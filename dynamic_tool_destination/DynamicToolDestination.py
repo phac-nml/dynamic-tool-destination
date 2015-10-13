@@ -51,23 +51,31 @@ class MalformedYMLException(Exception):
     pass
 
 
+class ScannerError(Exception):
+    pass
+
+
 def parse_yaml(path="/config/tool_options.yml", test=False):
     """
     Get a properly formatted yaml file from path.
     """
     # Import file from path
-    if test:
-        tools = load(path)
-    else:
-        opt_file = os.getcwd() + path
-        with open(opt_file, 'r') as stream:
-            tools = load(stream)
-
-    # Test imported file
     try:
-        tools = validate_config(tools)
-    except MalformedYMLException:
-        log.error(str(sys.exc_value))
+        if test:
+            tools = load(path)
+        else:
+            opt_file = os.getcwd() + path
+            with open(opt_file, 'r') as stream:
+                tools = load(stream)
+
+        # Test imported file
+        try:
+            tools = validate_config(tools)
+        except MalformedYMLException:
+            log.error(str(sys.exc_value))
+            raise
+    except ScannerError:
+        log.error("YML file is too malformed to fix!")
         raise
 
     return tools
@@ -81,32 +89,48 @@ def validate_config(obj):
     if obj is not None:
         for tool in obj.keys():
             curr_tool_rules = []
+
             if tool == "default_destination" and isinstance(obj[tool], str):
                 new_config[tool] = obj[tool]
-            elif isinstance(obj[tool]['rules'], list):
-                curr_tool = obj[tool]
-                counter = 0
-                for rule in curr_tool['rules']:
-                    validated_rule = None
-                    if rule['rule_type'] == 'file_size':
-                        counter += 1
-                        validated_rule = validate_file_size(rule, counter)
-                        if not validated_rule['rule_type'] == "fail":
-                            curr_tool_rules.append(copy.deepcopy(validated_rule))
-                    elif rule['rule_type'] == 'records':
-                        counter += 1
-                        validated_rule = validate_records(rule, counter)
-                        if not validated_rule['rule_type'] == "fail":
-                            curr_tool_rules.append(copy.deepcopy(validated_rule))
-                    elif rule['rule_type'] == 'arguments':
-                        counter += 1
-                        validated_rule = validate_arguments(rule, counter)
-                        if not validated_rule['rule_type'] == "fail":
-                            curr_tool_rules.append(copy.deepcopy(validated_rule))
-                    else:
-                        error = "Unrecognized rule_type " + rule['rule_type']
-                        error += " found in " + str(tool) + ". Ignoring..."
-                        log.debug(error)
+            elif obj[tool] is not None:
+                if ("default_destination" in obj[tool] and
+                        isinstance(obj[tool]['default_destination'], str)):
+                    new_config[tool]['default_destination'] = (
+                        obj[tool]['default_destination'])
+
+                if "rules" in obj[tool] and isinstance(obj[tool]['rules'], list):
+                    curr_tool = obj[tool]
+                    counter = 0
+
+                    for rule in curr_tool['rules']:
+                        if "rule_type" in rule:
+                            validated_rule = None
+                            if rule['rule_type'] == 'file_size':
+                                counter += 1
+                                validated_rule = validate_file_size(rule, counter, tool)
+                                if not validated_rule['rule_type'] == "fail":
+                                    curr_tool_rules.append(copy.deepcopy(validated_rule))
+                            elif rule['rule_type'] == 'records':
+                                counter += 1
+                                validated_rule = validate_records(rule, counter, tool)
+                                if not validated_rule['rule_type'] == "fail":
+                                    curr_tool_rules.append(copy.deepcopy(validated_rule))
+                            elif rule['rule_type'] == 'arguments':
+                                counter += 1
+                                validated_rule = validate_arguments(rule, counter, tool)
+                                if not validated_rule['rule_type'] == "fail":
+                                    curr_tool_rules.append(copy.deepcopy(validated_rule))
+                            else:
+                                error = "Unrecognized rule_type " + rule['rule_type']
+                                error += " found in " + str(tool) + ". Ignoring..."
+                                log.debug(error)
+                        else:
+                            counter += 1
+                            error = "No rule type found for rule " + str(counter)
+                            error += " in " + str(tool) + "."
+                            log.debug(error)
+                else:
+                    error = "No rules found for " + str(tool) + "!"
 
             if curr_tool_rules:
                 new_config[str(tool)]['rules'] = curr_tool_rules
@@ -114,10 +138,12 @@ def validate_config(obj):
     else:
         log.debug("No (or empty) config file supplied!")
 
+    log.debug("Finished config validation.")
+
     return new_config
 
 
-def validate_file_size(rule, counter):
+def validate_file_size(rule, counter, tool):
     """
     Right now this function is doing all the heavy lifting for validating all of
     parameters for all rule_types. That's why it checks rule_type even though it's
@@ -125,24 +151,32 @@ def validate_file_size(rule, counter):
     """
 
     # Nice Value Verification #
-    if rule["nice_value"] < -20 or rule["nice_value"] > 20:
-        error = "Nice value goes from -20 to 20; rule " + str(counter)
-        error += "'s nice value is " + str(rule["nice_value"])
+    if "nice_value" in rule:
+        if rule["nice_value"] < -20 or rule["nice_value"] > 20:
+            error = "Nice value goes from -20 to 20; rule " + str(counter)
+            error += " in " + str(tool) + " has a nice value of "
+            error += str(rule["nice_value"]) + ". Setting nice value to 0."
+            log.debug(error)
+            rule["nice_value"] = 0
+    else:
+        error = "No nice value found for rule " + str(counter) + " in " + str(tool)
         error += ". Setting nice value to 0."
         log.debug(error)
         rule["nice_value"] = 0
 
     # Destination Verification #
+    if "fail_message" in rule:
+        rule["destination"] = "fail"
+
     if "destination" in rule and isinstance(rule["destination"], str):
-        if rule["destination"] == "fail":
-            if "fail_message" not in rule:
+        if rule["destination"] == "fail" and "fail_message" not in rule:
                 error = "Missing a fail message for rule " + str(counter)
-                error += ". Adding generic fail message."
+                error += " in " + str(tool) + ". Adding generic fail message."
                 log.debug(error)
                 rule["fail_message"] = "Invalid parameters for rule " + str(counter) + "."
     else:
         error = "No destination specified for rule " + str(counter)
-        error += ". Ignoring..."
+        error += " in " + str(tool) + ". Ignoring..."
         log.debug(error)
 
     # Bounds Verification #
@@ -153,31 +187,31 @@ def validate_file_size(rule, counter):
 
             if upper_bound != -1 and lower_bound > upper_bound:
                 error = "Lower bound exceeds upper bound for rule " + str(counter)
-                error += ". Reversing bounds."
+                error += " in " + str(tool) + ". Reversing bounds."
                 log.debug(error)
                 temp_upper_bound = rule["upper_bound"]
                 temp_lower_bound = rule["lower_bound"]
                 rule["upper_bound"] = temp_lower_bound
                 rule["lower_bound"] = temp_upper_bound
         else:
-            error = "No bounds specified for rule " + str(counter)
-            error += ". Ignoring rule."
+            error = "Missing bounds for rule " + str(counter)
+            error += " in " + str(tool) + ". Ignoring rule."
             log.debug(error)
             rule["rule_type"] = "fail"
 
     # Arguments Verification (for rule_type arguments; read comment block at top
     # of function for clarification.
     if rule["rule_type"] == "arguments":
-        if "arguments" not in rule or not isinstance(rule["arguments"], list):
-            error = "No arguments found for rule " + str(counter) + " despite "
-            error += "being of type arguments. Ignoring rule."
+        if "arguments" not in rule or not isinstance(rule["arguments"], dict):
+            error = "No arguments found for rule " + str(counter) + " in " + str(tool)
+            error += " despite being of type arguments. Ignoring rule."
             log.debug(error)
             rule["rule_type"] = "fail"
 
     return rule
 
 
-def validate_records(rule, counter):
+def validate_records(rule, counter, tool):
     """
     This function exists so that in the future, if records accepts differing parameters
     than file_size, then you could simply edit this function. But for now, since both
@@ -185,10 +219,10 @@ def validate_records(rule, counter):
     validate_file_size
     """
 
-    return validate_file_size(rule, counter)
+    return validate_file_size(rule, counter, tool)
 
 
-def validate_arguments(rule, counter):
+def validate_arguments(rule, counter, tool):
     """
     This function exists so that in the future, if arguments accepts differing parameters
     than file_size, then you could simply edit this function. But for now, since both
@@ -196,119 +230,7 @@ def validate_arguments(rule, counter):
     validate_file_size
     """
 
-    return validate_file_size(rule, counter)
-
-
-def test_tools(obj):
-    """
-    Check object to see if it has the correct members to be used in job configuration.
-    add option to fail if invalid, set to false by default
-    have a value config_valid set to true by default, set it to false if anything is messed up
-    default_destination is mandatory
-    """
-    obj_cp = copy.deepcopy(obj)
-    new_config = {}
-
-    # Loops through all tools
-    try:
-        for tool in obj_cp.keys():
-            if tool == "default_destination":
-                if obj[tool] is String:
-                    new_config[tool] = obj[tool]
-                # Check universal default for destination
-                curr_tool = obj[tool]
-                try:
-                    rule_destination = curr_tool
-                except (KeyError, TypeError):
-                    raise MalformedYMLException("Error getting default destination.")
-            else:
-                curr_tool = obj_cp[tool]
-                curr_tool_rules = []
-
-                # at the end
-                new_config[tool]['rules'] == curr_tool_rules
-                # Loops through all rules for the current tool
-                for rule in curr_tool['rules']:
-                    curr_tool_rules.append(copy.deepcopy(rule))  # if the current rule passes
-                    # Checks if the current rule has a type,
-                    # and, from the type, checks for other parameters.
-                    try:
-                        try:
-                            # Search for a type attribute
-                            rule_type = rule["rule_type"]
-                        except (KeyError, TypeError):
-                            error = "Error getting " + str(rule)
-                            error += " type for " + str(tool)
-                            raise TypeError(error)
-
-                        try:
-                            # Search for a rule destination
-                            rule_destination = rule["destination"]
-
-                            if rule_destination == "fail":
-                                try:
-                                    rule["fail_message"]
-                                except (KeyError, TypeError):
-                                    error = "fail_message not set for current rule"
-                                    error += " in " + str(tool)
-                                    log.debug(error)
-                        except (KeyError, TypeError):
-                            error = "Error getting " + str(rule)
-                            error += " destination in " + str(tool)
-                            raise TypeError(error)
-
-                        try:
-                            if rule["nice_value"] < -20 or rule["nice_value"] > 20:
-                                error_info = "Nice value goes from -20 to 20; "
-                                error_info += "this rule's nice value is "
-                                error_info += str(rule["nice_value"])
-                                log.debug(error_info)
-                                raise KeyError()
-                        except KeyError:
-                            error_resolve = "Invalid nice value. Setting "
-                            error_resolve += tool + "'s rule's nice to 0."
-                            rule["nice_value"] = 0
-                            log.debug(error_resolve)
-
-                        if rule_type == "file_size" or rule_type == "records":
-                            # Test for file_size/records specific members
-                            try:
-                                rule["lower_bound"]
-                            except (KeyError, TypeError):
-                                error = "Error getting " + str(rule)
-                                error += " lower_bound in " + str(tool) + "."
-                                raise TypeError(error)
-
-                            try:
-                                rule["upper_bound"]
-                            except (KeyError, TypeError):
-                                error = "Error getting " + str(rule)
-                                error += " upper_bound in " + str(tool) + "."
-                                raise TypeError(error)
-
-                        elif rule_type == "arguments":
-                            # Test for parameter specific members
-                            try:
-                                rule["arguments"]
-                            except KeyError:
-                                error = "No arguments for " + str(rule)
-                                error += " in " + str(tool) + "."
-                                raise TypeError(error)
-
-                        else:
-                            error = "Unrecognized rule type "
-                            error += str(rule_type) + " in " + str(tool) + "."
-                            raise TypeError(error)
-                    except TypeError as e:
-                        log.error(e)
-                        error = "YML file not properly formatted; errors found"
-                        error += " in tool " + str(tool) + "."
-                        log.debug(error)
-
-    except (AttributeError, TypeError):
-        log.debug("Illegal object: " + str(obj))
-
-    return obj_cp
+    return validate_file_size(rule, counter, tool)
 
 
 def bytes_to_str(size, unit="YB"):
@@ -497,11 +419,13 @@ def map_tool_to_destination(
 
                         if upper_bound == -1:
                             if lower_bound <= file_size:
-                                if matched_rule is None or rule["nice_value"] < matched_rule["nice_value"]:
+                                if (matched_rule is None or rule["nice_value"]
+                                        < matched_rule["nice_value"]):
                                     matched_rule = rule
                         else:
                             if lower_bound <= file_size and file_size < upper_bound:
-                                if matched_rule is None or rule["nice_value"] < matched_rule["nice_value"]:
+                                if (matched_rule is None or rule["nice_value"]
+                                        < matched_rule["nice_value"]):
                                     matched_rule = rule
 
                     elif rule["rule_type"] == "records":
@@ -510,30 +434,35 @@ def map_tool_to_destination(
 
                         if upper_bound == -1:
                             if lower_bound <= records:
-                                if matched_rule is None or rule["nice_value"] < matched_rule["nice_value"]:
+                                if (matched_rule is None or rule["nice_value"]
+                                        < matched_rule["nice_value"]):
                                     matched_rule = rule
 
                         else:
                             if lower_bound <= records and records < upper_bound:
-                                if matched_rule is None or rule["nice_value"] < matched_rule["nice_value"]:
+                                if (matched_rule is None or rule["nice_value"]
+                                        < matched_rule["nice_value"]):
                                     matched_rule = rule
 
                     elif rule["rule_type"] == "arguments":
                         options = job.get_param_values(app)
                         matched = True
-                        for arg in rule["arguments"].keys():
+                        for arg in rule["arguments"]:
                             if arg in options:
                                 if rule["arguments"][arg] != options[arg]:
                                     matched = False
+                                    options = "test"
                             else:
                                 matched = False
 
                             if matched is True:
-                                if matched_rule is None or rule["nice_value"] < matched_rule["nice_value"]:
+                                if (matched_rule is None or rule["nice_value"]
+                                        < matched_rule["nice_value"]):
                                     matched_rule = rule
 
             else:
-                error = "Tool not specified in config. Using default destination."
+                error = "Tool '" + str(tool.old_id) + "' not specified in config. "
+                error += "Using default destination."
                 log.debug(error)
 
             if matched_rule is None:

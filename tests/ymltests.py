@@ -126,7 +126,7 @@ vdictTest3_yml = {
             }
         ]
     },
-    'default_destination': "waffles_low"
+    'default_destination': "waffles_default"
 }
 
 # Arguments type
@@ -136,7 +136,7 @@ vYMLTest4 = """
         - rule_type: arguments
           nice_value: 0
           arguments:
-            - careful: true
+            careful: true
           fail_message: Failure
           destination: fail
     default_destination: waffles_default
@@ -146,7 +146,7 @@ vdictTest4_yml = {
     "spades": {
         "rules": [
             {
-                "rule_type": "parameter",
+                "rule_type": "arguments",
                 'nice_value': 0,
                 "arguments": {
                     "careful": True,
@@ -160,20 +160,6 @@ vdictTest4_yml = {
 }
 
 #=====================================================Invalid XML tests==========================================================
-
-# Job with extra attribute
-ivYMLTest1 = '''
-    spades:
-      rules:
-        age: 5
-          - rule_type: file_size
-            nice_value: 0
-            lower_bound: 0
-            upper_bound: 100000000
-            fail_message: Too few reads for spades to work
-            destination: fail
-    default_destination: waffles_default
-'''
 
 # Empty file
 ivYMLTest2 = ""
@@ -190,8 +176,7 @@ ivYMLTest3 = '''
 '''
 
 iv3dict = {
-    'default_destination': "waffles_default",
-    'rules': {}
+    'default_destination': "waffles_default"
 }
 
 # Condition missing type
@@ -255,11 +240,34 @@ ivYMLTest6 = '''
     default_destination: waffles_default
 '''
 
+# No default destination
+ivYMLTest7 = '''
+    default_destination:
+'''
+
+ivDict53 = {
+    'default_destination': 'waffles_default',
+    'spades': {
+        'rules': [
+            {
+                'upper_bound': 0,
+                'rule_type':
+                'file_size',
+                'fail_message':
+                'No type...',
+                'nice_value': 0,
+                'lower_bound': 0,
+                'destination': 'fail'
+            }
+        ]
+    }
+}
+
 ivDict = {
     'default_destination': "waffles_default"
 }
 
-# Tool condition fail no fail_message
+# Tool condition fail no fail_message and apparently no nice_value
 ivYMLTest91 = '''
     spades:
       rules:
@@ -278,7 +286,8 @@ iv91dict = {
                 'nice_value': 0,
                 'rule_type': 'file_size',
                 'upper_bound': 0,
-                'destination': 'fail'
+                'destination': 'fail',
+                'fail_message': 'Invalid parameters for rule 1.'
             }
         ]
     },
@@ -305,7 +314,7 @@ ivYMLTest12 = """
         - rule_type: arguments
           nice_value: 0
           arguments:
-            - careful: true
+            careful: true
           destination: fail
     default_destination: waffles_default
 """
@@ -319,7 +328,8 @@ iv12dict = {
                 "arguments": {
                     "careful": True,
                 },
-                "destination": "fail"
+                "destination": "fail",
+                "fail_message": "Invalid parameters for rule 1."
             }
         ]
     },
@@ -337,6 +347,10 @@ ivYMLTest131 = """
     default_destination: waffles_default
 """
 
+iv131dict = {
+    'default_destination': "waffles_default"
+}
+
 # Arguments fail no destination
 ivYMLTest132 = """
     spades:
@@ -345,11 +359,23 @@ ivYMLTest132 = """
           nice_value: 0
           fail_message: Something went wrong
           arguments:
-            - careful: true
+            careful: true
     default_destination: waffles_default
 """
 
-iv13dict = {
-    "spades": {},
-    'default_destination': "waffles_default"
+iv132dict = {
+    'default_destination': 'waffles_default',
+    'spades': {
+        'rules': [
+            {
+                'arguments': {
+                    'careful': True
+                },
+                'rule_type': 'arguments',
+                'destination': 'fail',
+                'fail_message': 'Something went wrong',
+                'nice_value': 0
+            }
+        ]
+    }
 }
