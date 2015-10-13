@@ -1,193 +1,173 @@
-## Configuration  
+## Configuration
 #
-#   The configuration for each tool is done in tool_options. You may either edit  
-#   this file in the root folder and run make clean then make install, or you can  
+#   The configuration for each tool is done in tool_options. You may either edit
+#   this file in the root folder and run make clean then make install, or you can
 #   edit this file directly in galaxy_path/config/tool_options.yml
 #
-#   For each key-property under Tools, put the ID of the tool. They must be  
-#   distinct. In each tool the names of the conditions must also be distinct.  
-#   If they are not distinct names then the program will overwrite any previous  
-#   conditions with the latest defined condition. There is a special  
-#   key-property that goes in the same place as a tool, default. It has two  
-#   nested key-properties, destinationID and runner. The runner key-property  
-#   defines the default runner type for all tools and the destinationID  
-#   key-property defines the default location for tools to run on.  
-# Ex:  
-# spades:  
-#     cond1:  
-#     cond2:  
-# spades2:  
-#     cond1:  
-# default:  
-#     destinationID:  
-#     runner:  
+#   For each key-property under Tools, put the ID of the tool. They must be
+#   distinct. In each tool the names of the conditions must also be distinct.
+#   If they are not distinct names then the program will overwrite any previous
+#   conditions with the latest defined condition. There is a special
+#   key-property that goes in the same place as a tool, default. It has two
+#   nested key-properties, destinationID and runner. The runner key-property
+#   defines the default runner type for all tools and the destinationID
+#   key-property defines the default location for tools to run on.
+# Ex:
+# spades:
+#     cond1:
+#     cond2:
+# spades2:
+#     cond1:
+# default:
+#     destinationID:
+#     runner:
 #
-#   For each condition key-property, there are two mandatory key-properties,  
-#   "type" and "action". "type" stores the type of condition (filesize, record,  
-#   parameter, or default) and the "action" key-property stores either location  
-#   to run the tool on or "fail", which makes the job raise an error.  
-# Ex:  
-# condition:  
-#     type: "default"  
-#     action: "X"  
+#   For each condition key-property, there are two mandatory key-properties,
+#   type and destination. type stores the type of condition (file_size, record,
+#   file_sizeuments, or default) and the destination key-property stores either location
+#   to run the tool on or fail, which makes the job raise an error.
+# Ex:
+# condition:
+#     type: default
+#     destination: X
 #
-#   For each filesize and record type, there are two more mandatory  
-#   key-properties, "lbound" and "hbound". "lbound" key-property stores a lower  
-#   size bound for the input, and the "hbound" key-property stores a higher  
-#   size bound for the input. For an infinitely large "hbound", put -1. "hbound"  
-#   and "lbound" should either be a plain number or a string with a number a  
-#   space and then a unit in bytes.  
-# Ex: 
-# condition:  
-#     type: "filesize"  
-#     lbound: "100"  
-#     hbound: "5 PB"  
-#     action: "fail"  
+#   For each file_size and record type, there are two more mandatory
+#   key-properties, lower_bound and upper_bound. lower_bound key-property stores a lower
+#   size bound for the input, and the upper_bound key-property stores a higher
+#   size bound for the input. For an infinitely large upper_bound, put -1. upper_bound
+#   and lower_bound should either be a plain number or a string with a number a
+#   space and then a unit in bytes.
+# Ex:
+# condition:
+#     type: file_size
+#     lower_bound: 100
+#     upper_bound: 5 PB
+#     destination: fail
 #
-# **The comparisons will include the lbound, up to but not including the hbound  
+# **The comparisons will include the lower_bound, up to but not including the upper_bound
 #
-#   For each parameter type condition, there is one more mandatory  
-#   key-property, "args". "args" is a list of parameters and values to look  
-#   for in the tools parameters, as defined by it's xml. If any of those  
-#   parameters are found, the "action" key-property is executed 
-# Ex:  
-# condition_args:  
-#     type: "parameter"  
-#     args:  
-#         careful: true  
-#     action: "fail"  
+#   For each arguments type condition, there is one more mandatory
+#   key-property, arguments. arguments is a list of argumentss and values to look
+#   for in the tools argumentss, as defined by it's xml. If any of those
+#   argumentss are found, the destination key-property is executed
+# Ex:
+# condition_arguments:
+#     type: arguments
+#     arguments:
+#         careful: true
+#     destination: fail
 #
-#   For parameter, filesize, and records type conditions, there is an optional  
-#   "nice" key-property. This property will tell the program which condition  
-#   has priority. The "nice" key-property defaults to zero. In the event that  
-#   the "nice" key-property is the same in two contending conditions, the  
-#   priority is given to the condition which appears first in the tool_options  
-#   yaml file.  
-# Ex:  
-# condition3:  
-#     type: "records"  
-#     nice: "0"  
-#     lbound: "1000"   
-#     hbound: "10000"  
-#     action: "CCC"  
+#   For arguments, file_size, and records type conditions, there is an optional
+#   nice_value key-property. This property will tell the program which condition
+#   has priority. The nice_value key-property defaults to zero. In the event that
+#   the nice_value key-property is the same in two contending conditions, the
+#   priority is given to the condition which appears first in the tool_options
+#   yaml file.
+# Ex:
+# condition3:
+#     type: records
+#     nice_value: 0
+#     lower_bound: 1000
+#     upper_bound: 10000
+#     destination: CCC
 #
-#   There is an optional err_msg key-property which will be displayed to the  
-#   user in the event of a action key-property being fail.  
-# Ex:   
-# condition:  
-#     type: "default"  
-#     err_msg: "I failed."  
-#     action: "fail"  
+#   There is an optional fail_message key-property which will be displayed to the
+#   user in the event of a destination key-property being fail.
+# Ex:
+# condition:
+#     type: default
+#     fail_message: I failed.
+#     destination: fail
 
 
 spades:
-    - condition1:
-        type: "filesize"
-        nice: "0"
-        lbound: "0"
-        hbound: "10 MB"
-        err_msg: "Too few reads for spades to work"
-        action: "fail"
-    - condition2:
-        type: "filesize"
-        nice: "0"
-        lbound: "10 MB"
-        hbound: "2 GB"
-        action: "-q test.q -pe galaxy 24 -l h_vmem=15G"
-    - condition3:
-        type: "filesize"
-        nice: "0"
-        lbound: "2 GB"
-        hbound: "4 GB"
-        action: "-q test.q -pe galaxy 48 -l h_vmem=96G"
-    - condition4:
-        type: "filesize"
-        nice: "0"
-        lbound: "4 GB"
-        hbound: "Infinity"
-        err_msg: "Too much data, shoudn't run"
-        action: "fail"
-    - condition_args:
-        type: "parameter"
-        nice: "0"
-        args:
-            careful: true
-        action: "fail"
-    - condition_default:
-        type: "default"
-        action: "-q test.q -pe galaxy 16 -l h_vmem=2G"
+  rules:
+    - rule_type: file_size
+      nice_value: 0
+      lower_bound: 0
+      upper_bound: 10 MB
+      fail_message: Too few reads for spades to work
+      destination: fail
+    - rule_type: file_size
+      nice_value: 0
+      lower_bound: 10 MB
+      upper_bound: 2 GB
+      destination: waffles_low_24
+    - rule_type: file_size
+      nice_value: 0
+      lower_bound: 2 GB
+      upper_bound: 4 GB
+      destination: waffles_low_48
+    - rule_type: file_size
+      nice_value: 0
+      lower_bound: 4 GB
+      upper_bound: Infinity
+      fail_message: Too much data, shoudn't run
+      destination: fail
+    - rule_type: arguments
+      nice_value: 0
+      arguments:
+        careful: true
+      destination: fail
+  default_destination: waffles_low_16
 
 srst2:
-    - condition1:
-        type: "records"
-        nice: "0"
-        lbound: "0"
-        hbound: "100"
-        action: "-q test.q -pe galaxy 4 -l h_vmem=2G"
-    - condition2:
-        type: "records"
-        nice: "0"
-        lbound: "100" 
-        hbound: "1000"
-        action: "-q test.q -pe galaxy 8 -l h_vmem=4G"
-    - condition3:
-        type: "records"
-        nice: "0"
-        lbound: "1000" 
-        hbound: "10000"
-        action: "-q test.q -pe galaxy 8 -l h_vmem=8G"
-    - condition4:
-        type: "records"
-        nice: "0"
-        lbound: "1000000" 
-        hbound: "Infinity"
-        err_msg: "Using the wrong tool"
-        action: "-q test.q -pe galaxy 8 -l h_vmem=8G"
-    - condition5:
-        type: "default"
-        action: "-q test.q"
+  rules:
+    - rule_type: records
+        nice_value: 0
+        lower_bound: 0
+        upper_bound: 100
+        destination: waffles_low_4
+    - rule_type: records
+        nice_value: 0
+        lower_bound: 100
+        upper_bound: 1000
+        destination: waffles_low_8
+    - rule_type: records
+        nice_value: 0
+        lower_bound: 1000
+        upper_bound: 10000
+        destination: waffles_low_8
+    - rule_type: records
+        nice_value: 0
+        lower_bound: 1000000
+        upper_bound: Infinity
+        fail_message: Using the wrong tool
+        destination: waffles_low_8
+  default_destination: waffles_default
 
 smalt_map:
-    - condition1:
-        type: "filesize"
-        nice: "0"
-        lbound: "0"
-        hbound: "2 GB"
-        action: "-q test.q -pe galaxy 4 -l h_vmem=8G"
-    - condition2:
-        type: "filesize"
-        nice: "0"
-        lbound: "2 GB"
-        hbound: "4 GB"
-        action: "-q test.q -pe galaxy 8 -l h_vmem=16G"
-    - condition3:
-        type: "filesize"
-        nice: "0"
-        lbound: "4 GB"
-        hbound: "Infinity"
-        action: "-q test.q -pe galaxy 16 -l h_vmem=32G"
-    - condition4:
-        type: "default"
-        action: "-q test.q"
+  rules:
+    - rule_type: file_size
+        nice_value: 0
+        lower_bound: 0
+        upper_bound: 2 GB
+        destination: waffles_low_4
+    - rule_type: file_size
+        nice_value: 0
+        lower_bound: 2 GB
+        upper_bound: 4 GB
+        destination: waffles_low_8
+    - rule_type: file_size
+        nice_value: 0
+        lower_bound: 4 GB
+        upper_bound: Infinity
+        destination: waffles_low_16
+  default_destination: waffles_default
 
 fastqc:
-    - condition:
-        type: "filesize"
-        nice: "0"
-        lbound: "0"
-        hbound: "400 MB"
-        err_msg: "File size too small"
-        action: "fail"
-    - condition2:
-        type: "filesize"
-        nice: "0"
-        lbound: "400 MB"
-        hbound: "Infinity"
-        action: "-q test.q -pe galaxy 4 -l h_vmem=2G"
-    - condition3:
-        type: "default"
-        action: "-q test.q -pe galaxy 16 -l h_vmem=2G"
+  rules:
+    - rule_type: file_size
+        nice_value: 0
+        lower_bound: 0
+        upper_bound: 400 MB
+        fail_message: File size too small
+        destination: fail
+    - rule_type: file_size
+        nice_value: 0
+        lower_bound: 400 MB
+        upper_bound: Infinity
+        destination: waffles_low_4
+  default_destination: waffles_low_16
 
-default:
-    destinationID: "waffles_default"
-    runner: "drmaa"
+default_destination: waffles_default
