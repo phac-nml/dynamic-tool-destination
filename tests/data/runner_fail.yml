@@ -1,9 +1,10 @@
-test:
-  rules:
-    - rule_type: file_size
-      nice_value: 0
-      lower_bound: 1 KB
-      upper_bound: -1
-      destination: DestinationF
-  default_destination: waffles_default
+tools:
+  test:
+    rules:
+      - rule_type: file_size
+        nice_value: 0
+        lower_bound: 1 KB
+        upper_bound: -1
+        destination: DestinationF
+    default_destination: waffles_default
 default_destination: waffles_default

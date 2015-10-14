@@ -80,94 +80,95 @@
 #     destination: fail
 
 
-spades:
-  rules:
-    - rule_type: file_size
-      nice_value: 0
-      lower_bound: 0
-      upper_bound: 10 MB
-      fail_message: Too few reads for spades to work
-      destination: fail
-    - rule_type: file_size
-      nice_value: 0
-      lower_bound: 10 MB
-      upper_bound: 2 GB
-      destination: waffles_low_24
-    - rule_type: file_size
-      nice_value: 0
-      lower_bound: 2 GB
-      upper_bound: 4 GB
-      destination: waffles_low_48
-    - rule_type: file_size
-      nice_value: 0
-      lower_bound: 4 GB
-      upper_bound: Infinity
-      fail_message: Too much data, shoudn't run
-      destination: fail
-    - rule_type: arguments
-      nice_value: 0
-      arguments:
-        careful: true
-      destination: fail
-  default_destination: waffles_low_16
+tools:
+  spades:
+    rules:
+      - rule_type: file_size
+        nice_value: 0
+        lower_bound: 0
+        upper_bound: 10 MB
+        fail_message: Too few reads for spades to work
+        destination: fail
+      - rule_type: file_size
+        nice_value: 0
+        lower_bound: 10 MB
+        upper_bound: 2 GB
+        destination: waffles_low_24
+      - rule_type: file_size
+        nice_value: 0
+        lower_bound: 2 GB
+        upper_bound: 4 GB
+        destination: waffles_low_48
+      - rule_type: file_size
+        nice_value: 0
+        lower_bound: 4 GB
+        upper_bound: Infinity
+        fail_message: Too much data, shoudn't run
+        destination: fail
+      - rule_type: arguments
+        nice_value: 0
+        arguments:
+          careful: true
+        destination: fail
+    default_destination: waffles_low_16
 
-srst2:
-  rules:
-    - rule_type: records
-      nice_value: 0
-      lower_bound: 0
-      upper_bound: 100
-      destination: waffles_low_4
-    - rule_type: records
-      nice_value: 0
-      lower_bound: 100
-      upper_bound: 1000
-      destination: waffles_low_8
-    - rule_type: records
-      nice_value: 0
-      lower_bound: 1000
-      upper_bound: 10000
-      destination: waffles_low_8
-    - rule_type: records
-      nice_value: 0
-      lower_bound: 1000000
-      upper_bound: Infinity
-      fail_message: Using the wrong tool
-      destination: waffles_low_8
-  default_destination: waffles_default
+  srst2:
+    rules:
+      - rule_type: records
+        nice_value: 0
+        lower_bound: 0
+        upper_bound: 100
+        destination: waffles_low_4
+      - rule_type: records
+        nice_value: 0
+        lower_bound: 100
+        upper_bound: 1000
+        destination: waffles_low_8
+      - rule_type: records
+        nice_value: 0
+        lower_bound: 1000
+        upper_bound: 10000
+        destination: waffles_low_8
+      - rule_type: records
+        nice_value: 0
+        lower_bound: 1000000
+        upper_bound: Infinity
+        fail_message: Using the wrong tool
+        destination: waffles_low_8
+    default_destination: waffles_default
 
-smalt_map:
-  rules:
-    - rule_type: file_size
-      nice_value: 0
-      lower_bound: 0
-      upper_bound: 2 GB
-      destination: waffles_low_4
-    - rule_type: file_size
-      nice_value: 0
-      lower_bound: 2 GB
-      upper_bound: 4 GB
-      destination: waffles_low_8
-    - rule_type: file_size
-      nice_value: 0
-      lower_bound: 4 GB
-      upper_bound: Infinity
-      destination: waffles_low_16
-  default_destination: waffles_default
+  smalt_map:
+    rules:
+      - rule_type: file_size
+        nice_value: 0
+        lower_bound: 0
+        upper_bound: 2 GB
+        destination: waffles_low_4
+      - rule_type: file_size
+        nice_value: 0
+        lower_bound: 2 GB
+        upper_bound: 4 GB
+        destination: waffles_low_8
+      - rule_type: file_size
+        nice_value: 0
+        lower_bound: 4 GB
+        upper_bound: Infinity
+        destination: waffles_low_16
+    default_destination: waffles_default
 
-fastqc:
-  rules:
-    - rule_type: file_size
-      nice_value: 0
-      lower_bound: 0
-      upper_bound: 400 MB
-      fail_message: File size too small
-      destination: fail
-    - rule_type: file_size
-      nice_value: 0
-      lower_bound: 400 MB
-      upper_bound: Infinity
-      destination: waffles_low_4
-  default_destination: waffles_low_16
+  fastqc:
+    rules:
+      - rule_type: file_size
+        nice_value: 0
+        lower_bound: 0
+        upper_bound: 400 MB
+        fail_message: File size too small
+        destination: fail
+      - rule_type: file_size
+        nice_value: 0
+        lower_bound: 400 MB
+        upper_bound: Infinity
+        destination: waffles_low_4
+    default_destination: waffles_low_16
 
 default_destination: waffles_default

@@ -26,135 +26,147 @@ specific language governing permissions and limitations under the License.
 #=============================================Valid XML===================================================
 # One job, one condition
 vYMLTest1 = """
-    spades:
-      rules:
-        - rule_type: file_size
-          nice_value: 0
-          lower_bound: 0
-          upper_bound: 100000000
-          destination: things
+    tools:
+      spades:
+        rules:
+          - rule_type: file_size
+            nice_value: 0
+            lower_bound: 0
+            upper_bound: 100000000
+            destination: things
     default_destination: waffles_default
 """
 
 vdictTest1_yml = {
-    "spades": {
-        "rules": [
-            {
-                "rule_type": "file_size",
-                "nice_value": 0,
-                "lower_bound": 0,
-                "upper_bound": 100000000,
-                "destination": "things"
-            },
-        ]
+    "tools": {
+        "spades": {
+            "rules": [
+                {
+                    "rule_type": "file_size",
+                    "nice_value": 0,
+                    "lower_bound": 0,
+                    "upper_bound": 100000000,
+                    "destination": "things"
+                },
+            ]
+        }
     },
     'default_destination': "waffles_default"
 }
 
 # Multiple jobs, multiple conditions
 vYMLTest2 ='''
-    spades:
-      default_destination: waffles_default
-    smalt:
-      rules:
-        - rule_type: file_size
-          nice_value: 0
-          lower_bound: 0
-          upper_bound: 100000000
-          fail_message: Too few reads for smalt to work
-          destination: fail
-        - rule_type: file_size
-          nice_value: 0
-          lower_bound: 100000000
-          upper_bound: Infinity
-          fail_message: Too few reads for smalt to work
-          destination: fail
+    tools:
+      spades:
+        default_destination: waffles_default
+      smalt:
+        rules:
+          - rule_type: file_size
+            nice_value: 0
+            lower_bound: 0
+            upper_bound: 100000000
+            fail_message: Too few reads for smalt to work
+            destination: fail
+          - rule_type: file_size
+            nice_value: 0
+            lower_bound: 100000000
+            upper_bound: Infinity
+            fail_message: Too few reads for smalt to work
+            destination: fail
     default_destination: waffles_low
 '''
 
 vdictTest2_yml = {
-    "spades": {
-        "default_destination": "waffles_default"
-    },
-    "smalt": {
-        "rules": [
-            {
-              "rule_type": "file_size",
-              'nice_value': 0,
-              "lower_bound": 0,
-              "upper_bound": 100000000,
-              "fail_message": "Too few reads for smalt to work",
-              "destination": "fail"
-            },{
-              "rule_type": "file_size",
-              'nice_value': 0,
-              "lower_bound": 100000000,
-              "upper_bound": "Infinity",
-              "fail_message": "Too few reads for smalt to work",
-              "destination": "fail"
-            }
-        ]
+    "tools": {
+        "spades": {
+            "default_destination": "waffles_default"
+        },
+        "smalt": {
+            "rules": [
+                {
+                  "rule_type": "file_size",
+                  'nice_value': 0,
+                  "lower_bound": 0,
+                  "upper_bound": 100000000,
+                  "fail_message": "Too few reads for smalt to work",
+                  "destination": "fail"
+                },{
+                  "rule_type": "file_size",
+                  'nice_value': 0,
+                  "lower_bound": 100000000,
+                  "upper_bound": "Infinity",
+                  "fail_message": "Too few reads for smalt to work",
+                  "destination": "fail"
+                }
+            ]
+        }
     },
     'default_destination': "waffles_low"
 }
 
 # Condition with extra attribute
 vYMLTest3 = '''
-    spades:
-      rules:
-        - rule_type: file_size
-          nice_value: 0
-          hax: 1337
-          lower_bound: 0
-          upper_bound: 100000000
-          fail_message: Whats hax
-          destination: fail
+    tools:
+      spades:
+        rules:
+          - rule_type: file_size
+            nice_value: 0
+            hax: 1337
+            lower_bound: 0
+            upper_bound: 100000000
+            fail_message: Whats hax
+            destination: fail
     default_destination: waffles_default
 '''
 
 vdictTest3_yml = {
-    "spades": {
-        "rules": [
-            {
-                "rule_type": "file_size",
-                'nice_value': 0,
-                "hax": 1337,
-                "lower_bound": 0,
-                "upper_bound": 100000000,
-                "fail_message": "Whats hax",
-                "destination": "fail"
-            }
-        ]
+    "tools": {
+        "spades": {
+            "rules": [
+                {
+                    "rule_type": "file_size",
+                    'nice_value': 0,
+                    "hax": 1337,
+                    "lower_bound": 0,
+                    "upper_bound": 100000000,
+                    "fail_message": "Whats hax",
+                    "destination": "fail"
+                }
+            ]
+        }
     },
     'default_destination': "waffles_default"
 }
 
 # Arguments type
 vYMLTest4 = """
-    spades:
-      rules:
-        - rule_type: arguments
-          nice_value: 0
-          arguments:
-            careful: true
-          fail_message: Failure
-          destination: fail
+    tools:
+      spades:
+        rules:
+          - rule_type: arguments
+            nice_value: 0
+            arguments:
+              careful: true
+            fail_message: Failure
+            destination: fail
     default_destination: waffles_default
 """
 
 vdictTest4_yml = {
-    "spades": {
-        "rules": [
-            {
-                "rule_type": "arguments",
-                'nice_value': 0,
-                "arguments": {
-                    "careful": True,
-                },
-                "fail_message": "Failure",
-                "destination": "fail"
-            }
-        ]
+    "tools": {
+        "spades": {
+            "rules": [
+                {
+                    "rule_type": "arguments",
+                    'nice_value': 0,
+                    "arguments": {
+                        "careful": True,
+                    },
+                    "fail_message": "Failure",
+                    "destination": "fail"
+                }
+            ]
+        }
     },
     'default_destination': "waffles_default"
 }
@@ -166,12 +178,13 @@ ivYMLTest2 = ""
 
 # Job without name
 ivYMLTest3 = '''
-    rules:
-      - rule_type: file_size
-        nice_value: 0
-        upper_bound: 100
-        lower_bound: 0
-        destination: fail
+    tools:
+      rules:
+        - rule_type: file_size
+          nice_value: 0
+          upper_bound: 100
+          lower_bound: 0
+          destination: fail
     default_destination: waffles_default
 '''
 
@@ -181,62 +194,87 @@ iv3dict = {
 
 # Condition missing type
 ivYMLTest4 = '''
-    spades:
-      rules:
-        - nice_value: 0
-          lower_bound: 0
-          upper_bound: 0
-          fail_message: No type...
-          destination: fail
+    tools:
+      spades:
+        rules:
+          - nice_value: 0
+            lower_bound: 0
+            upper_bound: 0
+            fail_message: No type...
+            destination: fail
     default_destination: waffles_default
 '''
 
 # Condition missing attribute
 ivYMLTest51 = '''
-    spades:
-      rules:
-        - rule_type: file_size
-          nice_value: 0
-          upper_bound: 0
-          fail_message: No type...
-          destination: fail
+    tools:
+      spades:
+        rules:
+          - rule_type: file_size
+            nice_value: 0
+            upper_bound: 0
+            fail_message: No type...
+            destination: fail
     default_destination: waffles_default
 '''
 
 # Condition missing attribute
 ivYMLTest52 = '''
-    spades:
-      rules:
-        - rule_type: file_size
-          nice_value: 0
-          lower_bound: 0
-          fail_message: No type...
-          destination: fail
+    tools:
+      spades:
+        rules:
+          - rule_type: file_size
+            nice_value: 0
+            lower_bound: 0
+            fail_message: No type...
+            destination: fail
     default_destination: waffles_default
 '''
 
 # Condition missing attribute
 ivYMLTest53 = '''
-    spades:
-      rules:
-        - rule_type: file_size
-          nice_value: 0
-          lower_bound: 0
-          upper_bound: 0
-          fail_message: No type...
+    tools:
+      spades:
+        rules:
+          - rule_type: file_size
+            nice_value: 0
+            lower_bound: 0
+            upper_bound: 0
+            fail_message: No type...
     default_destination: waffles_default
 '''
 
+ivDict53 = {
+    'default_destination': 'waffles_default',
+    'tools': {
+        'spades': {
+            'rules': [
+                {
+                    'upper_bound': 0,
+                    'rule_type':
+                    'file_size',
+                    'fail_message':
+                    'No type...',
+                    'nice_value': 0,
+                    'lower_bound': 0,
+                    'destination': 'fail'
+                }
+            ]
+        }
+    }
+}
+
 # Condition unknown type
 ivYMLTest6 = '''
-    spades:
-      rules:
-        - rule_type: iencs
-          nice_value: 0
-          lower_bound: 0
-          upper_bound: 0
-          fail_message: No type...
-          destination: fail
+    tools:
+      spades:
+        rules:
+          - rule_type: iencs
+            nice_value: 0
+            lower_bound: 0
+            upper_bound: 0
+            fail_message: No type...
+            destination: fail
     default_destination: waffles_default
 '''
 
@@ -245,105 +283,95 @@ ivYMLTest7 = '''
     default_destination:
 '''
 
-ivDict53 = {
-    'default_destination': 'waffles_default',
-    'spades': {
-        'rules': [
-            {
-                'upper_bound': 0,
-                'rule_type':
-                'file_size',
-                'fail_message':
-                'No type...',
-                'nice_value': 0,
-                'lower_bound': 0,
-                'destination': 'fail'
-            }
-        ]
-    }
-}
-
 ivDict = {
     'default_destination': "waffles_default"
 }
 
 # Tool condition fail no fail_message and apparently no nice_value
 ivYMLTest91 = '''
-    spades:
-      rules:
-        - rule_type: file_size
-          lower_bound: 0
-          upper_bound: 0
-          destination: fail
+    tools:
+      spades:
+        rules:
+          - rule_type: file_size
+            lower_bound: 0
+            upper_bound: 0
+            destination: fail
     default_destination: waffles_default
 '''
 
 iv91dict = {
-    'spades': {
-        'rules': [
-            {
-                'lower_bound': 0,
-                'nice_value': 0,
-                'rule_type': 'file_size',
-                'upper_bound': 0,
-                'destination': 'fail',
-                'fail_message': 'Invalid parameters for rule 1.'
-            }
-        ]
+    'tools': {
+        'spades': {
+            'rules': [
+                {
+                    'lower_bound': 0,
+                    'nice_value': 0,
+                    'rule_type': 'file_size',
+                    'upper_bound': 0,
+                    'destination': 'fail',
+                    'fail_message': "Invalid parameters for rule 1 in 'spades'."
+                }
+            ]
+        }
     },
     'default_destination': "waffles_default"
 }
 
 # Tool default fail no destination
 ivYMLTest11 = '''
-    spades:
-      rules:
-        - rule_type: file_size
-          nice_value: -21
-          lower_bound: 1 KB
-          upper_bound: Infinity
-          destination: waffles_low
-      default_destination: waffles_low
+    tools:
+      spades:
+        rules:
+          - rule_type: file_size
+            nice_value: -21
+            lower_bound: 1 KB
+            upper_bound: Infinity
+            destination: waffles_low
+        default_destination: waffles_low
     default_destination: waffles_default
 '''
 
 # Arguments fail no fail_message
 ivYMLTest12 = """
-    spades:
-      rules:
-        - rule_type: arguments
-          nice_value: 0
-          arguments:
-            careful: true
-          destination: fail
+    tools:
+      spades:
+        rules:
+          - rule_type: arguments
+            nice_value: 0
+            arguments:
+              careful: true
+            destination: fail
     default_destination: waffles_default
 """
 
 iv12dict = {
-    "spades": {
-        "rules": [
-            {
-                "rule_type": "arguments",
-                'nice_value': 0,
-                "arguments": {
-                    "careful": True,
-                },
-                "destination": "fail",
-                "fail_message": "Invalid parameters for rule 1."
-            }
-        ]
+    "tools": {
+        "spades": {
+            "rules": [
+                {
+                    "rule_type": "arguments",
+                    'nice_value': 0,
+                    "arguments": {
+                        "careful": True,
+                    },
+                    "destination": "fail",
+                    "fail_message": "Invalid parameters for rule 1 in 'spades'."
+                }
+            ]
+        }
     },
     'default_destination': "waffles_default"
 }
 
 # Arguments fail no arguments
 ivYMLTest131 = """
-    spades:
-      rules:
-        - rule_type: arguments
-          nice_value: 0
-          fail_message: Something went wrong
-          destination: fail
+    tools:
+      spades:
+        rules:
+          - rule_type: arguments
+            nice_value: 0
+            fail_message: Something went wrong
+            destination: fail
     default_destination: waffles_default
 """
 
@@ -353,29 +381,32 @@ iv131dict = {
 
 # Arguments fail no destination
 ivYMLTest132 = """
-    spades:
-      rules:
-        - rule_type: arguments
-          nice_value: 0
-          fail_message: Something went wrong
-          arguments:
-            careful: true
+    tools:
+      spades:
+        rules:
+          - rule_type: arguments
+            nice_value: 0
+            fail_message: Something went wrong
+            arguments:
+              careful: true
     default_destination: waffles_default
 """
 
 iv132dict = {
     'default_destination': 'waffles_default',
-    'spades': {
-        'rules': [
-            {
-                'arguments': {
-                    'careful': True
-                },
-                'rule_type': 'arguments',
-                'destination': 'fail',
-                'fail_message': 'Something went wrong',
-                'nice_value': 0
-            }
-        ]
+    'tools': {
+        'spades': {
+            'rules': [
+                {
+                    'arguments': {
+                        'careful': True
+                    },
+                    'rule_type': 'arguments',
+                    'destination': 'fail',
+                    'fail_message': 'Something went wrong',
+                    'nice_value': 0
+                }
+            ]
+        }
     }
 }

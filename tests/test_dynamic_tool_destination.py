@@ -343,6 +343,7 @@ class TestDynamicToolDestination(unittest.TestCase):
         self.assertEquals(dt.parse_yaml(path=yt.ivYMLTest3, test=True), yt.iv3dict)
         l.check(
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Malformed YML; expected job name, but found a list instead!'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.')
         )
 
@@ -447,6 +448,7 @@ class TestDynamicToolDestination(unittest.TestCase):
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "No rules found for 'spades'!"),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.'),
