@@ -133,20 +133,19 @@ class TestDynamicToolDestination(unittest.TestCase):
 
     @log_capture()
     def test_brokenDestYML(self, l):
-        map_tool_to_destination(runJob, theApp, vanillaTool, True, broken_default_dest_path)
+        self.assertRaises(mg.JobMappingException, map_tool_to_destination, runJob, theApp, vanillaTool, True, broken_default_dest_path)
 
         l.check(
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Loading file: input1' + os.getcwd() + '/tests/data/test3.full'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total size: 3.23 KB'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total amount of records: 0'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'ERROR', "Job 'test' failed; no global default destination specified in YML file!")
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.')
         )
 
     @log_capture()
     def test_filesize_empty(self, l):
-        map_tool_to_destination(emptyJob, theApp, vanillaTool, True, path)
+        self.assertRaises(mg.JobMappingException, map_tool_to_destination, emptyJob, theApp, vanillaTool, True, path)
 
         l.check(
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Loading file: input1' + os.getcwd() + '/tests/data/test.empty'),
@@ -158,7 +157,7 @@ class TestDynamicToolDestination(unittest.TestCase):
 
     @log_capture()
     def test_filesize_zero(self, l):
-        map_tool_to_destination(zeroJob, theApp, vanillaTool, True, path)
+        self.assertRaises(mg.JobMappingException, map_tool_to_destination, zeroJob, theApp, vanillaTool, True, path)
 
         l.check(
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total size: 0.00 B'),
@@ -169,7 +168,7 @@ class TestDynamicToolDestination(unittest.TestCase):
 
     @log_capture()
     def test_filesize_fail(self, l):
-        map_tool_to_destination(failJob, theApp, vanillaTool, True, path)
+        self.assertRaises(mg.JobMappingException, map_tool_to_destination, failJob, theApp, vanillaTool, True, path)
 
         l.check(
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Loading file: input1' + os.getcwd() + '/tests/data/test1.full'),
@@ -181,7 +180,7 @@ class TestDynamicToolDestination(unittest.TestCase):
 
     @log_capture()
     def test_fnf(self, l):
-        map_tool_to_destination(msfileJob, theApp, vanillaTool, True, path)
+        self.assertRaises(mg.JobMappingException, map_tool_to_destination, msfileJob, theApp, vanillaTool, True, path)
         if sys.version_info < (2, 7):
             self.assertTrue(re.match( r".*Total size: 0\.00 B", str(l.records[1]) ))
             self.assertTrue(re.match( r".*Total amount of records: 0", str(l.records[2]) ))
@@ -326,7 +325,7 @@ class TestDynamicToolDestination(unittest.TestCase):
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG',
              "Running config validation..."),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG',
-             "Nice value goes from -20 to 20; rule 1 in spades has a nice value of -21. Setting nice value to 0."),
+             "Nice value goes from -20 to 20; rule 1 in 'spades' has a nice value of '-21'. Setting nice value to 0."),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.')
         )
 
@@ -352,7 +351,7 @@ class TestDynamicToolDestination(unittest.TestCase):
         self.assertEquals(dt.parse_yaml(path=yt.ivYMLTest4, test=True), yt.ivDict)
         l.check(
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'No rule type found for rule 1 in spades.'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "No rule type found for rule 1 in 'spades'."),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.')
         )
 
@@ -361,7 +360,7 @@ class TestDynamicToolDestination(unittest.TestCase):
         self.assertEquals(dt.parse_yaml(path=yt.ivYMLTest51, test=True), yt.ivDict)
         l.check(
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Missing bounds for rule 1 in spades. Ignoring rule.'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Missing bounds for rule 1 in 'spades'. Ignoring rule."),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.')
         )
 
@@ -370,7 +369,7 @@ class TestDynamicToolDestination(unittest.TestCase):
         self.assertEquals(dt.parse_yaml(path=yt.ivYMLTest52, test=True), yt.ivDict)
         l.check(
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Missing bounds for rule 1 in spades. Ignoring rule.'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Missing bounds for rule 1 in 'spades'. Ignoring rule."),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.')
         )
 
@@ -387,7 +386,7 @@ class TestDynamicToolDestination(unittest.TestCase):
         self.assertEquals(dt.parse_yaml(path=yt.ivYMLTest6, test=True), yt.ivDict)
         l.check(
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Unrecognized rule_type iencs found in spades. Ignoring...'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Unrecognized rule_type 'iencs' found in 'spades'. Ignoring..."),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.')
         )
 
@@ -396,8 +395,8 @@ class TestDynamicToolDestination(unittest.TestCase):
         self.assertEquals(dt.parse_yaml(path=yt.ivYMLTest91, test=True), yt.iv91dict)
         l.check(
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'No nice value found for rule 1 in spades. Setting nice value to 0.'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Missing a fail message for rule 1 in spades. Adding generic fail message.'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "No nice value found for rule 1 in 'spades'. Setting nice value to 0."),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Missing a fail message for rule 1 in 'spades'. Adding generic fail message."),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.')
         )
 
@@ -415,7 +414,7 @@ class TestDynamicToolDestination(unittest.TestCase):
         l.check(
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG',
-            'Missing a fail message for rule 1 in spades. Adding generic fail message.'),
+            "Missing a fail message for rule 1 in 'spades'. Adding generic fail message."),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.')
         )
 
@@ -425,7 +424,7 @@ class TestDynamicToolDestination(unittest.TestCase):
         l.check(
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG',
-            'No arguments found for rule 1 in spades despite being of type arguments. Ignoring rule.'),
+            "No arguments found for rule 1 in 'spades' despite being of type arguments. Ignoring rule."),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.')
         )
 

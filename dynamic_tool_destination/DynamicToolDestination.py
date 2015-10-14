@@ -33,6 +33,8 @@ Created on May 13, 2015
 """
 
 from yaml import load
+# from galaxy.jobs.mapper import JobMappingException
+# from mapper import JobMappingException
 
 import glob
 import logging
@@ -121,16 +123,16 @@ def validate_config(obj):
                                 if not validated_rule['rule_type'] == "fail":
                                     curr_tool_rules.append(copy.deepcopy(validated_rule))
                             else:
-                                error = "Unrecognized rule_type " + rule['rule_type']
-                                error += " found in " + str(tool) + ". Ignoring..."
+                                error = "Unrecognized rule_type '" + rule['rule_type']
+                                error += "' found in '" + str(tool) + "'. Ignoring..."
                                 log.debug(error)
                         else:
                             counter += 1
                             error = "No rule type found for rule " + str(counter)
-                            error += " in " + str(tool) + "."
+                            error += " in '" + str(tool) + "'."
                             log.debug(error)
                 else:
-                    error = "No rules found for " + str(tool) + "!"
+                    error = "No rules found for '" + str(tool) + "'!"
 
             if curr_tool_rules:
                 new_config[str(tool)]['rules'] = curr_tool_rules
@@ -154,13 +156,13 @@ def validate_file_size(rule, counter, tool):
     if "nice_value" in rule:
         if rule["nice_value"] < -20 or rule["nice_value"] > 20:
             error = "Nice value goes from -20 to 20; rule " + str(counter)
-            error += " in " + str(tool) + " has a nice value of "
-            error += str(rule["nice_value"]) + ". Setting nice value to 0."
+            error += " in '" + str(tool) + "' has a nice value of '"
+            error += str(rule["nice_value"]) + "'. Setting nice value to 0."
             log.debug(error)
             rule["nice_value"] = 0
     else:
-        error = "No nice value found for rule " + str(counter) + " in " + str(tool)
-        error += ". Setting nice value to 0."
+        error = "No nice value found for rule " + str(counter) + " in '" + str(tool)
+        error += "'. Setting nice value to 0."
         log.debug(error)
         rule["nice_value"] = 0
 
@@ -171,12 +173,12 @@ def validate_file_size(rule, counter, tool):
     if "destination" in rule and isinstance(rule["destination"], str):
         if rule["destination"] == "fail" and "fail_message" not in rule:
                 error = "Missing a fail message for rule " + str(counter)
-                error += " in " + str(tool) + ". Adding generic fail message."
+                error += " in '" + str(tool) + "'. Adding generic fail message."
                 log.debug(error)
                 rule["fail_message"] = "Invalid parameters for rule " + str(counter) + "."
     else:
         error = "No destination specified for rule " + str(counter)
-        error += " in " + str(tool) + ". Ignoring..."
+        error += " in '" + str(tool) + "'. Ignoring..."
         log.debug(error)
 
     # Bounds Verification #
@@ -187,7 +189,7 @@ def validate_file_size(rule, counter, tool):
 
             if upper_bound != -1 and lower_bound > upper_bound:
                 error = "Lower bound exceeds upper bound for rule " + str(counter)
-                error += " in " + str(tool) + ". Reversing bounds."
+                error += " in '" + str(tool) + "'. Reversing bounds."
                 log.debug(error)
                 temp_upper_bound = rule["upper_bound"]
                 temp_lower_bound = rule["lower_bound"]
@@ -195,7 +197,7 @@ def validate_file_size(rule, counter, tool):
                 rule["lower_bound"] = temp_upper_bound
         else:
             error = "Missing bounds for rule " + str(counter)
-            error += " in " + str(tool) + ". Ignoring rule."
+            error += " in '" + str(tool) + "'. Ignoring rule."
             log.debug(error)
             rule["rule_type"] = "fail"
 
@@ -203,8 +205,8 @@ def validate_file_size(rule, counter, tool):
     # of function for clarification.
     if rule["rule_type"] == "arguments":
         if "arguments" not in rule or not isinstance(rule["arguments"], dict):
-            error = "No arguments found for rule " + str(counter) + " in " + str(tool)
-            error += " despite being of type arguments. Ignoring rule."
+            error = "No arguments found for rule " + str(counter) + " in '" + str(tool)
+            error += "' despite being of type arguments. Ignoring rule."
             log.debug(error)
             rule["rule_type"] = "fail"
 
@@ -406,6 +408,7 @@ def map_tool_to_destination(
     matched_rule = None
 
     # For each different rule for the tool that's running
+    fail_message = None
 
     if config is not None:
         if "default_destination" in config:
@@ -454,6 +457,7 @@ def map_tool_to_destination(
                                     options = "test"
                             else:
                                 matched = False
+                                log.debug("Argument '" + str(arg) + "' not recognized!")
 
                             if matched is True:
                                 if (matched_rule is None or rule["nice_value"]
@@ -473,13 +477,17 @@ def map_tool_to_destination(
 
         else:
             destination = "fail"
-            error = "Job '" + str(tool.old_id) + "' failed; "
-            error += "no global default destination specified in YML file!"
-            log.error(error)
+            fail_message = "Job '" + str(tool.old_id) + "' failed; "
+            fail_message += "no global default destination specified in YML file!"
 
     else:
-        error = "No config file supplied!"
-        log.error(error)
         destination = "fail"
+        fail_message = "No config file supplied!"
+
+    if destination == "fail":
+        if fail_message:
+            raise JobMappingException(fail_message)
+        else:
+            raise JobMappingException(matched_rule["fail_message"])
 
     return destination

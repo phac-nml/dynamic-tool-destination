@@ -37,21 +37,21 @@ class Job(object):
 		self.input_datasets = []
 		self.input_library_datasets = []
 		self.param_values = dict()
-		
+
 	def get_param_values(self, app, ignore_errors=False):
 		return self.param_values
-	
+
 	def set_param_value(self, key, value):
 		self.param_values[key] = value
-		
+
 	def add_input_dataset(self, dataset):
 		self.input_datasets.append(dataset)
-	
+
 class InputDataset(object):
 	def __init__(self, name, dataset):
 		self.name = name
 		self.dataset = dataset
-        
+
 class NotAFile(object):
     pass
 
@@ -61,21 +61,21 @@ class Dataset(object):
 		self.datatype = Datatype(file_ext)
 		self.metadata = dict()
 		self.metadata['sequences'] = value
-	
+
 	def get_metadata(self):
 		return self.metadata
 
 class Datatype(object):
 	def __init__(self, file_ext):
 		self.file_ext = file_ext
-		
-	
+
+
 #Tool mock and helpers=========================================
 class Tool(object):
 	def __init__(self, id):
 		self.old_id = id
 		self.installed_tool_dependencies = []
-		
+
 	def add_tool_dependency(self, dependency):
 		self.installed_tool_dependencies.append(dependency)
 
@@ -83,7 +83,7 @@ class ToolDependency(object):
 	def __init__(self, name, dir_name):
 		self.name = name
 		self.dir_name = dir_name
-	
+
 	def installation_directory(self, app):
 		return self.dir_name
 
