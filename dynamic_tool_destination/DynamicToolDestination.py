@@ -56,8 +56,20 @@ class ScannerError(Exception):
 
 
 class RuleValidator:
-    @staticmethod
-    def file_size(rule, counter, tool):
+
+    @classmethod
+    def validate_rule(cls, rule_type, *args, **kwargs):
+        if rule_type == 'file_size':
+            return cls.__validate_file_size_rule(*args, **kwargs)
+
+        elif rule_type == 'records':
+            return cls.__validate_records_rule(*args, **kwargs)
+
+        elif rule_type == 'arguments':
+            return cls.__validate_arguments_rule(*args, **kwargs)
+
+    @classmethod
+    def __validate_file_size_rule(cls, rule, counter, tool):
         """
         Right now this function is doing all the heavy lifting for validating all of
         parameters for all rule_types. That's why it checks rule_type even though it's
@@ -126,8 +138,8 @@ class RuleValidator:
 
         return rule
 
-    @staticmethod
-    def records(rule, counter, tool):
+    @classmethod
+    def __validate_records_rule(cls, rule, counter, tool):
         """
         This function exists so that in the future, if records accepts differing
         parameters than file_size, then you could simply edit this function. But for now,
@@ -135,10 +147,10 @@ class RuleValidator:
         off to file_size
         """
 
-        return RuleValidator.file_size(rule, counter, tool)
+        return cls.__validate_file_size_rule(rule, counter, tool)
 
-    @staticmethod
-    def arguments(rule, counter, tool):
+    @classmethod
+    def __validate_arguments_rule(cls, rule, counter, tool):
         """
         This function exists so that in the future, if arguments accepts differing
         parameters than file_size, then you could simply edit this function. But for now,
@@ -146,7 +158,7 @@ class RuleValidator:
         off to file_size
         """
 
-        return RuleValidator.file_size(rule, counter, tool)
+        return cls.__validate_file_size_rule(rule, counter, tool)
 
 
 def parse_yaml(path="/config/tool_options.yml", test=False):
@@ -179,6 +191,8 @@ def validate_config(obj):
     new_config = collections.defaultdict(lambda: collections.defaultdict(dict))
     log.debug("Running config validation...")
 
+    available_rule_types = ['file_size', 'records', 'arguments']
+
     if obj is not None:
         for category in obj.keys():
             if category == "default_destination":
@@ -206,35 +220,26 @@ def validate_config(obj):
 
                                 for rule in curr_tool['rules']:
                                     if "rule_type" in rule:
-                                        validated_rule = None
-                                        if rule['rule_type'] == 'file_size':
+                                        if rule['rule_type'] in available_rule_types:
+                                            validated_rule = None
                                             counter += 1
-                                            validated_rule = (
-                                                RuleValidator.file_size(
-                                                    rule, counter, tool))
-                                            if not validated_rule['rule_type'] == "fail":
+
+                                            validated_rule = RuleValidator.validate_rule(
+                                                rule['rule_type'], rule, counter, tool)
+
+                                            if (validated_rule is not None and not
+                                                    validated_rule['rule_type']
+                                                    == "fail"):
                                                 curr_tool_rules.append(
                                                     copy.deepcopy(validated_rule))
-                                        elif rule['rule_type'] == 'records':
-                                            counter += 1
-                                            validated_rule = RuleValidator.records(
-                                                rule, counter, tool)
-                                            if not validated_rule['rule_type'] == "fail":
-                                                curr_tool_rules.append(copy.deepcopy(
-                                                    validated_rule))
-                                        elif rule['rule_type'] == 'arguments':
-                                            counter += 1
-                                            validated_rule = RuleValidator.arguments(
-                                                rule, counter, tool)
-                                            if not validated_rule['rule_type'] == "fail":
-                                                curr_tool_rules.append(copy.deepcopy(
-                                                    validated_rule))
+
                                         else:
                                             error = "Unrecognized rule_type '"
-                                            error += rule['rule_type']
-                                            error += "' found in '" + str(tool)
-                                            error += "'. Ignoring..."
+                                            error += rule['rule_type'] + "' "
+                                            error += "found in '" + str(tool) + "'. "
+                                            error += "Ignoring..."
                                             log.debug(error)
+
                                     else:
                                         counter += 1
                                         error = "No rule type found for rule "
