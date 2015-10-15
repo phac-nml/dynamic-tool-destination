@@ -110,7 +110,6 @@ tools:
         arguments:
           careful: true
         destination: fail
-        fail_message: Blahblah
     default_destination: waffles_low_16
 
   srst2:
