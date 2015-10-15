@@ -34,6 +34,7 @@ Created on May 13, 2015
 
 from yaml import load
 
+import argparse
 import glob
 import logging
 import os
@@ -43,7 +44,7 @@ import string
 import collections
 
 
-# log to galaxy"s logger
+# log to galaxy's logger
 log = logging.getLogger(__name__)
 
 
@@ -58,54 +59,71 @@ class ScannerError(Exception):
 class RuleValidator:
 
     @classmethod
-    def validate_rule(cls, rule_type, *args, **kwargs):
+    def validate_rule(cls, rule_type, return_result, *args, **kwargs):
         if rule_type == 'file_size':
-            return cls.__validate_file_size_rule(*args, **kwargs)
+            return cls.__validate_file_size_rule(return_result, *args, **kwargs)
 
         elif rule_type == 'records':
-            return cls.__validate_records_rule(*args, **kwargs)
+            return cls.__validate_records_rule(return_result, *args, **kwargs)
 
         elif rule_type == 'arguments':
-            return cls.__validate_arguments_rule(*args, **kwargs)
+            return cls.__validate_arguments_rule(return_result, *args, **kwargs)
 
     @classmethod
-    def __validate_file_size_rule(cls, rule, counter, tool):
+    def __validate_file_size_rule(cls, return_result, rule, counter, tool):
         """
         Right now this function is doing all the heavy lifting for validating all of
         parameters for all rule_types. That's why it checks rule_type even though it's
         called 'file_size'.
         """
 
+        result = True
+
         # Nice Value Verification #
         if "nice_value" in rule:
             if rule["nice_value"] < -20 or rule["nice_value"] > 20:
                 error = "Nice value goes from -20 to 20; rule " + str(counter)
                 error += " in '" + str(tool) + "' has a nice value of '"
-                error += str(rule["nice_value"]) + "'. Setting nice value to 0."
+                error += str(rule["nice_value"]) + "'."
+                if not return_result:
+                    error += " Setting nice value to 0."
                 log.debug(error)
                 rule["nice_value"] = 0
+                result = False
         else:
             error = "No nice value found for rule " + str(counter) + " in '" + str(tool)
-            error += "'. Setting nice value to 0."
+            error += "'."
+            if not return_result:
+                error += " Setting nice value to 0."
             log.debug(error)
             rule["nice_value"] = 0
+            result = False
 
         # Destination Verification #
         if "fail_message" in rule:
+            if "destination" not in rule or rule['destination'] != "fail":
+                result = False
+
             rule["destination"] = "fail"
 
         if "destination" in rule and isinstance(rule["destination"], str):
             if rule["destination"] == "fail" and "fail_message" not in rule:
                     error = "Missing a fail message for rule " + str(counter)
-                    error += " in '" + str(tool) + "'. Adding generic fail message."
+                    error += " in '" + str(tool) + "'."
+                    if not return_result:
+                        error += " Adding generic fail message."
                     log.debug(error)
                     message = "Invalid parameters for rule " + str(counter)
                     message += " in '" + str(tool) + "'."
                     rule["fail_message"] = message
+                    result = False
         else:
             error = "No destination specified for rule " + str(counter)
-            error += " in '" + str(tool) + "'. Ignoring..."
+            error += " in '" + str(tool) + "'."
+            if not return_result:
+                error += " Ignoring..."
             log.debug(error)
+            result = False
 
         # Bounds Verification #
         if rule["rule_type"] == "file_size" or rule["rule_type"] == "records":
@@ -115,31 +133,44 @@ class RuleValidator:
 
                 if upper_bound != -1 and lower_bound > upper_bound:
                     error = "Lower bound exceeds upper bound for rule " + str(counter)
-                    error += " in '" + str(tool) + "'. Reversing bounds."
+                    error += " in '" + str(tool) + "'."
+                    if not return_result:
+                        error += " Reversing bounds."
                     log.debug(error)
+                    result = False
                     temp_upper_bound = rule["upper_bound"]
                     temp_lower_bound = rule["lower_bound"]
                     rule["upper_bound"] = temp_lower_bound
                     rule["lower_bound"] = temp_upper_bound
             else:
                 error = "Missing bounds for rule " + str(counter)
-                error += " in '" + str(tool) + "'. Ignoring rule."
+                error += " in '" + str(tool) + "'."
+                if not return_result:
+                    error += " Ignoring rule."
                 log.debug(error)
                 rule["rule_type"] = "fail"
+                result = False
 
         # Arguments Verification (for rule_type arguments; read comment block at top
         # of function for clarification.
         if rule["rule_type"] == "arguments":
             if "arguments" not in rule or not isinstance(rule["arguments"], dict):
                 error = "No arguments found for rule " + str(counter) + " in '"
-                error += str(tool) + "' despite being of type arguments. Ignoring rule."
+                error += str(tool) + "' despite being of type arguments."
+                if not return_result:
+                    error += " Ignoring rule."
                 log.debug(error)
                 rule["rule_type"] = "fail"
+                result = False
 
-        return rule
+        if return_result:
+            return result
+
+        else:
+            return rule
 
     @classmethod
-    def __validate_records_rule(cls, rule, counter, tool):
+    def __validate_records_rule(cls, return_result, rule, counter, tool):
         """
         This function exists so that in the future, if records accepts differing
         parameters than file_size, then you could simply edit this function. But for now,
@@ -147,10 +178,10 @@ class RuleValidator:
         off to file_size
         """
 
-        return cls.__validate_file_size_rule(rule, counter, tool)
+        return cls.__validate_file_size_rule(return_result, rule, counter, tool)
 
     @classmethod
-    def __validate_arguments_rule(cls, rule, counter, tool):
+    def __validate_arguments_rule(cls, return_result, rule, counter, tool):
         """
         This function exists so that in the future, if arguments accepts differing
         parameters than file_size, then you could simply edit this function. But for now,
@@ -158,10 +189,10 @@ class RuleValidator:
         off to file_size
         """
 
-        return cls.__validate_file_size_rule(rule, counter, tool)
+        return cls.__validate_file_size_rule(return_result, rule, counter, tool)
 
 
-def parse_yaml(path="/config/tool_options.yml", test=False):
+def parse_yaml(path="/config/tool_destinations.yml", test=False, return_result=False):
     """
     Get a properly formatted yaml file from path.
     """
@@ -176,7 +207,10 @@ def parse_yaml(path="/config/tool_options.yml", test=False):
 
         # Test imported file
         try:
-            config = validate_config(config)
+            if return_result:
+                result = validate_config(config, return_result)
+            else:
+                config = validate_config(config)
         except MalformedYMLException:
             log.error(str(sys.exc_value))
             raise
@@ -184,13 +218,20 @@ def parse_yaml(path="/config/tool_options.yml", test=False):
         log.error("YML file is too malformed to fix!")
         raise
 
-    return config
+    if return_result:
+        return result
+
+    else:
+        return config
 
 
-def validate_config(obj):
+def validate_config(obj, return_result=False):
     new_config = collections.defaultdict(lambda: collections.defaultdict(dict))
-    log.debug("Running config validation...")
 
+    if not return_result:
+        log.debug("Running config validation...")
+
+    result = True
     available_rule_types = ['file_size', 'records', 'arguments']
 
     if obj is not None:
@@ -224,11 +265,21 @@ def validate_config(obj):
                                             validated_rule = None
                                             counter += 1
 
-                                            validated_rule = RuleValidator.validate_rule(
-                                                rule['rule_type'], rule, counter, tool)
+                                            if return_result:
+                                                result = RuleValidator.validate_rule(
+                                                    rule['rule_type'], return_result,
+                                                    rule, counter, tool)
 
-                                            if (validated_rule is not None and not
-                                                    validated_rule['rule_type']
+                                            else:
+                                                validated_rule = (
+                                                    RuleValidator.validate_rule(
+                                                        rule['rule_type'],
+                                                        return_result,
+                                                        rule, counter, tool))
+
+                                            if (not return_result
+                                                    and validated_rule is not None and
+                                                    not validated_rule['rule_type']
                                                     == "fail"):
                                                 curr_tool_rules.append(
                                                     copy.deepcopy(validated_rule))
@@ -237,8 +288,10 @@ def validate_config(obj):
                                             error = "Unrecognized rule_type '"
                                             error += rule['rule_type'] + "' "
                                             error += "found in '" + str(tool) + "'. "
-                                            error += "Ignoring..."
+                                            if not return_result:
+                                                error += "Ignoring..."
                                             log.debug(error)
+                                            result = False
 
                                     else:
                                         counter += 1
@@ -246,9 +299,11 @@ def validate_config(obj):
                                         error += str(counter)
                                         error += " in '" + str(tool) + "'."
                                         log.debug(error)
+                                        result = False
                             else:
                                 error = "No rules found for '" + str(tool) + "'!"
                                 log.debug(error)
+                                result = False
 
                         if curr_tool_rules:
                             new_config[category][str(tool)]['rules'] = curr_tool_rules
@@ -257,17 +312,25 @@ def validate_config(obj):
                         error = "Malformed YML; expected job name, "
                         error += "but found a list instead!"
                         log.debug(error)
+                        result = False
 
             else:
                 error = "Unrecognized category '" + category + "' found in config file!"
                 log.debug(error)
+                result = False
 
     else:
         log.debug("No (or empty) config file supplied!")
+        result = False
 
-    log.debug("Finished config validation.")
+    if not return_result:
+        log.debug("Finished config validation.")
 
-    return new_config
+    if return_result:
+        return result
+
+    else:
+        return new_config
 
 
 def bytes_to_str(size, unit="YB"):
@@ -525,3 +588,24 @@ def map_tool_to_destination(
             raise JobMappingException(matched_rule["fail_message"])
 
     return destination
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
+
+    parser.add_argument(
+        '-v', '--validate-config', dest='validate', action='store_true',
+        help='Use this option to validate tool_destinations.yml.'
+        + ' Store tool_destinations.yml same folder as this file.')
+
+    args = parser.parse_args()
+
+    if len(sys.argv) == 1:
+        parser.print_help()
+        sys.exit(1)
+
+    if args.validate:
+        if parse_yaml(path="/tool_destinations.yml", return_result=True):
+            print("Configuration looks valid!")
+        else:
+            print("Errors detected in config; YML file not valid!")
