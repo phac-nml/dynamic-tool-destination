@@ -325,7 +325,7 @@ class TestDynamicToolDestination(unittest.TestCase):
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG',
              "Running config validation..."),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG',
-             "Nice value goes from -20 to 20; rule 1 in 'spades' has a nice value of '-21'. Setting nice value to 0."),
+             "nice_value goes from -20 to 20; rule 1 in 'spades' has a nice_value of '-21'. Setting nice_value to 0."),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.')
         )
 
@@ -352,7 +352,7 @@ class TestDynamicToolDestination(unittest.TestCase):
         self.assertEquals(dt.parse_yaml(path=yt.ivYMLTest4, test=True), yt.ivDict)
         l.check(
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "No rule type found for rule 1 in 'spades'."),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "No rule_type found for rule 1 in 'spades'."),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.')
         )
 
@@ -396,8 +396,8 @@ class TestDynamicToolDestination(unittest.TestCase):
         self.assertEquals(dt.parse_yaml(path=yt.ivYMLTest91, test=True), yt.iv91dict)
         l.check(
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "No nice value found for rule 1 in 'spades'. Setting nice value to 0."),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Missing a fail message for rule 1 in 'spades'. Adding generic fail message."),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "No nice_value found for rule 1 in 'spades'. Setting nice_value to 0."),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Missing a fail_message for rule 1 in 'spades'. Adding generic fail_message."),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.')
         )
 
@@ -415,7 +415,7 @@ class TestDynamicToolDestination(unittest.TestCase):
         l.check(
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG',
-            "Missing a fail message for rule 1 in 'spades'. Adding generic fail message."),
+            "Missing a fail_message for rule 1 in 'spades'. Adding generic fail_message."),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.')
         )
 

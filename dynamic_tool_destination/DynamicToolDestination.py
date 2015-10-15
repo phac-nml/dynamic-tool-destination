@@ -79,22 +79,22 @@ class RuleValidator:
 
         result = True
 
-        # Nice Value Verification #
+        # Nice_value Verification #
         if "nice_value" in rule:
             if rule["nice_value"] < -20 or rule["nice_value"] > 20:
-                error = "Nice value goes from -20 to 20; rule " + str(counter)
-                error += " in '" + str(tool) + "' has a nice value of '"
+                error = "nice_value goes from -20 to 20; rule " + str(counter)
+                error += " in '" + str(tool) + "' has a nice_value of '"
                 error += str(rule["nice_value"]) + "'."
                 if not return_result:
-                    error += " Setting nice value to 0."
+                    error += " Setting nice_value to 0."
                 log.debug(error)
                 rule["nice_value"] = 0
                 result = False
         else:
-            error = "No nice value found for rule " + str(counter) + " in '" + str(tool)
+            error = "No nice_value found for rule " + str(counter) + " in '" + str(tool)
             error += "'."
             if not return_result:
-                error += " Setting nice value to 0."
+                error += " Setting nice_value to 0."
             log.debug(error)
             rule["nice_value"] = 0
             result = False
@@ -108,10 +108,10 @@ class RuleValidator:
 
         if "destination" in rule and isinstance(rule["destination"], str):
             if rule["destination"] == "fail" and "fail_message" not in rule:
-                    error = "Missing a fail message for rule " + str(counter)
+                    error = "Missing a fail_message for rule " + str(counter)
                     error += " in '" + str(tool) + "'."
                     if not return_result:
-                        error += " Adding generic fail message."
+                        error += " Adding generic fail_message."
                     log.debug(error)
                     message = "Invalid parameters for rule " + str(counter)
                     message += " in '" + str(tool) + "'."
@@ -132,7 +132,7 @@ class RuleValidator:
                 lower_bound = str_to_bytes(rule["lower_bound"])
 
                 if upper_bound != -1 and lower_bound > upper_bound:
-                    error = "Lower bound exceeds upper bound for rule " + str(counter)
+                    error = "lower_bound exceeds upper_bound for rule " + str(counter)
                     error += " in '" + str(tool) + "'."
                     if not return_result:
                         error += " Reversing bounds."
@@ -295,7 +295,7 @@ def validate_config(obj, return_result=False):
 
                                     else:
                                         counter += 1
-                                        error = "No rule type found for rule "
+                                        error = "No rule_type found for rule "
                                         error += str(counter)
                                         error += " in '" + str(tool) + "'."
                                         log.debug(error)
@@ -606,6 +606,6 @@ if __name__ == '__main__':
 
     if args.validate:
         if parse_yaml(path="/tool_destinations.yml", return_result=True):
-            print("Configuration looks valid!")
+            print("Configuration is valid!")
         else:
-            print("Errors detected in config; YML file not valid!")
+            print("Errors detected; config not valid!")
