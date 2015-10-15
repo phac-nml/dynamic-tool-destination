@@ -81,9 +81,9 @@ to give a fairly real-world example):
 Ex:  
 ```
 tools:
-	spades:
-		rules:
-			- rule_type: what kind of rule is it?
+  spades:
+	  rules:
+      - rule_type: what kind of rule is it?
 				nice_value: what kind of priority does this rule have over others?
 				destination: how should this tool be run?
 				lower_bound: what's the max file size?
