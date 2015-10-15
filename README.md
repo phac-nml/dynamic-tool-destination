@@ -186,8 +186,8 @@ tools:
 	rules:
 	  - rule_type: file_size
 	    nice_value: 0
-		destination: fail
-		fail_message: Data too large
+        destination: fail
+        fail_message: Data too large
 		lower_bound: 4 GB
 		upper_bound: Infinity
 ```
