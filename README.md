@@ -82,31 +82,31 @@ Ex:
 ```
 tools:
   spades:
-	  rules:
+	rules:
       - rule_type: what kind of rule is it?
-				nice_value: what kind of priority does this rule have over others?
-				destination: how should this tool be run?
-				lower_bound: what's the max file size?
-				upper_bound: what's the minimum file size?
-		default_destination: this tool-specific field is optional
-	smalt_map:
-	  rules:
-	    - rule_type: file_size
-	      nice_value: 0
-	      lower_bound: 0
-	      upper_bound: 2 GB
-	      destination: waffles_low_4
-	    - rule_type: file_size
-	      nice_value: 0
-	      lower_bound: 2 GB
-	      upper_bound: 4 GB
-	      destination: waffles_low_8
-	    - rule_type: file_size
-	      nice_value: 0
-	      lower_bound: 4 GB
-	      upper_bound: Infinity
-	      destination: waffles_low_16
-	  default_destination: waffles_default
+		nice_value: what kind of priority does this rule have over others?
+		destination: how should this tool be run?
+		lower_bound: what's the max file size?
+		upper_bound: what's the minimum file size?
+	default_destination: this tool-specific field is optional
+  smalt_map:
+    rules:
+      - rule_type: file_size
+        nice_value: 0
+        lower_bound: 0
+        upper_bound: 2 GB
+        destination: waffles_low_4
+      - rule_type: file_size
+        nice_value: 0
+        lower_bound: 2 GB
+        upper_bound: 4 GB
+        destination: waffles_low_8
+      - rule_type: file_size
+        nice_value: 0
+        lower_bound: 4 GB
+        upper_bound: Infinity
+        destination: waffles_low_16
+    default_destination: waffles_default
 default_destination: this global field is mandatory
 
 ```
@@ -183,13 +183,13 @@ For example, the following rule is set to fail the job if a file that is too lar
 ```
 tools:
   spades:
-		rules:
-			- rule_type: file_size
-				nice_value: 0
-				destination: fail
-				fail_message: Data too large
-				lower_bound: 4 GB
-				upper_bound: Infinity
+	rules:
+	  - rule_type: file_size
+	    nice_value: 0
+		destination: fail
+		fail_message: Data too large
+		lower_bound: 4 GB
+		upper_bound: Infinity
 ```
 
 As shown above, a rule with 'fail' as the destination requires an additional
