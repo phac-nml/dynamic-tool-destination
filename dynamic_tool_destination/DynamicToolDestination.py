@@ -87,16 +87,16 @@ class RuleValidator:
                 error += str(rule["nice_value"]) + "'."
                 if not return_result:
                     error += " Setting nice_value to 0."
+                    rule["nice_value"] = 0
                 log.debug(error)
-                rule["nice_value"] = 0
                 result = False
         else:
             error = "No nice_value found for rule " + str(counter) + " in '" + str(tool)
             error += "'."
             if not return_result:
                 error += " Setting nice_value to 0."
+                rule["nice_value"] = 0
             log.debug(error)
-            rule["nice_value"] = 0
             result = False
 
         # Destination Verification #
@@ -112,10 +112,10 @@ class RuleValidator:
                     error += " in '" + str(tool) + "'."
                     if not return_result:
                         error += " Adding generic fail_message."
+                        message = "Invalid parameters for rule " + str(counter)
+                        message += " in '" + str(tool) + "'."
+                        rule["fail_message"] = message
                     log.debug(error)
-                    message = "Invalid parameters for rule " + str(counter)
-                    message += " in '" + str(tool) + "'."
-                    rule["fail_message"] = message
                     result = False
         else:
             error = "No destination specified for rule " + str(counter)
@@ -136,19 +136,20 @@ class RuleValidator:
                     error += " in '" + str(tool) + "'."
                     if not return_result:
                         error += " Reversing bounds."
+                        temp_upper_bound = rule["upper_bound"]
+                        temp_lower_bound = rule["lower_bound"]
+                        rule["upper_bound"] = temp_lower_bound
+                        rule["lower_bound"] = temp_upper_bound
                     log.debug(error)
                     result = False
-                    temp_upper_bound = rule["upper_bound"]
-                    temp_lower_bound = rule["lower_bound"]
-                    rule["upper_bound"] = temp_lower_bound
-                    rule["lower_bound"] = temp_upper_bound
+
             else:
                 error = "Missing bounds for rule " + str(counter)
                 error += " in '" + str(tool) + "'."
                 if not return_result:
                     error += " Ignoring rule."
+                    rule["rule_type"] = "fail"
                 log.debug(error)
-                rule["rule_type"] = "fail"
                 result = False
 
         # Arguments Verification (for rule_type arguments; read comment block at top
@@ -159,8 +160,8 @@ class RuleValidator:
                 error += str(tool) + "' despite being of type arguments."
                 if not return_result:
                     error += " Ignoring rule."
+                    rule["rule_type"] = "fail"
                 log.debug(error)
-                rule["rule_type"] = "fail"
                 result = False
 
         if return_result:
@@ -201,7 +202,13 @@ def parse_yaml(path="/config/tool_destinations.yml", test=False, return_result=F
         if test:
             config = load(path)
         else:
-            opt_file = os.getcwd() + path
+            if path == "/config/tool_destinations.yml":
+                os.chdir('../../../..')
+                opt_file = os.getcwd() + path
+
+            else:
+                opt_file = path
+
             with open(opt_file, 'r') as stream:
                 config = load(stream)
 
@@ -594,9 +601,11 @@ if __name__ == '__main__':
     logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
     parser.add_argument(
-        '-v', '--validate-config', dest='validate', action='store_true',
+        '-v', '--validate-config', dest='validate', nargs='?',
         help='Use this option to validate tool_destinations.yml.'
-        + ' Store tool_destinations.yml same folder as this file.')
+        + ' Specify file/path/to/tool_destinations.yml or'
+        + ' store tool_destinations.yml in galaxy/config if running'
+        + ' without a filepath argument.')
 
     args = parser.parse_args()
 
@@ -605,7 +614,12 @@ if __name__ == '__main__':
         sys.exit(1)
 
     if args.validate:
-        if parse_yaml(path="/tool_destinations.yml", return_result=True):
-            print("Configuration is valid!")
-        else:
-            print("Errors detected; config not valid!")
+        result = parse_yaml(path=args.validate, return_result=True)
+
+    else:
+        result = parse_yaml(path="/config/tool_destinations.yml", return_result=True)
+
+    if result:
+        print("Configuration is valid!")
+    else:
+        print("Errors detected; config not valid!")
