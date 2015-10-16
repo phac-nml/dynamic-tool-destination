@@ -52,8 +52,8 @@ DynamicToolDestination:
 ```
 
 5. Change the default destination to use Dynamic Tool Destination:
-In the header for the destinations section, ensure that it reads ```<destinations default="dynamic_destination">```
-This is encouraged because it makes it easier to add new tools; with Dynamic Tool Destination as the default, you wouldn't 
+In the header for the destinations section, ensure that it reads ```<destinations default="dynamic_destination">```  
+This is encouraged because it makes it easier to add new tools; with Dynamic Tool Destination as the default, you wouldn't
 have to add every new tool to tool_conf.xml - you'd only have to add it to this program's config
 along with its rules.
 
