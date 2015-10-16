@@ -81,6 +81,86 @@ class RuleValidator:
         result = True
 
         # Nice_value Verification #
+        result, rule = cls.__validate_nice_value(
+            result, return_result, rule, tool, counter)
+
+        # Destination Verification #
+        result, rule = cls.__validate_destination(
+            result, return_result, rule, tool, counter)
+
+        # Bounds Verification #
+        result, rule = cls.__validate_bounds(
+            result, return_result, rule, tool, counter)
+
+        if return_result:
+            return result
+
+        else:
+            return rule
+
+    @classmethod
+    def __validate_records_rule(cls, return_result, original_rule, counter, tool):
+        """
+        This function exists so that in the future, if records accepts differing
+        parameters than file_size, then you could simply edit this function. But for now,
+        since both rule_types share identical incoming parameters, I'll just pass this
+        off to file_size
+        """
+
+        rule = copy.deepcopy(original_rule)
+        result = True
+
+        # Nice_value Verification #
+        result, rule = cls.__validate_nice_value(
+            result, return_result, rule, tool, counter)
+
+        # Destination Verification #
+        result, rule = cls.__validate_destination(
+            result, return_result, rule, tool, counter)
+
+        # Bounds Verification #
+        result, rule = cls.__validate_bounds(result, return_result, rule, tool, counter)
+
+        if return_result:
+            return result
+
+        else:
+            return rule
+
+    @classmethod
+    def __validate_arguments_rule(cls, return_result, original_rule, counter, tool):
+        """
+        This function exists so that in the future, if arguments accepts differing
+        parameters than file_size, then you could simply edit this function. But for now,
+        since both rule_types share identical incoming parameters, I'll just pass this
+        off to file_size
+        """
+
+        rule = copy.deepcopy(original_rule)
+        result = True
+
+        # Nice_value Verification #
+        result, rule = cls.__validate_nice_value(
+            result, return_result, rule, tool, counter)
+
+        # Destination Verification #
+        result, rule = cls.__validate_destination(
+            result, return_result, rule, tool, counter)
+
+        # Arguments Verification (for rule_type arguments; read comment block at top
+        # of function for clarification.
+        result, rule = cls.__validate_arguments(
+            result, return_result, rule, tool, counter)
+
+        if return_result:
+            return result
+
+        else:
+            return rule
+
+    @classmethod
+    def __validate_nice_value(cls, result, return_result, rule, tool, counter):
+
         if "nice_value" in rule:
             if rule["nice_value"] < -20 or rule["nice_value"] > 20:
                 error = "nice_value goes from -20 to 20; rule " + str(counter)
@@ -91,6 +171,7 @@ class RuleValidator:
                     rule["nice_value"] = 0
                 log.debug(error)
                 result = False
+
         else:
             error = "No nice_value found for rule " + str(counter) + " in '" + str(tool)
             error += "'."
@@ -100,7 +181,11 @@ class RuleValidator:
             log.debug(error)
             result = False
 
-        # Destination Verification #
+        return result, rule
+
+    @classmethod
+    def __validate_destination(cls, result, return_result, rule, tool, counter):
+
         if "fail_message" in rule:
             if "destination" not in rule or rule['destination'] != "fail":
                 result = False
@@ -126,72 +211,51 @@ class RuleValidator:
             log.debug(error)
             result = False
 
-        # Bounds Verification #
-        if rule["rule_type"] == "file_size" or rule["rule_type"] == "records":
-            if "upper_bound" in rule and "lower_bound" in rule:
-                upper_bound = str_to_bytes(rule["upper_bound"])
-                lower_bound = str_to_bytes(rule["lower_bound"])
+        return result, rule
 
-                if upper_bound != -1 and lower_bound > upper_bound:
-                    error = "lower_bound exceeds upper_bound for rule " + str(counter)
-                    error += " in '" + str(tool) + "'."
-                    if not return_result:
-                        error += " Reversing bounds."
-                        temp_upper_bound = rule["upper_bound"]
-                        temp_lower_bound = rule["lower_bound"]
-                        rule["upper_bound"] = temp_lower_bound
-                        rule["lower_bound"] = temp_upper_bound
-                    log.debug(error)
-                    result = False
+    @classmethod
+    def __validate_bounds(cls, result, return_result, rule, tool, counter):
 
-            else:
-                error = "Missing bounds for rule " + str(counter)
+        if "upper_bound" in rule and "lower_bound" in rule:
+            upper_bound = str_to_bytes(rule["upper_bound"])
+            lower_bound = str_to_bytes(rule["lower_bound"])
+
+            if upper_bound != -1 and lower_bound > upper_bound:
+                error = "lower_bound exceeds upper_bound for rule " + str(counter)
                 error += " in '" + str(tool) + "'."
                 if not return_result:
-                    error += " Ignoring rule."
-                    rule["rule_type"] = "fail"
+                    error += " Reversing bounds."
+                    temp_upper_bound = rule["upper_bound"]
+                    temp_lower_bound = rule["lower_bound"]
+                    rule["upper_bound"] = temp_lower_bound
+                    rule["lower_bound"] = temp_upper_bound
                 log.debug(error)
                 result = False
-
-        # Arguments Verification (for rule_type arguments; read comment block at top
-        # of function for clarification.
-        if rule["rule_type"] == "arguments":
-            if "arguments" not in rule or not isinstance(rule["arguments"], dict):
-                error = "No arguments found for rule " + str(counter) + " in '"
-                error += str(tool) + "' despite being of type arguments."
-                if not return_result:
-                    error += " Ignoring rule."
-                    rule["rule_type"] = "fail"
-                log.debug(error)
-                result = False
-
-        if return_result:
-            return result
 
         else:
-            return rule
+            error = "Missing bounds for rule " + str(counter)
+            error += " in '" + str(tool) + "'."
+            if not return_result:
+                error += " Ignoring rule."
+                rule["rule_type"] = "fail"
+            log.debug(error)
+            result = False
+
+        return result, rule
 
     @classmethod
-    def __validate_records_rule(cls, return_result, original_rule, counter, tool):
-        """
-        This function exists so that in the future, if records accepts differing
-        parameters than file_size, then you could simply edit this function. But for now,
-        since both rule_types share identical incoming parameters, I'll just pass this
-        off to file_size
-        """
+    def __validate_arguments(cls, result, return_result, rule, tool, counter):
 
-        return cls.__validate_file_size_rule(return_result, original_rule, counter, tool)
+        if "arguments" not in rule or not isinstance(rule["arguments"], dict):
+            error = "No arguments found for rule " + str(counter) + " in '"
+            error += str(tool) + "' despite being of type arguments."
+            if not return_result:
+                error += " Ignoring rule."
+                rule["rule_type"] = "fail"
+            log.debug(error)
+            result = False
 
-    @classmethod
-    def __validate_arguments_rule(cls, return_result, original_rule, counter, tool):
-        """
-        This function exists so that in the future, if arguments accepts differing
-        parameters than file_size, then you could simply edit this function. But for now,
-        since both rule_types share identical incoming parameters, I'll just pass this
-        off to file_size
-        """
-
-        return cls.__validate_file_size_rule(return_result, original_rule, counter, tool)
+        return result, rule
 
 
 def parse_yaml(path="/config/tool_destinations.yml", test=False, return_result=False):
@@ -204,7 +268,6 @@ def parse_yaml(path="/config/tool_destinations.yml", test=False, return_result=F
             config = load(path)
         else:
             if path == "/config/tool_destinations.yml":
-                os.chdir('../../../..')
                 opt_file = os.getcwd() + path
 
             else:
@@ -618,6 +681,7 @@ if __name__ == '__main__':
         result = parse_yaml(path=args.validate, return_result=True)
 
     else:
+        os.chdir('../../../..')
         result = parse_yaml(path="/config/tool_destinations.yml", return_result=True)
 
     if result:
