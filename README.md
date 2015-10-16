@@ -77,7 +77,7 @@ outlined above, followed by how it's used when called from Galaxy:
     <handlers default="handlers">
         <handler id="main" tags="handlers"/>
     </handlers>
-    <destinations default="cluster_default">
+    <destinations default="dynamic_destination">
         <destination id="local" runner="local"/>
 
         <destination id="dynamic_destination" runner="dynamic">
@@ -173,18 +173,18 @@ tools:
         nice_value: 0
         lower_bound: 0
         upper_bound: 2 GB
-        destination: waffles_low_4
+        destination: cluster_low_4
       - rule_type: file_size
         nice_value: 0
         lower_bound: 2 GB
         upper_bound: 4 GB
-        destination: waffles_low_8
+        destination: cluster_low_8
       - rule_type: file_size
         nice_value: 0
         lower_bound: 4 GB
         upper_bound: Infinity
-        destination: waffles_low_16
-    default_destination: waffles_default
+        destination: cluster_low_16
+    default_destination: cluster_default
 default_destination: this global field is mandatory
 
 ```
@@ -236,8 +236,8 @@ tools:
         fail_message: Don't do that
         arguments:
           careful: true
-    default_destination: waffles_low
-default_destination: waffles
+    default_destination: cluster_low
+default_destination: cluster
 ```
 
 Next up, nice_value is used for prioritizing rules over others in case two rules
