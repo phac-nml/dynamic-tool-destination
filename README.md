@@ -71,15 +71,15 @@ would typically look like:
 </destination>
 ```
 
-  * You can see how the work done in the prior steps is referenced in this section. In this example,
-	destination_id references the name of the specific configuration. The runner refers to the runner
-	plugin added in step 5. The param line indicates the name of the parameter as well as the arguments
-	that are passed to the cluster.
+	  * You can see how the work done in the prior steps is referenced in this section. In this example,
+		destination_id references the name of the specific configuration. The runner refers to the runner
+		plugin added in step 5. The param line indicates the name of the parameter as well as the arguments
+		that are passed to the cluster.
 
-  * You may keep the destination that comes with job_conf, and may add other destinations using the same
-  format as specified above for your uses, all contained inside this 'destinations' section.
+	  * You may keep the destination that comes with job_conf, and may add other destinations using the same
+	  format as specified above for your uses, all contained inside this 'destinations' section.
 
-Additionally, in the <destinations> section, add the following to make sure Galaxy sees
+8. Additionally, in the <destinations> section, add the following to make sure Galaxy sees
 DynamicToolDestination:
 ```
 <destination id="dynamic_destination" runner="dynamic">
@@ -88,7 +88,7 @@ DynamicToolDestination:
 </destination>
 ```
 
-The tools section (which you created in step 4) is responsible for linking jobs with
+9. The tools section (which you created in step 4) is responsible for linking jobs with
 DynamicToolDestination. Use the following format to refer to the tools that you wish
 to use with DynamicToolDestination:
 ```
