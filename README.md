@@ -51,7 +51,13 @@ DynamicToolDestination:
 </destination>
 ```
 
-5. In the ```<tools>``` section, use the following format to refer to the tools that you wish
+5. Change the default destination to use Dynamic Tool Destination:
+In the header for the destinations section, ensure that it reads ```<destinations default="dynamic_destination">```
+This is encouraged because it makes it easier to add new tools; with Dynamic Tool Destination as the default, you wouldn't 
+have to add every new tool to tool_conf.xml - you'd only have to add it to this program's config
+along with its rules.
+
+6. In the ```<tools>``` section, use the following format to refer to the tools that you wish
 to use with DynamicToolDestination:
 ```
 <tool id="tool_name" destination="dynamic_destination"/>
@@ -107,7 +113,7 @@ outlined above, followed by how it's used when called from Galaxy:
 Suppose a researcher is attempting to use the tool spades with two fastqsanger files.
 Based on the rules outlined in Dynamic Tool Destination's configuration, this program
 may decide that her files are eligible for use on cluster_low_32. This XML file is then
-checked to see if such destination with an ID of ```cluster_low_32``` exists. If it does, 
+checked to see if such destination with an ID of ```cluster_low_32``` exists. If it does,
 the arguments contained inside the destination's params are passed to the cluster.
 In this case, the job would be run with parameters ```-q test.q -pe galaxy 32 -l h_vmem=2G```
 
