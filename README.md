@@ -79,7 +79,7 @@ would typically look like:
   * You may keep the destination that comes with job_conf, and may add other destinations using the same
   format as specified above for your uses, all contained inside this 'destinations' section.
 
-8. Additionally, in the <destinations> section, add the following to make sure Galaxy sees
+Additionally, in the <destinations> section, add the following to make sure Galaxy sees
 DynamicToolDestination:
 ```
 <destination id="dynamic_destination" runner="dynamic">
@@ -88,7 +88,7 @@ DynamicToolDestination:
 </destination>
 ```
 
-9. The tools section (which you created in step 4) is responsible for linking jobs with
+The tools section (which you created in step 4) is responsible for linking jobs with
 DynamicToolDestination. Use the following format to refer to the tools that you wish
 to use with DynamicToolDestination:
 ```
