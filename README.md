@@ -171,20 +171,6 @@ tox -e flake8
 The configuration for each tool is done in tool_destinations.yml. You may either edit  
 this file in the root folder and run make clean then make install, or you can  
 edit this file directly in galaxy_path/config/tool_destinations.yml  
-<<<<<<< Updated upstream
-
-For each key-property under tools:, put the ID of the tool. Tool IDs must be  
-distinct. In each tool is a list of rules, each of which contain rule-specific
-paremeters. DynamicToolDestination.py is set up to allow and fix a few light errors
-in the config, but it's best to follow the specified template.
-
-There is a special key-property that goes in same the level as tools:,
-default_destination, which specifies which global destination to default to in case
-none of the rules apply. The general template is as follows (note that this template
-does not use quote symbols), using spades and smalt as an example
-(spades for showing what each field is for, and smalt
-to give a fairly real-world example):
-=======
 
 For each key-property under tools:, put the ID of the tool. Tool IDs must be  
 distinct. In each tool is a list of rules, each of which contain rule-specific
@@ -200,70 +186,6 @@ to give a fairly real-world example):
 
 Ex:  
 ```
-tools:
-  spades:
-	  rules:
-      - rule_type: what kind of rule is it?
-				nice_value: what kind of priority does this rule have over others?
-				destination: how should this tool be run?
-				lower_bound: what's the max file size?
-				upper_bound: what's the minimum file size?
-		default_destination: this tool-specific field is optional
-	smalt_map:
-	  rules:
-	    - rule_type: file_size
-	      nice_value: 0
-	      lower_bound: 0
-	      upper_bound: 2 GB
-	      destination: cluster_low_4
-	    - rule_type: file_size
-	      nice_value: 0
-	      lower_bound: 2 GB
-	      upper_bound: 4 GB
-	      destination: cluster_low_8
-	    - rule_type: file_size
-	      nice_value: 0
-	      lower_bound: 4 GB
-	      upper_bound: Infinity
-	      destination: cluster_low_16
-	  default_destination: cluster_default
-default_destination: this global field is mandatory
-
-```
-
-Looking at this example, some things must be clarified: each entry in the list of
-rules per tool is specified by '-'. Per rule, regardless of rule type,
-the following fields are mandatory:
-rule_type, nice_value, and destination.
-
-Some of the other fields are mandatory only for specific rule types, which will be
-further discussed below.
-
-Starting with rule_type, there are currently 3 rule types: file_size, records,
-and arguments.
-
-file_size and records rules are based on how large the files are: if they fall
-within specified limits, then the rule is satisfied, and the tool may proceed
-with the appropriate destination.
-
-file_size and records rules have the following required parameters on top of the base
-mandatory parameters:
-upper_bound
-lower_bound
-
-Bounds are allowed to be specified in bytes (48000 for example) or a higher size unit,
-including the unit abbreviation (4 GB or 10 TB for example). Additionally, upper_bound
-is allowed to be Infinite; simply specify Infinite in order to do so.
-
-**The rule will allow the lower_bound, up to but not including the upper_bound  
-
-The third rule_type is arguments, which has arguments as a mandatory parameter ontop of
-the base mandatory parameters. The arguments parameter is specified using the following
-template:
->>>>>>> Stashed changes
-
-```
-<<<<<<< Updated upstream
 tools:
   spades:
 	rules:
@@ -376,58 +298,6 @@ tools:
 		upper_bound: Infinity
 ```
 
-=======
-arguments:
-	argument_name: the_argument
-```
-
-A real world example is shown below:
-
-```
-tools:
-  spades:
-    rules:
-      - rule_type: arguments
-        nice_value: -19
-        destination: fail
-        fail_message: Don't do that
-        arguments:
-          careful: true
-    default_destination: cluster_low
-default_destination: cluster_default
-```
-
-Next up, nice_value is used for prioritizing rules over others in case two rules
-match. nice_value basically translates to, "the higher the nice_value, the 'nicer'
-the tool is about being picked last". So based off of that idea, a rule with a nice
-value of -5 is guaranteed to be picked over a rule with a nice value of 10. nice_value
-is allowed to go from -20 to 20. If two rules have the same nice value and both were
-satisfied, the first rule in the config file will be picked. In summary, first-come-
-first-serve basis unless nice_value overrides that.
-
-
-Finally, destination simply refers to the specific way the tool will run. Each
-destination ID refers to a specific configuration to run the tool with.
-
-Some rules may call for the job to fail if certain conditions are encountered. In
-this case, destination simply refers to 'fail'.
-
-For example, the following rule is set to fail the job if a file that is too large
-(more than 4GB) is encountered:
-
-```
-tools:
-  spades:
-		rules:
-			- rule_type: file_size
-				nice_value: 0
-				destination: fail
-				fail_message: Data too large
-				lower_bound: 4 GB
-				upper_bound: Infinity
-```
-
->>>>>>> Stashed changes
 As shown above, a rule with 'fail' as the destination requires an additional
 parameter, 'fail_message', which DynamicToolDestination uses to print a helpful error
 message to the user indicating why the job failed (showing up inside the job log in
