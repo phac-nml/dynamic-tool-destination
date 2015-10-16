@@ -108,9 +108,9 @@ vfdbTool = mg.Tool( 'test_db' )
 vfdbTool.add_tool_dependency( mg.ToolDependency("vfdb", os.getcwd() + "/tests") )
 
 #=======================YML file================================
-path = "/tests/data/tool_destination.yml"
-err_path = "/tests/data/no_errmsg.yml"
-broken_default_dest_path = "/tests/data/dest_fail.yml"
+path = os.getcwd() + "/tests/data/tool_destination.yml"
+err_path = os.getcwd() + "/tests/data/no_errmsg.yml"
+broken_default_dest_path = os.getcwd() + "/tests/data/dest_fail.yml"
 
 #======================Test Variables=========================
 value = 1
