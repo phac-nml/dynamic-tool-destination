@@ -43,7 +43,7 @@ This project dynamically maps tools to destinations based on the following rules
 		and open it in a text editor
 
 4. Here you will see a general layout consisting of plugins, handlers, and destinations.
-		Add another section '<tools>' (followed by </tools>) below </destinations>.
+		Add another section: ```<tools>``` (followed by ```</tools>```) below ```</destinations>```.
 
 The plugins section is used to indicate available runners (basically where the job
 will be run).
