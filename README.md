@@ -39,48 +39,10 @@ This project dynamically maps tools to destinations based on the following rules
 2. In the root directory of this project on the command line, type in:
 ```make install GALAXY_PATH="your-galaxy-path"```
 
-3. Go to galaxy/config/ and rename ```job_conf.xml.sample_basic``` to ```job_conf.xml```, and open it in a text editor
+3. Make sure you read https://wiki.galaxyproject.org/Admin/Config/Jobs for instructions on
+how to set up the tool_conf.xml files.
 
-4. Here you will see a general layout consisting of plugins, handlers, and destinations.
-Add another section: ```<tools>``` (followed by ```</tools>```) below ```</destinations>```.
-
-5. The plugins section is used to indicate available runners (basically where the job
-will be run). If using a cluster, copy the ```<plugin id="local"...``` line and paste a copy below it.
-You can change the id, load, and workers to reflect the settings used by your organization. For example:
-```
-<plugin id="local" type="runner" load="galaxy.jobs.runners.local:LocalJobRunner" workers="4"/>
-<plugin id="drmaa" type="runner" load="galaxy.jobs.runners.drmaa:DRMAAJobRunner" workers="6"/>
-```
-
-6. Similarly, you can add additional handlers to the <handlers> section, as well as specifying defaults
-by adding 'default="handler_name"' to the header and adding the handler name as a tag to the handler you're
-referring to. For example:
-```
-<handlers default="handler_name">
-	<handler id="main" tags="handler_name"/>
-</handlers>
-```
-
-7. The destinations section is used to link destination IDs with their specific configuration.
-This section typically will contain a list of different destinations which are requested dynamically
-based on rules defined in DynamicToolDestination. For example, an entry in the 'destinations' section
-would typically look like:
-```
-<destination id="cluster_low_4" runner="drmaa">
-	<param id="nativeSpecification">-q test.q -pe galaxy 4 -l h_vmem=2G</param>
-</destination>
-```
-
-
-	You can see how the work done in the prior steps is referenced in this section. In this example,
-	destination_id references the name of the specific configuration. The runner refers to the runner
-	plugin added in step 5. The param line indicates the name of the parameter as well as the arguments
-    that are passed to the cluster.
-
-	You may keep the destination that comes with job_conf, and may add other destinations using the same
-	format as specified above for your uses, all contained inside this 'destinations' section.
-
-8. Additionally, in the <destinations> section, add the following to make sure Galaxy sees
+4. In the <destinations> section, add the following to make sure Galaxy sees
 DynamicToolDestination:
 ```
 <destination id="dynamic_destination" runner="dynamic">
@@ -89,15 +51,16 @@ DynamicToolDestination:
 </destination>
 ```
 
-9. The tools section (which you created in step 4) is responsible for linking jobs with
-DynamicToolDestination. Use the following format to refer to the tools that you wish
+5. In the ```<tools>``` section, use the following format to refer to the tools that you wish
 to use with DynamicToolDestination:
 ```
 <tool id="tool_name" destination="dynamic_destination"/>
 ```
 
+For these tools, Galaxy will use Dynamic Tool Destination to determine which cluster/local config to use.
+
 Putting it all together, here's a real-world example tool_conf.xml following the steps
-outlined above:
+outlined above, followed by how it's used when called from Galaxy:
 ```
 <?xml version="1.0"?>
 <job_conf>
@@ -140,6 +103,13 @@ outlined above:
     </tools>
 </job_conf>
 ```
+
+Suppose a researcher is attempting to use the tool spades with two fastqsanger files.
+Based on the rules outlined in Dynamic Tool Destination's configuration, this program
+may decide that her files are eligible for use on cluster_low_32. This XML file is then
+checked to see if such destination with an ID of ```cluster_low_32``` exists. If it does, 
+the arguments contained inside the destination's params are passed to the cluster.
+In this case, the job would be run with parameters ```-q test.q -pe galaxy 32 -l h_vmem=2G```
 
 
 ## Testing  
