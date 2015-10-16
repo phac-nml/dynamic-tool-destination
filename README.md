@@ -46,11 +46,11 @@ This project dynamically maps tools to destinations based on the following rules
 		Add another section: ```<tools>``` (followed by ```</tools>```) below ```</destinations>```.
 
 5. The plugins section is used to indicate available runners (basically where the job
-		will be run). If using a cluster, copy the '<plugin id="local"...' line and paste a copy below it.
+		will be run). If using a cluster, copy the '''<plugin id="local"...''' line and paste a copy below it.
 		You can change the id, load, and workers to reflect the settings used by your
 		organization. For example:
 		```
-		<plugin id="local" type="runner" load="galaxy.jobs.runners.local:LocalJobRunner" workers="4"/>
+		<plugin id="local" type="runner" load="galaxy.jobs.runners.local:LocalJobRunner" workers="4"/>  
     <plugin id="drmaa" type="runner" load="galaxy.jobs.runners.drmaa:DRMAAJobRunner" workers="6"/>
 		```
 
