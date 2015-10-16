@@ -68,6 +68,7 @@ This project dynamically maps tools to destinations based on the following rules
 		which are requested dynamically based on rules defined in DynamicToolDestination.
 
 		For example, an entry in the 'destinations' section would typically look like:
+		
 		```
 		<destination id="cluster_low_4" runner="drmaa">
 		    <param id="nativeSpecification">-q test.q -pe galaxy 4 -l h_vmem=2G</param>
