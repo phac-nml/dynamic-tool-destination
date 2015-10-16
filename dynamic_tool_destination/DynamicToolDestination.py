@@ -70,13 +70,14 @@ class RuleValidator:
             return cls.__validate_arguments_rule(return_result, *args, **kwargs)
 
     @classmethod
-    def __validate_file_size_rule(cls, return_result, rule, counter, tool):
+    def __validate_file_size_rule(cls, return_result, original_rule, counter, tool):
         """
         Right now this function is doing all the heavy lifting for validating all of
         parameters for all rule_types. That's why it checks rule_type even though it's
         called 'file_size'.
         """
 
+        rule = copy.deepcopy(original_rule)
         result = True
 
         # Nice_value Verification #
@@ -171,7 +172,7 @@ class RuleValidator:
             return rule
 
     @classmethod
-    def __validate_records_rule(cls, return_result, rule, counter, tool):
+    def __validate_records_rule(cls, return_result, original_rule, counter, tool):
         """
         This function exists so that in the future, if records accepts differing
         parameters than file_size, then you could simply edit this function. But for now,
@@ -179,10 +180,10 @@ class RuleValidator:
         off to file_size
         """
 
-        return cls.__validate_file_size_rule(return_result, rule, counter, tool)
+        return cls.__validate_file_size_rule(return_result, original_rule, counter, tool)
 
     @classmethod
-    def __validate_arguments_rule(cls, return_result, rule, counter, tool):
+    def __validate_arguments_rule(cls, return_result, original_rule, counter, tool):
         """
         This function exists so that in the future, if arguments accepts differing
         parameters than file_size, then you could simply edit this function. But for now,
@@ -190,7 +191,7 @@ class RuleValidator:
         off to file_size
         """
 
-        return cls.__validate_file_size_rule(return_result, rule, counter, tool)
+        return cls.__validate_file_size_rule(return_result, original_rule, counter, tool)
 
 
 def parse_yaml(path="/config/tool_destinations.yml", test=False, return_result=False):
