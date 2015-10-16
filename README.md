@@ -53,17 +53,9 @@ DynamicToolDestination:
 
 5. Change the default destination to use Dynamic Tool Destination:  
 In the header for the destinations section, ensure that it reads ```<destinations default="dynamic_destination">```  
-This is encouraged because it makes it easier to add new tools; with Dynamic Tool Destination as the default, you wouldn't
-have to add every new tool to tool_conf.xml - you'd only have to add it to this program's config
+With Dynamic Tool Destination as the default, you can simply add new tools to this program's config
 along with its rules.
 
-6. In the ```<tools>``` section, use the following format to refer to the tools that you wish
-to use with DynamicToolDestination:
-```
-<tool id="tool_name" destination="dynamic_destination"/>
-```
-
-For these tools, Galaxy will use Dynamic Tool Destination to determine which cluster/local config to use.
 
 Putting it all together, here's a real-world example tool_conf.xml following the steps
 outlined above, followed by how it's used when called from Galaxy:
@@ -101,12 +93,6 @@ outlined above, followed by how it's used when called from Galaxy:
             <param id="nativeSpecification">-q test.q -pe galaxy 16 -l h_vmem=2G</param>
         </destination>
     </destinations>
-    <tools>
-        <tool id="smalt_map" destination="dynamic_destination"/>
-        <tool id="cufflinks" destination="dynamic_destination"/>
-        <tool id="tophat" destination="dynamic_destination"/>
-        <tool id="spades" destination="dynamic_destination"/>
-    </tools>
 </job_conf>
 ```
 
@@ -133,7 +119,7 @@ tox -e py26
 tox -e py27
 ```
 
-2. To run flake tests
+3. To run flake tests
 ```
 tox -e flake8
 ```
