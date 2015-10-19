@@ -89,17 +89,13 @@ class RuleValidator:
 
     @classmethod
     def __validate_file_size_rule(
-            cls, return_result, result, original_rule, counter, tool):
+            cls, return_result, original_rule, counter, tool):
         """
         This function is responsible for validating 'file_size' rules.
 
         @type return_result: bool
         @param return_result: True when we are only interested in the result of the
                               validation, and not the validated rule itself.
-
-        @type result: bool
-        @param result: returns True if everything is valid. False if it encounters any
-                       abnormalities in the config.
 
         @type original_rule: dict
         @param original_rule: contains the original received rule
@@ -116,6 +112,7 @@ class RuleValidator:
         """
 
         rule = copy.deepcopy(original_rule)
+        result = True
 
         # Nice_value Verification #
         result, rule = cls.__validate_nice_value(
@@ -136,17 +133,13 @@ class RuleValidator:
             return rule
 
     @classmethod
-    def __validate_records_rule(cls, return_result, result, original_rule, counter, tool):
+    def __validate_records_rule(cls, return_result, original_rule, counter, tool):
         """
         This function is responsible for validating 'records' rules.
 
         @type return_result: bool
         @param return_result: True when we are only interested in the result of the
                               validation, and not the validated rule itself.
-
-        @type result: bool
-        @param result: returns True if everything is valid. False if it encounters any
-                       abnormalities in the config.
 
         @type original_rule: dict
         @param original_rule: contains the original received rule
@@ -163,6 +156,7 @@ class RuleValidator:
         """
 
         rule = copy.deepcopy(original_rule)
+        result = True
 
         # Nice_value Verification #
         result, rule = cls.__validate_nice_value(
@@ -183,17 +177,13 @@ class RuleValidator:
 
     @classmethod
     def __validate_arguments_rule(
-            cls, return_result, result, original_rule, counter, tool):
+            cls, return_result, original_rule, counter, tool):
         """
         This is responsible for validating 'arguments' rules.
 
         @type return_result: bool
         @param return_result: True when we are only interested in the result of the
                               validation, and not the validated rule itself.
-
-        @type result: bool
-        @param result: returns True if everything is valid. False if it encounters any
-                       abnormalities in the config.
 
         @type original_rule: dict
         @param original_rule: contains the original received rule
@@ -210,6 +200,7 @@ class RuleValidator:
         """
 
         rule = copy.deepcopy(original_rule)
+        result = True
 
         # Nice_value Verification #
         result, rule = cls.__validate_nice_value(
@@ -356,8 +347,8 @@ class RuleValidator:
         @type tool: str
         @param tool: the name of the current tool. Necessary for log output.
 
-        @rtype: bool, dict (tuple)
-        @return: validated rule and result of validation
+        @rtype: bool/None, dict (tuple)
+        @return: validated rule (or None if invalid) and result of validation
         """
 
         if "upper_bound" in rule and "lower_bound" in rule:
@@ -381,7 +372,7 @@ class RuleValidator:
             error += " in '" + str(tool) + "'."
             if not return_result:
                 error += " Ignoring rule."
-                rule["rule_type"] = "fail"
+                rule = None
             log.debug(error)
             result = False
 
@@ -410,8 +401,8 @@ class RuleValidator:
         @type tool: str
         @param tool: the name of the current tool. Necessary for log output.
 
-        @rtype: bool, dict (tuple)
-        @return: validated rule and result of validation
+        @rtype: bool/None, dict (tuple)
+        @return: validated rule (or None if invalid) and result of validation
         """
 
         if "arguments" not in rule or not isinstance(rule["arguments"], dict):
@@ -419,7 +410,7 @@ class RuleValidator:
             error += str(tool) + "' despite being of type arguments."
             if not return_result:
                 error += " Ignoring rule."
-                rule["rule_type"] = "fail"
+                rule = None
             log.debug(error)
             result = False
 
@@ -470,6 +461,7 @@ def validate_config(obj, return_result=False):
     if not return_result:
         log.debug("Running config validation...")
 
+    config_valid = True
     result = True
     available_rule_types = ['file_size', 'records', 'arguments']
 
@@ -507,19 +499,20 @@ def validate_config(obj, return_result=False):
                                             if return_result:
                                                 result = RuleValidator.validate_rule(
                                                     rule['rule_type'], return_result,
-                                                    result, rule, counter, tool)
+                                                    rule, counter, tool)
 
                                             else:
                                                 validated_rule = (
                                                     RuleValidator.validate_rule(
                                                         rule['rule_type'],
-                                                        return_result, result,
+                                                        return_result,
                                                         rule, counter, tool))
 
+                                            if not result:
+                                                config_valid = False
+
                                             if (not return_result
-                                                    and validated_rule is not None and
-                                                    not validated_rule['rule_type']
-                                                    == "fail"):
+                                                    and validated_rule is not None):
                                                 curr_tool_rules.append(
                                                     copy.deepcopy(validated_rule))
 
@@ -530,7 +523,7 @@ def validate_config(obj, return_result=False):
                                             if not return_result:
                                                 error += "Ignoring..."
                                             log.debug(error)
-                                            result = False
+                                            config_valid = False
 
                                     else:
                                         counter += 1
@@ -538,11 +531,11 @@ def validate_config(obj, return_result=False):
                                         error += str(counter)
                                         error += " in '" + str(tool) + "'."
                                         log.debug(error)
-                                        result = False
+                                        config_valid = False
                             else:
                                 error = "No rules found for '" + str(tool) + "'!"
                                 log.debug(error)
-                                result = False
+                                config_valid = False
 
                         if curr_tool_rules:
                             new_config[category][str(tool)]['rules'] = curr_tool_rules
@@ -551,22 +544,22 @@ def validate_config(obj, return_result=False):
                         error = "Malformed YML; expected job name, "
                         error += "but found a list instead!"
                         log.debug(error)
-                        result = False
+                        config_valid = False
 
             else:
                 error = "Unrecognized category '" + category + "' found in config file!"
                 log.debug(error)
-                result = False
+                config_valid = False
 
     else:
         log.debug("No (or empty) config file supplied!")
-        result = False
+        config_valid = False
 
     if not return_result:
         log.debug("Finished config validation.")
 
     if return_result:
-        return result
+        return config_valid
 
     else:
         return new_config
