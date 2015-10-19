@@ -57,9 +57,27 @@ class ScannerError(Exception):
 
 
 class RuleValidator:
+    """
+    This class is the primary facility for validating configs. It's always called
+    in map_tool_to_destination and it's called for validating config directly through
+    DynamicToolDestination.py
+    """
 
     @classmethod
     def validate_rule(cls, rule_type, return_result=False, *args, **kwargs):
+        """
+        This function is responsible for passing each rule to its relevant function.
+
+        @type rule_type: str
+        @param rule_type: the current rule's type
+
+        @type return_result: bool
+        @param return_result: True when we are only interested in the result of the
+                              validation, and not the validated rule itself.
+
+        @rtype: bool, dict (depending on return_result)
+        @return: validated rule or result of validation (depending on return_result)
+        """
         if rule_type == 'file_size':
             return cls.__validate_file_size_rule(return_result, *args, **kwargs)
 
@@ -73,9 +91,28 @@ class RuleValidator:
     def __validate_file_size_rule(
             cls, return_result, result, original_rule, counter, tool):
         """
-        Right now this function is doing all the heavy lifting for validating all of
-        parameters for all rule_types. That's why it checks rule_type even though it's
-        called 'file_size'.
+        This function is responsible for validating 'file_size' rules.
+
+        @type return_result: bool
+        @param return_result: True when we are only interested in the result of the
+                              validation, and not the validated rule itself.
+
+        @type result: bool
+        @param result: returns True if everything is valid. False if it encounters any
+                       abnormalities in the config.
+
+        @type original_rule: dict
+        @param original_rule: contains the original received rule
+
+        @type counter: int
+        @param counter: this counter is used to identify what rule # is currently being
+                        validated. Necessary for log output.
+
+        @type tool: str
+        @param tool: the name of the current tool. Necessary for log output.
+
+        @rtype: bool, dict (depending on return_result)
+        @return: validated rule or result of validation (depending on return_result)
         """
 
         rule = copy.deepcopy(original_rule)
@@ -101,10 +138,28 @@ class RuleValidator:
     @classmethod
     def __validate_records_rule(cls, return_result, result, original_rule, counter, tool):
         """
-        This function exists so that in the future, if records accepts differing
-        parameters than file_size, then you could simply edit this function. But for now,
-        since both rule_types share identical incoming parameters, I'll just pass this
-        off to file_size
+        This function is responsible for validating 'records' rules.
+
+        @type return_result: bool
+        @param return_result: True when we are only interested in the result of the
+                              validation, and not the validated rule itself.
+
+        @type result: bool
+        @param result: returns True if everything is valid. False if it encounters any
+                       abnormalities in the config.
+
+        @type original_rule: dict
+        @param original_rule: contains the original received rule
+
+        @type counter: int
+        @param counter: this counter is used to identify what rule # is currently being
+                        validated. Necessary for log output.
+
+        @type tool: str
+        @param tool: the name of the current tool. Necessary for log output.
+
+        @rtype: bool, dict (depending on return_result)
+        @return: validated rule or result of validation (depending on return_result)
         """
 
         rule = copy.deepcopy(original_rule)
@@ -130,10 +185,28 @@ class RuleValidator:
     def __validate_arguments_rule(
             cls, return_result, result, original_rule, counter, tool):
         """
-        This function exists so that in the future, if arguments accepts differing
-        parameters than file_size, then you could simply edit this function. But for now,
-        since both rule_types share identical incoming parameters, I'll just pass this
-        off to file_size
+        This is responsible for validating 'arguments' rules.
+
+        @type return_result: bool
+        @param return_result: True when we are only interested in the result of the
+                              validation, and not the validated rule itself.
+
+        @type result: bool
+        @param result: returns True if everything is valid. False if it encounters any
+                       abnormalities in the config.
+
+        @type original_rule: dict
+        @param original_rule: contains the original received rule
+
+        @type counter: int
+        @param counter: this counter is used to identify what rule # is currently being
+                        validated. Necessary for log output.
+
+        @type tool: str
+        @param tool: the name of the current tool. Necessary for log output.
+
+        @rtype: bool, dict (depending on return_result)
+        @return: validated rule or result of validation (depending on return_result)
         """
 
         rule = copy.deepcopy(original_rule)
@@ -159,6 +232,30 @@ class RuleValidator:
 
     @classmethod
     def __validate_nice_value(cls, result, return_result, rule, tool, counter):
+        """
+        This function is responsible for validating nice_value.
+
+        @type return_result: bool
+        @param return_result: True when we are only interested in the result of the
+                              validation, and not the validated rule itself.
+
+        @type result: bool
+        @param result: returns True if everything is valid. False if it encounters any
+                       abnormalities in the config.
+
+        @type original_rule: dict
+        @param original_rule: contains the original received rule
+
+        @type counter: int
+        @param counter: this counter is used to identify what rule # is currently being
+                        validated. Necessary for log output.
+
+        @type tool: str
+        @param tool: the name of the current tool. Necessary for log output.
+
+        @rtype: bool, dict (tuple)
+        @return: validated rule and result of validation
+        """
 
         if "nice_value" in rule:
             if rule["nice_value"] < -20 or rule["nice_value"] > 20:
@@ -184,6 +281,30 @@ class RuleValidator:
 
     @classmethod
     def __validate_destination(cls, result, return_result, rule, tool, counter):
+        """
+        This function is responsible for validating destination.
+
+        @type return_result: bool
+        @param return_result: True when we are only interested in the result of the
+                              validation, and not the validated rule itself.
+
+        @type result: bool
+        @param result: returns True if everything is valid. False if it encounters any
+                       abnormalities in the config.
+
+        @type original_rule: dict
+        @param original_rule: contains the original received rule
+
+        @type counter: int
+        @param counter: this counter is used to identify what rule # is currently being
+                        validated. Necessary for log output.
+
+        @type tool: str
+        @param tool: the name of the current tool. Necessary for log output.
+
+        @rtype: bool, dict (tuple)
+        @return: validated rule and result of validation
+        """
 
         if "fail_message" in rule:
             if "destination" not in rule or rule['destination'] != "fail":
@@ -214,6 +335,30 @@ class RuleValidator:
 
     @classmethod
     def __validate_bounds(cls, result, return_result, rule, tool, counter):
+        """
+        This function is responsible for validating bounds.
+
+        @type return_result: bool
+        @param return_result: True when we are only interested in the result of the
+                              validation, and not the validated rule itself.
+
+        @type result: bool
+        @param result: returns True if everything is valid. False if it encounters any
+                       abnormalities in the config.
+
+        @type original_rule: dict
+        @param original_rule: contains the original received rule
+
+        @type counter: int
+        @param counter: this counter is used to identify what rule # is currently being
+                        validated. Necessary for log output.
+
+        @type tool: str
+        @param tool: the name of the current tool. Necessary for log output.
+
+        @rtype: bool, dict (tuple)
+        @return: validated rule and result of validation
+        """
 
         if "upper_bound" in rule and "lower_bound" in rule:
             upper_bound = str_to_bytes(rule["upper_bound"])
@@ -244,6 +389,30 @@ class RuleValidator:
 
     @classmethod
     def __validate_arguments(cls, result, return_result, rule, tool, counter):
+        """
+        This function is responsible for validating arguments.
+
+        @type return_result: bool
+        @param return_result: True when we are only interested in the result of the
+                              validation, and not the validated rule itself.
+
+        @type result: bool
+        @param result: returns True if everything is valid. False if it encounters any
+                       abnormalities in the config.
+
+        @type original_rule: dict
+        @param original_rule: contains the original received rule
+
+        @type counter: int
+        @param counter: this counter is used to identify what rule # is currently being
+                        validated. Necessary for log output.
+
+        @type tool: str
+        @param tool: the name of the current tool. Necessary for log output.
+
+        @rtype: bool, dict (tuple)
+        @return: validated rule and result of validation
+        """
 
         if "arguments" not in rule or not isinstance(rule["arguments"], dict):
             error = "No arguments found for rule " + str(counter) + " in '"

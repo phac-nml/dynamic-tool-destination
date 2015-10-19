@@ -171,6 +171,36 @@ vdictTest4_yml = {
     'default_destination': "waffles_default"
 }
 
+# Records type
+vYMLTest5 = '''
+    tools:
+      spades:
+        rules:
+          - rule_type: records
+            nice_value: 0
+            lower_bound: 0
+            upper_bound: 100000000
+            destination: waffles_low_4
+    default_destination: waffles_default
+'''
+
+vdictTest5_yml = {
+    "tools": {
+        "spades": {
+            "rules": [
+                {
+                    "rule_type": "records",
+                    'nice_value': 0,
+                    "lower_bound": 0,
+                    "upper_bound": 100000000,
+                    "destination": "waffles_low_4"
+                }
+            ]
+        }
+    },
+    'default_destination': "waffles_default"
+}
+
 #=====================================================Invalid XML tests==========================================================
 
 # Empty file
@@ -286,6 +316,11 @@ ivYMLTest7 = '''
 ivDict = {
     'default_destination': "waffles_default"
 }
+
+# Invalid category
+ivYMLTest8= '''
+    ice_cream:
+'''
 
 # Tool condition fail no fail_message and apparently no nice_value
 ivYMLTest91 = '''
@@ -451,4 +486,62 @@ iv133dict = {
         }
     },
     'default_destination': "waffles_low"
+}
+
+# No destination and no fail_message
+ivYMLTest134 = """
+    tools:
+      spades:
+        rules:
+          - rule_type: file_size
+            upper_bound: 10000
+            lower_bound: 0
+            nice_value: 0
+    default_destination: waffles_default
+"""
+
+iv134dict = {
+    'default_destination': 'waffles_default',
+    'tools': {
+        'spades': {
+            'rules': [
+                {
+                    'rule_type': 'file_size',
+                    'upper_bound': 10000,
+                    'lower_bound': 0,
+                    'nice_value': 0
+                }
+            ]
+        }
+    }
+}
+
+# Reversed upper and lower bounds
+ivYMLTest135 = """
+    tools:
+      spades:
+        rules:
+          - rule_type: file_size
+            upper_bound: 100
+            lower_bound: 200
+            nice_value: 0
+            destination: waffles_low_4
+    default_destination: waffles_default
+"""
+
+iv135dict = {
+    'default_destination': 'waffles_default',
+    'tools': {
+        'spades': {
+            'rules': [
+                {
+                    'rule_type': 'file_size',
+                    'upper_bound': 200,
+                    'lower_bound': 100,
+                    'nice_value': 0,
+                    'destination': 'waffles_low_4'
+                }
+            ]
+        }
+    }
 }

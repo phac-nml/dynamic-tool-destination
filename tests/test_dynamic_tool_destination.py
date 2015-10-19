@@ -410,6 +410,15 @@ class TestDynamicToolDestination(unittest.TestCase):
         )
 
     @log_capture()
+    def test_invalid_category(self, l):
+        dt.parse_yaml(path=yt.ivYMLTest8, test=True)
+        l.check(
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Unrecognized category 'ice_cream' found in config file!"),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.')
+        )
+
+    @log_capture()
     def test_parameter_no_err_msg(self, l):
         self.assertEquals(dt.parse_yaml(path=yt.ivYMLTest12, test=True), yt.iv12dict)
         l.check(
@@ -445,6 +454,13 @@ class TestDynamicToolDestination(unittest.TestCase):
         )
 
     @log_capture()
+    def test_return_result_for_records_rule(self, l):
+        self.assertFalse(dt.parse_yaml(path=yt.ivYMLTest133, test=True, return_result=True))
+        l.check(
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Missing a fail_message for rule 1 in 'smalt'.")
+        )
+
+    @log_capture()
     def test_return_rule_for_multiple_jobs(self, l):
         self.assertEquals(dt.parse_yaml(path=yt.ivYMLTest133, test=True), yt.iv133dict)
         l.check(
@@ -453,18 +469,49 @@ class TestDynamicToolDestination(unittest.TestCase):
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.')
         )
 
+    @log_capture()
+    def test_return_result_for_no_destination(self, l):
+        self.assertFalse(dt.parse_yaml(path=yt.ivYMLTest134, test=True, return_result=True))
+        l.check(
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "No destination specified for rule 1 in 'spades'.")
+        )
+
+    @log_capture()
+    def test_return_rule_for_no_destination(self, l):
+        self.assertEquals(dt.parse_yaml(path=yt.ivYMLTest134, test=True), yt.iv134dict)
+        l.check(
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "No destination specified for rule 1 in 'spades'. Ignoring..."),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.')
+        )
+
+    @log_capture()
+    def test_return_rule_for_reversed_bounds(self, l):
+        self.assertEquals(dt.parse_yaml(path=yt.ivYMLTest135, test=True), yt.iv135dict)
+        l.check(
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "lower_bound exceeds upper_bound for rule 1 in 'spades'. Reversing bounds."),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.')
+        )
+
+
 #================================Valid yaml files==============================
     @log_capture()
     def test_parse_valid_yml(self, l):
         self.assertEqual(dt.parse_yaml(yt.vYMLTest1, test=True), yt.vdictTest1_yml)
         self.assertEqual(dt.parse_yaml(yt.vYMLTest2, test=True), yt.vdictTest2_yml)
         self.assertEqual(dt.parse_yaml(yt.vYMLTest3, test=True), yt.vdictTest3_yml)
+        self.assertTrue(dt.parse_yaml(yt.vYMLTest4, test=True, return_result=True))
         self.assertEqual(dt.parse_yaml(yt.vYMLTest4, test=True), yt.vdictTest4_yml)
+        self.assertTrue(dt.parse_yaml(yt.vYMLTest5, test=True, return_result=True))
+        self.assertEqual(dt.parse_yaml(yt.vYMLTest5, test=True), yt.vdictTest5_yml)
         l.check(
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "No rules found for 'spades'!"),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.'),
