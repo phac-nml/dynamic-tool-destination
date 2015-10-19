@@ -411,7 +411,7 @@ iv132dict = {
     }
 }
 
-# Multiple jobs, some fail_message
+# Multiple rules in 1 job, first one failing
 ivYMLTest133 ='''
     tools:
       smalt:
