@@ -447,15 +447,15 @@ class TestDynamicToolDestination(unittest.TestCase):
         )
 
     @log_capture()
-    def test_return_result_for_multiple_jobs(self, l):
-        self.assertFalse(dt.parse_yaml(path=yt.ivYMLTest133, test=True, return_result=True))
+    def test_return_bool_for_multiple_jobs(self, l):
+        self.assertFalse(dt.parse_yaml(path=yt.ivYMLTest133, test=True, return_bool=True))
         l.check(
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Missing a fail_message for rule 1 in 'smalt'.")
         )
 
     @log_capture()
-    def test_return_result_for_records_rule(self, l):
-        self.assertFalse(dt.parse_yaml(path=yt.ivYMLTest133, test=True, return_result=True))
+    def test_return_bool_for_records_rule(self, l):
+        self.assertFalse(dt.parse_yaml(path=yt.ivYMLTest133, test=True, return_bool=True))
         l.check(
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Missing a fail_message for rule 1 in 'smalt'.")
         )
@@ -470,8 +470,8 @@ class TestDynamicToolDestination(unittest.TestCase):
         )
 
     @log_capture()
-    def test_return_result_for_no_destination(self, l):
-        self.assertFalse(dt.parse_yaml(path=yt.ivYMLTest134, test=True, return_result=True))
+    def test_return_bool_for_no_destination(self, l):
+        self.assertFalse(dt.parse_yaml(path=yt.ivYMLTest134, test=True, return_bool=True))
         l.check(
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "No destination specified for rule 1 in 'spades'.")
         )
@@ -501,9 +501,9 @@ class TestDynamicToolDestination(unittest.TestCase):
         self.assertEqual(dt.parse_yaml(yt.vYMLTest1, test=True), yt.vdictTest1_yml)
         self.assertEqual(dt.parse_yaml(yt.vYMLTest2, test=True), yt.vdictTest2_yml)
         self.assertEqual(dt.parse_yaml(yt.vYMLTest3, test=True), yt.vdictTest3_yml)
-        self.assertTrue(dt.parse_yaml(yt.vYMLTest4, test=True, return_result=True))
+        self.assertTrue(dt.parse_yaml(yt.vYMLTest4, test=True, return_bool=True))
         self.assertEqual(dt.parse_yaml(yt.vYMLTest4, test=True), yt.vdictTest4_yml)
-        self.assertTrue(dt.parse_yaml(yt.vYMLTest5, test=True, return_result=True))
+        self.assertTrue(dt.parse_yaml(yt.vYMLTest5, test=True, return_bool=True))
         self.assertEqual(dt.parse_yaml(yt.vYMLTest5, test=True), yt.vdictTest5_yml)
         l.check(
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),

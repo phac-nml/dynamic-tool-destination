@@ -64,37 +64,37 @@ class RuleValidator:
     """
 
     @classmethod
-    def validate_rule(cls, rule_type, return_result=False, *args, **kwargs):
+    def validate_rule(cls, rule_type, return_bool=False, *args, **kwargs):
         """
         This function is responsible for passing each rule to its relevant function.
 
         @type rule_type: str
         @param rule_type: the current rule's type
 
-        @type return_result: bool
-        @param return_result: True when we are only interested in the result of the
+        @type return_bool: bool
+        @param return_bool: True when we are only interested in the result of the
                               validation, and not the validated rule itself.
 
-        @rtype: bool, dict (depending on return_result)
-        @return: validated rule or result of validation (depending on return_result)
+        @rtype: bool, dict (depending on return_bool)
+        @return: validated rule or result of validation (depending on return_bool)
         """
         if rule_type == 'file_size':
-            return cls.__validate_file_size_rule(return_result, *args, **kwargs)
+            return cls.__validate_file_size_rule(return_bool, *args, **kwargs)
 
         elif rule_type == 'records':
-            return cls.__validate_records_rule(return_result, *args, **kwargs)
+            return cls.__validate_records_rule(return_bool, *args, **kwargs)
 
         elif rule_type == 'arguments':
-            return cls.__validate_arguments_rule(return_result, *args, **kwargs)
+            return cls.__validate_arguments_rule(return_bool, *args, **kwargs)
 
     @classmethod
     def __validate_file_size_rule(
-            cls, return_result, original_rule, counter, tool):
+            cls, return_bool, original_rule, counter, tool):
         """
         This function is responsible for validating 'file_size' rules.
 
-        @type return_result: bool
-        @param return_result: True when we are only interested in the result of the
+        @type return_bool: bool
+        @param return_bool: True when we are only interested in the result of the
                               validation, and not the validated rule itself.
 
         @type original_rule: dict
@@ -107,38 +107,38 @@ class RuleValidator:
         @type tool: str
         @param tool: the name of the current tool. Necessary for log output.
 
-        @rtype: bool, dict (depending on return_result)
-        @return: validated rule or result of validation (depending on return_result)
+        @rtype: bool, dict (depending on return_bool)
+        @return: validated rule or result of validation (depending on return_bool)
         """
 
         rule = copy.deepcopy(original_rule)
-        result = True
+        valid_rule = True
 
         # Nice_value Verification #
-        result, rule = cls.__validate_nice_value(
-            result, return_result, rule, tool, counter)
+        valid_rule, rule = cls.__validate_nice_value(
+            valid_rule, return_bool, rule, tool, counter)
 
         # Destination Verification #
-        result, rule = cls.__validate_destination(
-            result, return_result, rule, tool, counter)
+        valid_rule, rule = cls.__validate_destination(
+            valid_rule, return_bool, rule, tool, counter)
 
         # Bounds Verification #
-        result, rule = cls.__validate_bounds(
-            result, return_result, rule, tool, counter)
+        valid_rule, rule = cls.__validate_bounds(
+            valid_rule, return_bool, rule, tool, counter)
 
-        if return_result:
-            return result
+        if return_bool:
+            return valid_rule
 
         else:
             return rule
 
     @classmethod
-    def __validate_records_rule(cls, return_result, original_rule, counter, tool):
+    def __validate_records_rule(cls, return_bool, original_rule, counter, tool):
         """
         This function is responsible for validating 'records' rules.
 
-        @type return_result: bool
-        @param return_result: True when we are only interested in the result of the
+        @type return_bool: bool
+        @param return_bool: True when we are only interested in the result of the
                               validation, and not the validated rule itself.
 
         @type original_rule: dict
@@ -151,38 +151,39 @@ class RuleValidator:
         @type tool: str
         @param tool: the name of the current tool. Necessary for log output.
 
-        @rtype: bool, dict (depending on return_result)
-        @return: validated rule or result of validation (depending on return_result)
+        @rtype: bool, dict (depending on return_bool)
+        @return: validated rule or result of validation (depending on return_bool)
         """
 
         rule = copy.deepcopy(original_rule)
-        result = True
+        valid_rule = True
 
         # Nice_value Verification #
-        result, rule = cls.__validate_nice_value(
-            result, return_result, rule, tool, counter)
+        valid_rule, rule = cls.__validate_nice_value(
+            valid_rule, return_bool, rule, tool, counter)
 
         # Destination Verification #
-        result, rule = cls.__validate_destination(
-            result, return_result, rule, tool, counter)
+        valid_rule, rule = cls.__validate_destination(
+            valid_rule, return_bool, rule, tool, counter)
 
         # Bounds Verification #
-        result, rule = cls.__validate_bounds(result, return_result, rule, tool, counter)
+        valid_rule, rule = cls.__validate_bounds(
+            valid_rule, return_bool, rule, tool, counter)
 
-        if return_result:
-            return result
+        if return_bool:
+            return valid_rule
 
         else:
             return rule
 
     @classmethod
     def __validate_arguments_rule(
-            cls, return_result, original_rule, counter, tool):
+            cls, return_bool, original_rule, counter, tool):
         """
         This is responsible for validating 'arguments' rules.
 
-        @type return_result: bool
-        @param return_result: True when we are only interested in the result of the
+        @type return_bool: bool
+        @param return_bool: True when we are only interested in the result of the
                               validation, and not the validated rule itself.
 
         @type original_rule: dict
@@ -195,43 +196,43 @@ class RuleValidator:
         @type tool: str
         @param tool: the name of the current tool. Necessary for log output.
 
-        @rtype: bool, dict (depending on return_result)
-        @return: validated rule or result of validation (depending on return_result)
+        @rtype: bool, dict (depending on return_bool)
+        @return: validated rule or result of validation (depending on return_bool)
         """
 
         rule = copy.deepcopy(original_rule)
-        result = True
+        valid_rule = True
 
         # Nice_value Verification #
-        result, rule = cls.__validate_nice_value(
-            result, return_result, rule, tool, counter)
+        valid_rule, rule = cls.__validate_nice_value(
+            valid_rule, return_bool, rule, tool, counter)
 
         # Destination Verification #
-        result, rule = cls.__validate_destination(
-            result, return_result, rule, tool, counter)
+        valid_rule, rule = cls.__validate_destination(
+            valid_rule, return_bool, rule, tool, counter)
 
         # Arguments Verification (for rule_type arguments; read comment block at top
         # of function for clarification.
-        result, rule = cls.__validate_arguments(
-            result, return_result, rule, tool, counter)
+        valid_rule, rule = cls.__validate_arguments(
+            valid_rule, return_bool, rule, tool, counter)
 
-        if return_result:
-            return result
+        if return_bool:
+            return valid_rule
 
         else:
             return rule
 
     @classmethod
-    def __validate_nice_value(cls, result, return_result, rule, tool, counter):
+    def __validate_nice_value(cls, valid_rule, return_bool, rule, tool, counter):
         """
         This function is responsible for validating nice_value.
 
-        @type return_result: bool
-        @param return_result: True when we are only interested in the result of the
+        @type return_bool: bool
+        @param return_bool: True when we are only interested in the result of the
                               validation, and not the validated rule itself.
 
-        @type result: bool
-        @param result: returns True if everything is valid. False if it encounters any
+        @type valid_rule: bool
+        @param valid_rule: returns True if everything is valid. False if it encounters any
                        abnormalities in the config.
 
         @type original_rule: dict
@@ -253,34 +254,34 @@ class RuleValidator:
                 error = "nice_value goes from -20 to 20; rule " + str(counter)
                 error += " in '" + str(tool) + "' has a nice_value of '"
                 error += str(rule["nice_value"]) + "'."
-                if not return_result:
+                if not return_bool:
                     error += " Setting nice_value to 0."
                     rule["nice_value"] = 0
                 log.debug(error)
-                result = False
+                valid_rule = False
 
         else:
             error = "No nice_value found for rule " + str(counter) + " in '" + str(tool)
             error += "'."
-            if not return_result:
+            if not return_bool:
                 error += " Setting nice_value to 0."
                 rule["nice_value"] = 0
             log.debug(error)
-            result = False
+            valid_rule = False
 
-        return result, rule
+        return valid_rule, rule
 
     @classmethod
-    def __validate_destination(cls, result, return_result, rule, tool, counter):
+    def __validate_destination(cls, valid_rule, return_bool, rule, tool, counter):
         """
         This function is responsible for validating destination.
 
-        @type return_result: bool
-        @param return_result: True when we are only interested in the result of the
+        @type return_bool: bool
+        @param return_bool: True when we are only interested in the result of the
                               validation, and not the validated rule itself.
 
-        @type result: bool
-        @param result: returns True if everything is valid. False if it encounters any
+        @type valid_rule: bool
+        @param valid_rule: returns True if everything is valid. False if it encounters any
                        abnormalities in the config.
 
         @type original_rule: dict
@@ -299,7 +300,7 @@ class RuleValidator:
 
         if "fail_message" in rule:
             if "destination" not in rule or rule['destination'] != "fail":
-                result = False
+                valid_rule = False
 
             rule["destination"] = "fail"
 
@@ -307,34 +308,34 @@ class RuleValidator:
             if rule["destination"] == "fail" and "fail_message" not in rule:
                     error = "Missing a fail_message for rule " + str(counter)
                     error += " in '" + str(tool) + "'."
-                    if not return_result:
+                    if not return_bool:
                         error += " Adding generic fail_message."
                         message = "Invalid parameters for rule " + str(counter)
                         message += " in '" + str(tool) + "'."
                         rule["fail_message"] = message
                     log.debug(error)
-                    result = False
+                    valid_rule = False
         else:
             error = "No destination specified for rule " + str(counter)
             error += " in '" + str(tool) + "'."
-            if not return_result:
+            if not return_bool:
                 error += " Ignoring..."
             log.debug(error)
-            result = False
+            valid_rule = False
 
-        return result, rule
+        return valid_rule, rule
 
     @classmethod
-    def __validate_bounds(cls, result, return_result, rule, tool, counter):
+    def __validate_bounds(cls, valid_rule, return_bool, rule, tool, counter):
         """
         This function is responsible for validating bounds.
 
-        @type return_result: bool
-        @param return_result: True when we are only interested in the result of the
+        @type return_bool: bool
+        @param return_bool: True when we are only interested in the result of the
                               validation, and not the validated rule itself.
 
-        @type result: bool
-        @param result: returns True if everything is valid. False if it encounters any
+        @type valid_rule: bool
+        @param valid_rule: returns True if everything is valid. False if it encounters any
                        abnormalities in the config.
 
         @type original_rule: dict
@@ -358,37 +359,37 @@ class RuleValidator:
             if upper_bound != -1 and lower_bound > upper_bound:
                 error = "lower_bound exceeds upper_bound for rule " + str(counter)
                 error += " in '" + str(tool) + "'."
-                if not return_result:
+                if not return_bool:
                     error += " Reversing bounds."
                     temp_upper_bound = rule["upper_bound"]
                     temp_lower_bound = rule["lower_bound"]
                     rule["upper_bound"] = temp_lower_bound
                     rule["lower_bound"] = temp_upper_bound
                 log.debug(error)
-                result = False
+                valid_rule = False
 
         else:
             error = "Missing bounds for rule " + str(counter)
             error += " in '" + str(tool) + "'."
-            if not return_result:
+            if not return_bool:
                 error += " Ignoring rule."
                 rule = None
             log.debug(error)
-            result = False
+            valid_rule = False
 
-        return result, rule
+        return valid_rule, rule
 
     @classmethod
-    def __validate_arguments(cls, result, return_result, rule, tool, counter):
+    def __validate_arguments(cls, valid_rule, return_bool, rule, tool, counter):
         """
         This function is responsible for validating arguments.
 
-        @type return_result: bool
-        @param return_result: True when we are only interested in the result of the
+        @type return_bool: bool
+        @param return_bool: True when we are only interested in the result of the
                               validation, and not the validated rule itself.
 
-        @type result: bool
-        @param result: returns True if everything is valid. False if it encounters any
+        @type valid_rule: bool
+        @param valid_rule: returns True if everything is valid. False if it encounters any
                        abnormalities in the config.
 
         @type original_rule: dict
@@ -408,16 +409,16 @@ class RuleValidator:
         if "arguments" not in rule or not isinstance(rule["arguments"], dict):
             error = "No arguments found for rule " + str(counter) + " in '"
             error += str(tool) + "' despite being of type arguments."
-            if not return_result:
+            if not return_bool:
                 error += " Ignoring rule."
                 rule = None
             log.debug(error)
-            result = False
+            valid_rule = False
 
-        return result, rule
+        return valid_rule, rule
 
 
-def parse_yaml(path="/config/tool_destinations.yml", test=False, return_result=False):
+def parse_yaml(path="/config/tool_destinations.yml", test=False, return_bool=False):
     """
     Get a yaml file from path and send it to validate_config for validation.
 
@@ -427,12 +428,12 @@ def parse_yaml(path="/config/tool_destinations.yml", test=False, return_result=F
     @type test: bool
     @param test: indicates whether to run in test mode or production mode
 
-    @type return_result: bool
-    @param return_result: True when we are only interested in the result of the
+    @type return_bool: bool
+    @param return_bool: True when we are only interested in the result of the
                           validation, and not the validated rule itself.
 
-    @rtype: bool, dict (depending on return_result)
-    @return: validated rule or result of validation (depending on return_result)
+    @rtype: bool, dict (depending on return_bool)
+    @return: validated rule or result of validation (depending on return_bool)
 
     """
     # Import file from path
@@ -451,8 +452,8 @@ def parse_yaml(path="/config/tool_destinations.yml", test=False, return_result=F
 
         # Test imported file
         try:
-            if return_result:
-                result = validate_config(config, return_result)
+            if return_bool:
+                valid_rule = validate_config(config, return_bool)
             else:
                 config = validate_config(config)
         except MalformedYMLException:
@@ -462,32 +463,32 @@ def parse_yaml(path="/config/tool_destinations.yml", test=False, return_result=F
         log.error("YML file is too malformed to fix!")
         raise
 
-    if return_result:
-        return result
+    if return_bool:
+        return valid_rule
 
     else:
         return config
 
 
-def validate_config(obj, return_result=False):
+def validate_config(obj, return_bool=False):
     """
     Validate received config.
 
     @type obj: dict
     @param obj: the entire contents of the config
 
-    @type return_result: bool
-    @param return_result: True when we are only interested in the result of the
+    @type return_bool: bool
+    @param return_bool: True when we are only interested in the result of the
                           validation, and not the validated rule itself.
 
-    @rtype: bool, dict (depending on return_result)
-    @return: validated rule or result of validation (depending on return_result)
+    @rtype: bool, dict (depending on return_bool)
+    @return: validated rule or result of validation (depending on return_bool)
     """
 
     # Allow new_config to expand automatically when adding values to new levels
     new_config = collections.defaultdict(lambda: collections.defaultdict(dict))
 
-    if not return_result:
+    if not return_bool:
         log.debug("Running config validation...")
 
     config_valid = True
@@ -537,9 +538,9 @@ def validate_config(obj, return_result=False):
                                             # if we're only interested in the result of
                                             # the validation, then only retrieve the
                                             # result
-                                            if return_result:
+                                            if return_bool:
                                                 result = RuleValidator.validate_rule(
-                                                    rule['rule_type'], return_result,
+                                                    rule['rule_type'], return_bool,
                                                     rule, counter, tool)
 
                                             # otherwise, retrieve the processed rule
@@ -547,7 +548,7 @@ def validate_config(obj, return_result=False):
                                                 validated_rule = (
                                                     RuleValidator.validate_rule(
                                                         rule['rule_type'],
-                                                        return_result,
+                                                        return_bool,
                                                         rule, counter, tool))
 
                                             # if the result we get is False, then
@@ -558,7 +559,7 @@ def validate_config(obj, return_result=False):
                                             # if we got a rule back that seems to be
                                             # valid (or was fixable) then append it to
                                             # list of ready-to-use tools
-                                            if (not return_result
+                                            if (not return_bool
                                                     and validated_rule is not None):
                                                 curr_tool_rules.append(
                                                     copy.deepcopy(validated_rule))
@@ -568,10 +569,10 @@ def validate_config(obj, return_result=False):
                                             error = "Unrecognized rule_type '"
                                             error += rule['rule_type'] + "' "
                                             error += "found in '" + str(tool) + "'. "
-                                            if not return_result:
+                                            if not return_bool:
                                                 error += "Ignoring..."
                                             log.debug(error)
-                                            config_valid = False
+                                            valid_config = False
 
                                     # if "rule_type" in rule
                                     else:
@@ -586,7 +587,7 @@ def validate_config(obj, return_result=False):
                             else:
                                 error = "No rules found for '" + str(tool) + "'!"
                                 log.debug(error)
-                                config_valid = False
+                                valid_config = False
 
                         # if curr is not None:
                         if curr_tool_rules:
@@ -597,24 +598,24 @@ def validate_config(obj, return_result=False):
                         error = "Malformed YML; expected job name, "
                         error += "but found a list instead!"
                         log.debug(error)
-                        config_valid = False
+                        valid_config = False
 
             # if category == "default_destination"
             else:
                 error = "Unrecognized category '" + category + "' found in config file!"
                 log.debug(error)
-                config_valid = False
+                valid_config = False
 
     # if obj is not None
     else:
         log.debug("No (or empty) config file supplied!")
-        config_valid = False
+        valid_config = False
 
-    if not return_result:
+    if not return_bool:
         log.debug("Finished config validation.")
 
-    if return_result:
-        return config_valid
+    if return_bool:
+        return valid_config
 
     else:
         return new_config
@@ -941,14 +942,14 @@ if __name__ == '__main__':
         sys.exit(1)
 
     if args.validate:
-        result = parse_yaml(path=args.validate, return_result=True)
+        valid_config = parse_yaml(path=args.validate, return_bool=True)
 
     else:
         # go back 4 directories to the root directory of the Galaxy install
         os.chdir('../../../..')
-        result = parse_yaml(path="/config/tool_destinations.yml", return_result=True)
+        valid_config = parse_yaml(path="/config/tool_destinations.yml", return_bool=True)
 
-    if result:
+    if valid_config:
         print("Configuration is valid!")
     else:
         print("Errors detected; config not valid!")
