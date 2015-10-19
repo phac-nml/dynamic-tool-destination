@@ -59,7 +59,7 @@ class ScannerError(Exception):
 class RuleValidator:
 
     @classmethod
-    def validate_rule(cls, rule_type, return_result, *args, **kwargs):
+    def validate_rule(cls, rule_type, return_result=False, *args, **kwargs):
         if rule_type == 'file_size':
             return cls.__validate_file_size_rule(return_result, *args, **kwargs)
 
