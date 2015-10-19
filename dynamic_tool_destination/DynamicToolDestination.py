@@ -70,7 +70,8 @@ class RuleValidator:
             return cls.__validate_arguments_rule(return_result, *args, **kwargs)
 
     @classmethod
-    def __validate_file_size_rule(cls, return_result, original_rule, counter, tool):
+    def __validate_file_size_rule(
+            cls, return_result, result, original_rule, counter, tool):
         """
         Right now this function is doing all the heavy lifting for validating all of
         parameters for all rule_types. That's why it checks rule_type even though it's
@@ -78,7 +79,6 @@ class RuleValidator:
         """
 
         rule = copy.deepcopy(original_rule)
-        result = True
 
         # Nice_value Verification #
         result, rule = cls.__validate_nice_value(
@@ -99,7 +99,7 @@ class RuleValidator:
             return rule
 
     @classmethod
-    def __validate_records_rule(cls, return_result, original_rule, counter, tool):
+    def __validate_records_rule(cls, return_result, result, original_rule, counter, tool):
         """
         This function exists so that in the future, if records accepts differing
         parameters than file_size, then you could simply edit this function. But for now,
@@ -108,7 +108,6 @@ class RuleValidator:
         """
 
         rule = copy.deepcopy(original_rule)
-        result = True
 
         # Nice_value Verification #
         result, rule = cls.__validate_nice_value(
@@ -128,7 +127,8 @@ class RuleValidator:
             return rule
 
     @classmethod
-    def __validate_arguments_rule(cls, return_result, original_rule, counter, tool):
+    def __validate_arguments_rule(
+            cls, return_result, result, original_rule, counter, tool):
         """
         This function exists so that in the future, if arguments accepts differing
         parameters than file_size, then you could simply edit this function. But for now,
@@ -137,7 +137,6 @@ class RuleValidator:
         """
 
         rule = copy.deepcopy(original_rule)
-        result = True
 
         # Nice_value Verification #
         result, rule = cls.__validate_nice_value(
@@ -339,13 +338,13 @@ def validate_config(obj, return_result=False):
                                             if return_result:
                                                 result = RuleValidator.validate_rule(
                                                     rule['rule_type'], return_result,
-                                                    rule, counter, tool)
+                                                    result, rule, counter, tool)
 
                                             else:
                                                 validated_rule = (
                                                     RuleValidator.validate_rule(
                                                         rule['rule_type'],
-                                                        return_result,
+                                                        return_result, result,
                                                         rule, counter, tool))
 
                                             if (not return_result
