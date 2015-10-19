@@ -410,3 +410,45 @@ iv132dict = {
         }
     }
 }
+
+# Multiple jobs, some fail_message
+ivYMLTest133 ='''
+    tools:
+      smalt:
+        rules:
+          - rule_type: file_size
+            nice_value: 0
+            lower_bound: 0
+            upper_bound: 100000000
+            destination: fail
+          - rule_type: file_size
+            nice_value: 0
+            lower_bound: 100000000
+            upper_bound: Infinity
+            destination: waffles_low_4
+    default_destination: waffles_low
+'''
+
+iv133dict = {
+    "tools": {
+        "smalt": {
+            "rules": [
+                {
+                  "rule_type": "file_size",
+                  'nice_value': 0,
+                  "lower_bound": 0,
+                  "upper_bound": 100000000,
+                  "fail_message": "Invalid parameters for rule 1 in 'smalt'.",
+                  "destination": "fail"
+                },{
+                  "rule_type": "file_size",
+                  'nice_value': 0,
+                  "lower_bound": 100000000,
+                  "upper_bound": "Infinity",
+                  "destination": "waffles_low_4"
+                }
+            ]
+        }
+    },
+    'default_destination': "waffles_low"
+}
