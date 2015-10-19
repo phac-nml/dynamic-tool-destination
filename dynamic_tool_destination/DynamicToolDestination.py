@@ -923,7 +923,6 @@ if __name__ == '__main__':
     to a config file if not being run directly from inside Galaxy install directory.
     """
 
-
     parser = argparse.ArgumentParser()
     logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
