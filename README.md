@@ -261,6 +261,31 @@ parameter, 'fail_message', which DynamicToolDestination uses to print a helpful 
 message to the user indicating why the job failed (showing up inside the job log in
 Galaxy's history panel).
 
+## Usage  
+---
+
+Assuming it is correctly installed, Dynamic Tool Destination should automatically assign
+destinations to your jobs if the tool and eligible rules are specified in the config.
+
+Dynamic Tool Destination can also be used directly to verify that your config file is
+correctly formatted and meets all parameter requirements:
+
+Assuming Dynamic Tool Destination is installed in Galaxy, and the config is located in
+the ```galaxy/config``` directory, you can simply navigate to where Dynamic Tool
+Destination is installed: ```galaxy/lib/galaxy/jobs/rules/``` and run it with the
+following command:
+
+```
+python DynamicToolDestination.py -c
+```
+
+Alternatively, if you want to verify a config that is not located in galaxy/config, you
+can simply provide the tool with a path to the config:
+
+```
+python DynamicToolDestination.py -c /path/to/tool_destinations.yml
+```
+
 ## Contact
 ---
 
