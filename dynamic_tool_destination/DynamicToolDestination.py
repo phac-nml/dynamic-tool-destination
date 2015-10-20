@@ -453,7 +453,7 @@ def parse_yaml(path="/config/tool_destinations.yml", test=False, return_bool=Fal
         # Test imported file
         try:
             if return_bool:
-                valid_rule = validate_config(config, return_bool)
+                valid_config = validate_config(config, return_bool)
             else:
                 config = validate_config(config)
         except MalformedYMLException:
@@ -464,7 +464,7 @@ def parse_yaml(path="/config/tool_destinations.yml", test=False, return_bool=Fal
         raise
 
     if return_bool:
-        return valid_rule
+        return valid_config
 
     else:
         return config
