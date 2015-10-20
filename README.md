@@ -273,7 +273,9 @@ correctly formatted and meets all parameter requirements:
 Assuming Dynamic Tool Destination is installed in Galaxy, and the config is located in
 the ```galaxy/config``` directory, you can simply navigate to where Dynamic Tool
 Destination is installed: ```galaxy/lib/galaxy/jobs/rules/``` and run it with a
-```-c``` flag (or ```--check-config```). For example:
+```-c``` flag (or ```--check-config```).
+
+For example:
 
 ```
 python DynamicToolDestination.py -c
