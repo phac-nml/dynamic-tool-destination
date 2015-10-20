@@ -927,7 +927,7 @@ if __name__ == '__main__':
     logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
     parser.add_argument(
-        '-v', '--validate-config', dest='validate', nargs='?',
+        '-c', '--check-config', dest='check_config', nargs='?',
         help='Use this option to validate tool_destinations.yml.'
         + ' Specify file/path/to/tool_destinations.yml or'
         + ' store tool_destinations.yml in galaxy/config if running'
@@ -940,8 +940,8 @@ if __name__ == '__main__':
         parser.print_help()
         sys.exit(1)
 
-    if args.validate:
-        valid_config = parse_yaml(path=args.validate, return_bool=True)
+    if args.check_config:
+        valid_config = parse_yaml(path=args.check_config, return_bool=True)
 
     else:
         # go back 4 directories to the root directory of the Galaxy install
