@@ -589,7 +589,6 @@ def validate_config(obj, return_bool=False):
                                 log.debug(error)
                                 valid_config = False
 
-                        # if curr is not None:
                         if curr_tool_rules:
                             new_config[category][str(tool)]['rules'] = curr_tool_rules
 
