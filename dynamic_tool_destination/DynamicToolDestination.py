@@ -442,7 +442,12 @@ def parse_yaml(path="/config/tool_destinations.yml", test=False, return_bool=Fal
             config = load(path)
         else:
             if path == "/config/tool_destinations.yml":
-                opt_file = os.getcwd() + path
+                # os.path.realpath gets the path of DynamicToolDestination.py
+                # and then os.path.join is used to go back four directories
+                config_directory = os.path.join(
+                    os.path.dirname(os.path.realpath(__file__)), '../../../..')
+
+                opt_file = config_directory + path
 
             else:
                 opt_file = path
@@ -929,9 +934,8 @@ if __name__ == '__main__':
     parser.add_argument(
         '-c', '--check-config', dest='check_config', nargs='?',
         help='Use this option to validate tool_destinations.yml.'
-        + ' Specify file/path/to/tool_destinations.yml or'
-        + ' store tool_destinations.yml in galaxy/config if running'
-        + ' without a filepath argument.')
+        + ' Optionally, provide the path to the tool_destinations.yml'
+        + ' that you would like to check. Default: galaxy/config/tool_destinations.yml')
 
     args = parser.parse_args()
 
@@ -944,8 +948,6 @@ if __name__ == '__main__':
         valid_config = parse_yaml(path=args.check_config, return_bool=True)
 
     else:
-        # go back 4 directories to the root directory of the Galaxy install
-        os.chdir('../../../..')
         valid_config = parse_yaml(path="/config/tool_destinations.yml", return_bool=True)
 
     if valid_config:
