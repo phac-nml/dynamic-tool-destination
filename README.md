@@ -45,9 +45,9 @@ how to set up the tool_conf.xml files.
 4. In the <destinations> section, add the following to make sure Galaxy sees
 DynamicToolDestination:
 ```
-<destination id="dynamic_destination" runner="dynamic">
-    <param id="type">python</param>
-    <param id="function">map_tool_to_destination</param>
+<destination id="dynamic_destination" runner="dynamic">  
+    <param id="type">python</param>  
+    <param id="function">map_tool_to_destination</param>  
 </destination>
 ```
 
