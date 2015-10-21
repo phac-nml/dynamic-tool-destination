@@ -247,13 +247,13 @@ For example, the following rule is set to fail the job if a file that is too lar
 ```
 tools:
   spades:
-	rules:
+    rules:
       - rule_type: file_size
         nice_value: 0
         destination: fail
         fail_message: Data too large
-		lower_bound: 4 GB
-		upper_bound: Infinity
+        lower_bound: 4 GB
+        upper_bound: Infinity
 ```
 
 As shown above, a rule with 'fail' as the destination requires an additional
