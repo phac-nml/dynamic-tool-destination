@@ -46,8 +46,8 @@ how to set up the tool_conf.xml files.
 DynamicToolDestination:
 ```
 <destination id="dynamic_destination" runner="dynamic">  
-    <param id="type">python</param>  
-    <param id="function">map_tool_to_destination</param>  
+        <param id="type">python</param>  
+        <param id="function">map_tool_to_destination</param>  
 </destination>
 ```
 
