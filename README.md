@@ -46,8 +46,8 @@ how to set up the tool_conf.xml files.
 DynamicToolDestination:
 ```
 <destination id="dynamic_destination" runner="dynamic">
-	<param id="type">python</param>
-	<param id="function">map_tool_to_destination</param>
+    <param id="type">python</param>
+    <param id="function">map_tool_to_destination</param>
 </destination>
 ```
 
@@ -148,10 +148,10 @@ tools:
   spades:
 	rules:
       - rule_type: what kind of rule is it?
-		nice_value: what kind of priority does this rule have over others?
-		destination: how should this tool be run?
-		lower_bound: what's the max file size?
-		upper_bound: what's the minimum file size?
+        nice_value: what kind of priority does this rule have over others?
+        destination: how should this tool be run?
+        lower_bound: what's the max file size?
+        upper_bound: what's the minimum file size?
 	default_destination: this tool-specific field is optional
   smalt_map:
     rules:
@@ -207,7 +207,7 @@ template:
 
 ```
 arguments:
-	argument_name: the_argument
+  argument_name: the_argument
 ```
 
 A real world example is shown below:
@@ -248,8 +248,8 @@ For example, the following rule is set to fail the job if a file that is too lar
 tools:
   spades:
 	rules:
-	  - rule_type: file_size
-	    nice_value: 0
+      - rule_type: file_size
+        nice_value: 0
         destination: fail
         fail_message: Data too large
 		lower_bound: 4 GB
