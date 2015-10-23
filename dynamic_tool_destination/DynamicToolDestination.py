@@ -923,7 +923,8 @@ def map_tool_to_destination(
                             else:
                                 matched = False
                                 if verbose:
-                                    log.debug("Argument '" + str(arg) + "' not recognized!")
+                                    error = "Argument '" + str(arg) + "' not recognized!"
+                                    log.debug(error)
 
                             if matched is True:
                                 if (matched_rule is None or rule["nice_value"]
