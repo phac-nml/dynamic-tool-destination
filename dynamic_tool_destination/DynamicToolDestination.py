@@ -47,6 +47,9 @@ import collections
 # log to galaxy's logger
 log = logging.getLogger(__name__)
 
+# does a lot more logging when set to true
+verbose = True
+
 
 class MalformedYMLException(Exception):
     pass
@@ -465,7 +468,7 @@ def parse_yaml(path="/config/tool_destinations.yml", test=False, return_bool=Fal
             log.error(str(sys.exc_value))
             raise
     except ScannerError:
-        log.error("YML file is too malformed to fix!")
+        log.error("Config is too malformed to fix!")
         raise
 
     if return_bool:
@@ -493,6 +496,8 @@ def validate_config(obj, return_bool=False):
     # Allow new_config to expand automatically when adding values to new levels
     new_config = collections.defaultdict(lambda: collections.defaultdict(dict))
 
+    global verbose
+
     if not return_bool:
         log.debug("Running config validation...")
 
@@ -503,110 +508,123 @@ def validate_config(obj, return_bool=False):
     available_rule_types = ['file_size', 'records', 'arguments']
 
     if obj is not None:
+        # in obj, there should always be only 3 categories: tools, default_destination,
+        # and verbose
 
-        # in obj, there should always be only 2 categories: tools and default_destination
-        for category in obj.keys():
-            if category == "default_destination":
-                if isinstance(obj[category], str):
-                    new_config["default_destination"] = obj[category]
+        if 'verbose' in obj and isinstance(obj['verbose'], bool):
+            verbose = obj['verbose']
+        else:
+            error = "Missing mandatory field 'verbose' in config!"
+            log.debug(error)
+            valid_config = False
 
-            elif category == "tools":
-                for tool in obj[category]:
-                    curr = obj[category][tool]
+        if 'default_destination' in obj and isinstance(obj['default_destination'], str):
+            new_config["default_destination"] = obj['default_destination']
+        else:
+            error = "No global default destination specified in config!"
+            log.debug(error)
+            valid_config = False
 
-                    # This check is to make sure we have a tool name, and not just
-                    # rules right way.
-                    if not isinstance(curr, list):
-                        curr_tool_rules = []
+        if 'tools' in obj:
+            for tool in obj['tools']:
+                curr = obj['tools'][tool]
 
-                        if curr is not None:
+                # This check is to make sure we have a tool name, and not just
+                # rules right way.
+                if not isinstance(curr, list):
+                    curr_tool_rules = []
 
-                            # in each tool, there should always be only 2 sub-categories:
-                            # default_destination (not mandatory) and rules (mandatory)
-                            if ("default_destination" in curr and
-                                    isinstance(curr['default_destination'], str)):
-                                new_config[category][tool]['default_destination'] = (
-                                    curr['default_destination'])
+                    if curr is not None:
 
-                            if "rules" in curr and isinstance(curr['rules'], list):
+                        # in each tool, there should always be only 2 sub-categories:
+                        # default_destination (not mandatory) and rules (mandatory)
+                        if ("default_destination" in curr and
+                                isinstance(curr['default_destination'], str)):
+                            new_config['tools'][tool]['default_destination'] = (
+                                curr['default_destination'])
 
-                                # under rules, there should only be a list of rules
-                                curr_tool = curr
-                                counter = 0
+                        if "rules" in curr and isinstance(curr['rules'], list):
 
-                                for rule in curr_tool['rules']:
-                                    if "rule_type" in rule:
-                                        if rule['rule_type'] in available_rule_types:
-                                            validated_rule = None
-                                            counter += 1
+                            # under rules, there should only be a list of rules
+                            curr_tool = curr
+                            counter = 0
 
-                                            # if we're only interested in the result of
-                                            # the validation, then only retrieve the
-                                            # result
-                                            if return_bool:
-                                                result = RuleValidator.validate_rule(
-                                                    rule['rule_type'], return_bool,
-                                                    rule, counter, tool)
+                            for rule in curr_tool['rules']:
+                                if "rule_type" in rule:
+                                    if rule['rule_type'] in available_rule_types:
+                                        validated_rule = None
+                                        counter += 1
 
-                                            # otherwise, retrieve the processed rule
-                                            else:
-                                                validated_rule = (
-                                                    RuleValidator.validate_rule(
-                                                        rule['rule_type'],
-                                                        return_bool,
-                                                        rule, counter, tool))
+                                        # if we're only interested in the result of
+                                        # the validation, then only retrieve the
+                                        # result
+                                        if return_bool:
+                                            valid_rule = RuleValidator.validate_rule(
+                                                rule['rule_type'], return_bool,
+                                                rule, counter, tool)
 
-                                            # if the result we get is False, then
-                                            # indicate that the whole config is invalid
-                                            if not result:
-                                                config_valid = False
-
-                                            # if we got a rule back that seems to be
-                                            # valid (or was fixable) then append it to
-                                            # list of ready-to-use tools
-                                            if (not return_bool
-                                                    and validated_rule is not None):
-                                                curr_tool_rules.append(
-                                                    copy.deepcopy(validated_rule))
-
-                                        # if rule['rule_type'] in available_rule_types
+                                        # otherwise, retrieve the processed rule
                                         else:
-                                            error = "Unrecognized rule_type '"
-                                            error += rule['rule_type'] + "' "
-                                            error += "found in '" + str(tool) + "'. "
-                                            if not return_bool:
-                                                error += "Ignoring..."
-                                            log.debug(error)
+                                            validated_rule = (
+                                                RuleValidator.validate_rule(
+                                                    rule['rule_type'],
+                                                    return_bool,
+                                                    rule, counter, tool))
+
+                                        # if the result we get is False, then
+                                        # indicate that the whole config is invalid
+                                        if not valid_rule:
                                             valid_config = False
 
-                                    # if "rule_type" in rule
+                                        # if we got a rule back that seems to be
+                                        # valid (or was fixable) then append it to
+                                        # list of ready-to-use tools
+                                        if (not return_bool
+                                                and validated_rule is not None):
+                                            curr_tool_rules.append(
+                                                copy.deepcopy(validated_rule))
+
+                                    # if rule['rule_type'] in available_rule_types
                                     else:
-                                        counter += 1
-                                        error = "No rule_type found for rule "
-                                        error += str(counter)
-                                        error += " in '" + str(tool) + "'."
+                                        error = "Unrecognized rule_type '"
+                                        error += rule['rule_type'] + "' "
+                                        error += "found in '" + str(tool) + "'. "
+                                        if not return_bool:
+                                            error += "Ignoring..."
                                         log.debug(error)
                                         config_valid = False
 
-                            # if "rules" in curr and isinstance(curr['rules'], list)
-                            else:
-                                error = "No rules found for '" + str(tool) + "'!"
-                                log.debug(error)
-                                valid_config = False
+                                # if "rule_type" in rule
+                                else:
+                                    counter += 1
+                                    error = "No rule_type found for rule "
+                                    error += str(counter)
+                                    error += " in '" + str(tool) + "'."
+                                    log.debug(error)
+                                    valid_config = False
 
-                        if curr_tool_rules:
-                            new_config[category][str(tool)]['rules'] = curr_tool_rules
+                        # if "rules" in curr and isinstance(curr['rules'], list)
+                        else:
+                            error = "No rules found for '" + str(tool) + "'!"
+                            log.debug(error)
+                            valid_config = False
 
-                    # if not isinstance(curr, list)
-                    else:
-                        error = "Malformed YML; expected job name, "
-                        error += "but found a list instead!"
-                        log.debug(error)
-                        valid_config = False
+                    if curr_tool_rules:
+                        new_config['tools'][str(tool)]['rules'] = curr_tool_rules
 
-            # if category == "default_destination"
-            else:
-                error = "Unrecognized category '" + category + "' found in config file!"
+                # if not isinstance(curr, list)
+                else:
+                    error = "Malformed YML; expected job name, "
+                    error += "but found a list instead!"
+                    log.debug(error)
+                    valid_config = False
+
+        # quickly run through categories to detect unrecognized types
+        for category in obj.keys():
+            if not (category == 'verbose' or category == 'tools'
+                    or category == 'default_destination'):
+                error = "Unrecognized category '" + category
+                error += "' found in config file!"
                 log.debug(error)
                 valid_config = False
 
@@ -903,7 +921,7 @@ def map_tool_to_destination(
         else:
             destination = "fail"
             fail_message = "Job '" + str(tool.old_id) + "' failed; "
-            fail_message += "no global default destination specified in YML file!"
+            fail_message += "no global default destination specified in config!"
 
     # if config is not None
     else:

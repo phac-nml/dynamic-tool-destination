@@ -71,3 +71,4 @@ tools:
         destination: Destination7
 
 default_destination: waffles_default
+verbose: False

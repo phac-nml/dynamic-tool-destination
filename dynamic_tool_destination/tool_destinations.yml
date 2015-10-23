@@ -172,3 +172,4 @@ tools:
     default_destination: waffles_low_16
 
 default_destination: waffles_default
+verbose: False

@@ -8,3 +8,4 @@ tools:
         destination: DestinationF
     default_destination: waffles_default
 default_destination: waffles_default
+verbose: False

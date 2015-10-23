@@ -140,6 +140,7 @@ class TestDynamicToolDestination(unittest.TestCase):
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total size: 3.23 KB'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total amount of records: 0'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'No global default destination specified in config!'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.')
         )
 
@@ -406,6 +407,8 @@ class TestDynamicToolDestination(unittest.TestCase):
         dt.parse_yaml(path=yt.ivYMLTest7, test=True)
         l.check(
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Missing mandatory field 'verbose' in config!"),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'No global default destination specified in config!'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.')
         )
 
@@ -414,6 +417,8 @@ class TestDynamicToolDestination(unittest.TestCase):
         dt.parse_yaml(path=yt.ivYMLTest8, test=True)
         l.check(
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Missing mandatory field 'verbose' in config!"),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'No global default destination specified in config!'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Unrecognized category 'ice_cream' found in config file!"),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.')
         )
