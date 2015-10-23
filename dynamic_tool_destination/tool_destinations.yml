@@ -109,7 +109,7 @@ tools:
         nice_value: 0
         arguments:
           careful: true
-        destination: fail
+        destination: waffles_low_48
     default_destination: waffles_low_16
 
   srst2:
