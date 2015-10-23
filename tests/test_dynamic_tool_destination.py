@@ -400,6 +400,7 @@ class TestDynamicToolDestination(unittest.TestCase):
         self.assertEquals(dt.parse_yaml(path=yt.ivYMLTest53, test=True), yt.ivDict53)
         l.check(
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Found a fail_message for rule 1 in 'spades', but destination is not 'fail'! Setting destination to 'fail'."),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.')
         )
 
@@ -468,6 +469,7 @@ class TestDynamicToolDestination(unittest.TestCase):
         self.assertEquals(dt.parse_yaml(path=yt.ivYMLTest132, test=True), yt.iv132dict)
         l.check(
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Found a fail_message for rule 1 in 'spades', but destination is not 'fail'! Setting destination to 'fail'."),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.')
         )
 

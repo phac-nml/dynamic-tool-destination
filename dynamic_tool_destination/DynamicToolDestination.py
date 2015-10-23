@@ -306,6 +306,13 @@ class RuleValidator:
 
         if "fail_message" in rule:
             if "destination" not in rule or rule['destination'] != "fail":
+                error = "Found a fail_message for rule " + str(counter)
+                error += " in '" + str(tool) + "', but destination is not 'fail'!"
+                if not return_bool:
+                    error += " Setting destination to 'fail'."
+                if verbose:
+                    log.debug(error)
+
                 valid_rule = False
 
             rule["destination"] = "fail"
@@ -507,6 +514,7 @@ def validate_config(obj, return_bool=False):
     new_config = collections.defaultdict(lambda: collections.defaultdict(dict))
 
     global verbose
+    verbose = True
     valid_config = True
     valid_rule = True
 
@@ -985,6 +993,7 @@ if __name__ == '__main__':
     looks for the config file in galaxy/config/. It can also be run with a path pointing
     to a config file if not being run directly from inside Galaxy install directory.
     """
+    verbose = True
 
     parser = argparse.ArgumentParser()
     logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
