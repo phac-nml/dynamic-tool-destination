@@ -302,7 +302,12 @@ can simply provide the tool with a path to the config:
 python DynamicToolDestination.py -c /path/to/tool_destinations.yml
 ```
 
+Note that the output when running Dynamic Tool Destination from a commandline depends on
+whether or not you have ```verbose``` turned on. It is advisable to turn it on for checking configs
+as it gives descriptive error messages if issues are encountered.
+
 ## Contact
 ---
 
 **Eric Enns**: eric.enns@phac-aspc.gc.ca
+=======
