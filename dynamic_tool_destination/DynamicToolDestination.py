@@ -260,7 +260,9 @@ class RuleValidator:
                 if not return_bool:
                     error += " Setting nice_value to 0."
                     rule["nice_value"] = 0
-                log.debug(error)
+
+                if verbose:
+                    log.debug(error)
                 valid_rule = False
 
         else:
@@ -269,7 +271,8 @@ class RuleValidator:
             if not return_bool:
                 error += " Setting nice_value to 0."
                 rule["nice_value"] = 0
-            log.debug(error)
+            if verbose:
+                log.debug(error)
             valid_rule = False
 
         return valid_rule, rule
@@ -316,14 +319,16 @@ class RuleValidator:
                         message = "Invalid parameters for rule " + str(counter)
                         message += " in '" + str(tool) + "'."
                         rule["fail_message"] = message
-                    log.debug(error)
+                    if verbose:
+                        log.debug(error)
                     valid_rule = False
         else:
             error = "No destination specified for rule " + str(counter)
             error += " in '" + str(tool) + "'."
             if not return_bool:
                 error += " Ignoring..."
-            log.debug(error)
+            if verbose:
+                log.debug(error)
             valid_rule = False
 
         return valid_rule, rule
@@ -368,7 +373,8 @@ class RuleValidator:
                     temp_lower_bound = rule["lower_bound"]
                     rule["upper_bound"] = temp_lower_bound
                     rule["lower_bound"] = temp_upper_bound
-                log.debug(error)
+                if verbose:
+                    log.debug(error)
                 valid_rule = False
 
         else:
@@ -377,7 +383,8 @@ class RuleValidator:
             if not return_bool:
                 error += " Ignoring rule."
                 rule = None
-            log.debug(error)
+            if verbose:
+                log.debug(error)
             valid_rule = False
 
         return valid_rule, rule
@@ -415,7 +422,8 @@ class RuleValidator:
             if not return_bool:
                 error += " Ignoring rule."
                 rule = None
-            log.debug(error)
+            if verbose:
+                log.debug(error)
             valid_rule = False
 
         return valid_rule, rule
@@ -465,10 +473,12 @@ def parse_yaml(path="/config/tool_destinations.yml", test=False, return_bool=Fal
             else:
                 config = validate_config(config)
         except MalformedYMLException:
-            log.error(str(sys.exc_value))
+            if verbose:
+                log.error(str(sys.exc_value))
             raise
     except ScannerError:
-        log.error("Config is too malformed to fix!")
+        if verbose:
+            log.error("Config is too malformed to fix!")
         raise
 
     if return_bool:
@@ -498,7 +508,7 @@ def validate_config(obj, return_bool=False):
 
     global verbose
 
-    if not return_bool:
+    if not return_bool and verbose:
         log.debug("Running config validation...")
 
     config_valid = True
@@ -515,14 +525,16 @@ def validate_config(obj, return_bool=False):
             verbose = obj['verbose']
         else:
             error = "Missing mandatory field 'verbose' in config!"
-            log.debug(error)
+            if verbose:
+                log.debug(error)
             valid_config = False
 
         if 'default_destination' in obj and isinstance(obj['default_destination'], str):
             new_config["default_destination"] = obj['default_destination']
         else:
             error = "No global default destination specified in config!"
-            log.debug(error)
+            if verbose:
+                log.debug(error)
             valid_config = False
 
         if 'tools' in obj:
@@ -591,8 +603,9 @@ def validate_config(obj, return_bool=False):
                                         error += "found in '" + str(tool) + "'. "
                                         if not return_bool:
                                             error += "Ignoring..."
-                                        log.debug(error)
-                                        config_valid = False
+                                        if verbose:
+                                            log.debug(error)
+                                        valid_config = False
 
                                 # if "rule_type" in rule
                                 else:
@@ -600,13 +613,15 @@ def validate_config(obj, return_bool=False):
                                     error = "No rule_type found for rule "
                                     error += str(counter)
                                     error += " in '" + str(tool) + "'."
-                                    log.debug(error)
+                                    if verbose:
+                                        log.debug(error)
                                     valid_config = False
 
                         # if "rules" in curr and isinstance(curr['rules'], list)
                         else:
                             error = "No rules found for '" + str(tool) + "'!"
-                            log.debug(error)
+                            if verbose:
+                                log.debug(error)
                             valid_config = False
 
                     if curr_tool_rules:
@@ -616,7 +631,8 @@ def validate_config(obj, return_bool=False):
                 else:
                     error = "Malformed YML; expected job name, "
                     error += "but found a list instead!"
-                    log.debug(error)
+                    if verbose:
+                        log.debug(error)
                     valid_config = False
 
         # quickly run through categories to detect unrecognized types
@@ -625,16 +641,19 @@ def validate_config(obj, return_bool=False):
                     or category == 'default_destination'):
                 error = "Unrecognized category '" + category
                 error += "' found in config file!"
-                log.debug(error)
+                if verbose:
+                    log.debug(error)
                 valid_config = False
 
     # if obj is not None
     else:
-        log.debug("No (or empty) config file supplied!")
+        if verbose:
+            log.debug("No (or empty) config file supplied!")
         valid_config = False
 
     if not return_bool:
-        log.debug("Finished config validation.")
+        if verbose:
+            log.debug("Finished config validation.")
 
     if return_bool:
         return valid_config
@@ -787,9 +806,11 @@ def map_tool_to_destination(
                 install_dir = str(this_tool.installation_directory(app))
                 _file = glob.glob(install_dir + "/vfdb/?" + bact[1:] + "*")
                 inp_db = open(str(_file[0]))
-                log.debug("Loading file: " + _file[0])
+                if verbose:
+                    log.debug("Loading file: " + _file[0])
     except(KeyError, IndexError, TypeError):
-        log.info("No virulence factors database")
+        if verbose:
+            log.info("No virulence factors database")
 
     # Loop through the database and look for amount of records
     try:
@@ -805,7 +826,8 @@ def map_tool_to_destination(
         try:
             # If the input is a file, check and add the size
             if os.path.isfile(str(inp_data[da].file_name)):
-                log.debug("Loading file: " + str(da) + str(inp_data[da].file_name))
+                if verbose:
+                    log.debug("Loading file: " + str(da) + str(inp_data[da].file_name))
 
                 # Add to records if the file type is fasta
                 if inp_data[da].datatype.file_ext == "fasta":
@@ -825,10 +847,12 @@ def map_tool_to_destination(
                     file_size += os.path.getsize(query_file)
         except AttributeError:
             # Otherwise, say that input isn't a file
-            log.debug("Not a file: " + str(inp_data[da]))
+            if verbose:
+                log.debug("Not a file: " + str(inp_data[da]))
 
-    log.debug("Total size: " + bytes_to_str(file_size))
-    log.debug("Total amount of records: " + str(records))
+    if verbose:
+        log.debug("Total size: " + bytes_to_str(file_size))
+        log.debug("Total amount of records: " + str(records))
 
     # Get configuration from tool_destinations.yml
     try:
@@ -898,7 +922,8 @@ def map_tool_to_destination(
                                     options = "test"
                             else:
                                 matched = False
-                                log.debug("Argument '" + str(arg) + "' not recognized!")
+                                if verbose:
+                                    log.debug("Argument '" + str(arg) + "' not recognized!")
 
                             if matched is True:
                                 if (matched_rule is None or rule["nice_value"]
@@ -909,7 +934,8 @@ def map_tool_to_destination(
             else:
                 error = "Tool '" + str(tool.old_id) + "' not specified in config. "
                 error += "Using default destination."
-                log.debug(error)
+                if verbose:
+                    log.debug(error)
 
             if matched_rule is None:
                 if "default_destination" in config[str(tool.old_id)]:

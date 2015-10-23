@@ -6,4 +6,4 @@ tools:
         lower_bound: 1 KB
         upper_bound: 2 KB
         destination: DestinationF
-verbose: False
+verbose: True
