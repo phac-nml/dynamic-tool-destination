@@ -1,83 +1,148 @@
-## Configuration
+# The configuration for each tool is done in tool_destinations.yml. You may either edit
+# this file in the root folder and run make clean then make install, or you can
+# edit this file directly in galaxy_path/config/tool_destinations.yml
 #
-#   The configuration for each tool is done in tool_options. You may either edit
-#   this file in the root folder and run make clean then make install, or you can
-#   edit this file directly in galaxy_path/config/tool_options.yml
+# The configuration will have three main levels (or key properties) - tools,
+# default_destination, and verbose.
 #
-#   For each key-property under Tools, put the ID of the tool. They must be
-#   distinct. In each tool the names of the conditions must also be distinct.
-#   If they are not distinct names then the program will overwrite any previous
-#   conditions with the latest defined condition. There is a special
-#   key-property that goes in the same place as a tool, default. It has two
-#   nested key-properties, destinationID and runner. The runner key-property
-#   defines the default runner type for all tools and the destinationID
-#   key-property defines the default location for tools to run on.
+# Under tools is where you put the IDs of the tools. Tool IDs must be
+# distinct. In each tool is a list of rules, each of which contain rule-specific
+# paremeters. DynamicToolDestination.py is set up to allow and fix a few light errors
+# in the config, but it's best to follow the specified template.
+#
+# default_destination, the second key property, specifies which global destination
+# to default to in case none of the rules apply.
+#
+# A third key property is verbose. When this is set to True, Dynamic Tool Destination
+# gives much more descriptive output regarding the steps it's taking in mapping your tools to
+# the appropriate destinations, including config validation and any potential errors found in the
+# config.
+#
+# The general template is as follows (note that this template
+# does not use quote symbols), using spades and smalt as an example
+# (spades for showing what each field is for, and smalt
+# to give a fairly real-world example):
+#
 # Ex:
-# spades:
-#     cond1:
-#     cond2:
-# spades2:
-#     cond1:
-# default:
-#     destinationID:
-#     runner:
 #
-#   For each condition key-property, there are two mandatory key-properties,
-#   type and destination. type stores the type of condition (file_size, record,
-#   file_sizeuments, or default) and the destination key-property stores either location
-#   to run the tool on or fail, which makes the job raise an error.
-# Ex:
-# condition:
-#     type: default
-#     destination: X
+# tools:
+#   spades:
+# 	rules:
+#       - rule_type: what kind of rule is it?
+#         nice_value: what kind of priority does this rule have over others?
+#         destination: how should this tool be run?
+#         lower_bound: what's the max file size?
+#         upper_bound: what's the minimum file size?
+# 	default_destination: this tool-specific field is optional
+#   smalt_map:
+#     rules:
+#       - rule_type: file_size
+#         nice_value: 0
+#         lower_bound: 0
+#         upper_bound: 2 GB
+#         destination: cluster_low_4
+#       - rule_type: file_size
+#         nice_value: 0
+#         lower_bound: 2 GB
+#         upper_bound: 4 GB
+#         destination: cluster_low_8
+#       - rule_type: file_size
+#         nice_value: 0
+#         lower_bound: 4 GB
+#         upper_bound: Infinity
+#         destination: cluster_low_16
+#     default_destination: cluster_default
+# default_destination: this global field is mandatory
+# verbose: True
 #
-#   For each file_size and record type, there are two more mandatory
-#   key-properties, lower_bound and upper_bound. lower_bound key-property stores a lower
-#   size bound for the input, and the upper_bound key-property stores a higher
-#   size bound for the input. For an infinitely large upper_bound, put -1. upper_bound
-#   and lower_bound should either be a plain number or a string with a number a
-#   space and then a unit in bytes.
-# Ex:
-# condition:
-#     type: file_size
-#     lower_bound: 100
-#     upper_bound: 5 PB
-#     destination: fail
 #
-# **The comparisons will include the lower_bound, up to but not including the upper_bound
 #
-#   For each arguments type condition, there is one more mandatory
-#   key-property, arguments. arguments is a list of argumentss and values to look
-#   for in the tools argumentss, as defined by it's xml. If any of those
-#   argumentss are found, the destination key-property is executed
-# Ex:
-# condition_arguments:
-#     type: arguments
-#     arguments:
-#         careful: true
-#     destination: fail
+# Looking at this example, some things must be clarified: each entry in the list of
+# rules per tool is specified by '-'. Per rule, regardless of rule type,
+# the following fields are mandatory:
+# rule_type, nice_value, and destination.
 #
-#   For arguments, file_size, and records type conditions, there is an optional
-#   nice_value key-property. This property will tell the program which condition
-#   has priority. The nice_value key-property defaults to zero. In the event that
-#   the nice_value key-property is the same in two contending conditions, the
-#   priority is given to the condition which appears first in the tool_options
-#   yaml file.
-# Ex:
-# condition3:
-#     type: records
-#     nice_value: 0
-#     lower_bound: 1000
-#     upper_bound: 10000
-#     destination: CCC
+# Some of the other fields are mandatory only for specific rule types, which will be
+# further discussed below.
 #
-#   There is an optional fail_message key-property which will be displayed to the
-#   user in the event of a destination key-property being fail.
-# Ex:
-# condition:
-#     type: default
-#     fail_message: I failed.
-#     destination: fail
+# Starting with rule_type, there are currently 3 rule types: file_size, records,
+# and arguments.
+#
+# file_size and records rules are based on how large the files are: if they fall
+# within specified limits, then the rule is satisfied, and the tool may proceed
+# with the appropriate destination.
+#
+# file_size and records rules have the following required parameters on top of the base
+# mandatory parameters:
+# upper_bound
+# lower_bound
+#
+# Bounds are allowed to be specified in bytes (48000 for example) or a higher size unit,
+# including the unit abbreviation (4 GB or 10 TB for example). Additionally, upper_bound
+# is allowed to be Infinite; simply specify Infinite in order to do so.
+#
+# **The rule will allow the lower_bound, up to but not including the upper_bound
+#
+# The third rule_type is arguments, which has arguments as a mandatory parameter ontop of
+# the base mandatory parameters. The arguments parameter is specified using the following
+# template:
+#
+#
+# arguments:
+#   argument_name: the_argument
+#
+#
+# A real world example is shown below:
+#
+#
+# tools:
+#   spades:
+#     rules:
+#       - rule_type: arguments
+#         nice_value: -19
+#         destination: fail
+#         fail_message: Don't do that
+#         arguments:
+#           careful: true
+#     default_destination: cluster_low
+# default_destination: cluster
+# verbose: False
+#
+#
+# Next up, nice_value is used for prioritizing rules over others in case two rules
+# match. nice_value basically translates to, "the higher the nice_value, the 'nicer'
+# the tool is about being picked last". So based off of that idea, a rule with a nice
+# value of -5 is guaranteed to be picked over a rule with a nice value of 10. nice_value
+# is allowed to go from -20 to 20. If two rules have the same nice value and both were
+# satisfied, the first rule in the config file will be picked. In summary, first-come-
+# first-serve basis unless nice_value overrides that.
+#
+#
+# Finally, destination simply refers to the specific way the tool will run. Each
+# destination ID refers to a specific configuration to run the tool with.
+#
+# Some rules may call for the job to fail if certain conditions are encountered. In
+# this case, destination simply refers to 'fail'.
+#
+# For example, the following rule is set to fail the job if a file that is too large
+# (more than 4GB) is encountered:
+#
+#
+# tools:
+#   spades:
+#     rules:
+#       - rule_type: file_size
+#         nice_value: 0
+#         destination: fail
+#         fail_message: Data too large
+#         lower_bound: 4 GB
+#         upper_bound: Infinity
+#
+#
+# As shown above, a rule with 'fail' as the destination requires an additional
+# parameter, 'fail_message', which DynamicToolDestination uses to print a helpful error
+# message to the user indicating why the job failed (showing up inside the job log in
+# Galaxy's history panel).
 
 
 tools:
