@@ -107,7 +107,7 @@ In this case, the job would be run with parameters ```-q test.q -pe galaxy 32 -l
 ## Testing  
 ---
 To run the test suit on this project, from the root directory in the
-command line, type tox.
+command line, type tox.  
 **Note**: Tox version 1.6.0 or greater is required!
 
 To run specific parts of the testing:
