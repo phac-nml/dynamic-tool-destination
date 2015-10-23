@@ -106,8 +106,11 @@ In this case, the job would be run with parameters ```-q test.q -pe galaxy 32 -l
 
 ## Testing  
 ---
-To run the test suit on this project, from the root directory in the  
-command line, type tox. To run specific parts of the testing:
+To run the test suit on this project, from the root directory in the
+command line, type tox.
+**Note**: Tox version 1.6.0 or greater is required!
+
+To run specific parts of the testing:
 
 1. To run python 2.6 tests
 ```
@@ -126,18 +129,27 @@ tox -e flake8
 
 ## Configuration  
 ---
-The configuration for each tool is done in tool_destinations.yml. You may either edit  
-this file in the root folder and run make clean then make install, or you can  
-edit this file directly in galaxy_path/config/tool_destinations.yml  
+The configuration for each tool is done in tool_destinations.yml. You may either edit
+this file in the root folder and run make clean then make install, or you can
+edit this file directly in galaxy_path/config/tool_destinations.yml
 
-For each key-property under tools:, put the ID of the tool. Tool IDs must be  
+The configuration will have three main levels (or key properties) - ```tools```, 
+```default_destination```, and ```verbose```.
+
+Under ```tools``` is where you put the IDs of the tools. Tool IDs must be
 distinct. In each tool is a list of rules, each of which contain rule-specific
 paremeters. DynamicToolDestination.py is set up to allow and fix a few light errors
 in the config, but it's best to follow the specified template.
 
-There is a special key-property that goes in same the level as tools:,
-default_destination, which specifies which global destination to default to in case
-none of the rules apply. The general template is as follows (note that this template
+```default_destination```, the second key property, specifies which global destination 
+to default to in case none of the rules apply. 
+
+A third key property is ```verbose```. When this is set to True, Dynamic Tool Destination
+gives much more descriptive output regarding the steps it's taking in mapping your tools to
+the appropriate destinations, including config validation and any potential errors found in the
+config.
+
+The general template is as follows (note that this template
 does not use quote symbols), using spades and smalt as an example
 (spades for showing what each field is for, and smalt
 to give a fairly real-world example):
@@ -172,6 +184,7 @@ tools:
         destination: cluster_low_16
     default_destination: cluster_default
 default_destination: this global field is mandatory
+verbose: True
 
 ```
 
@@ -224,6 +237,7 @@ tools:
           careful: true
     default_destination: cluster_low
 default_destination: cluster
+verbose: False
 ```
 
 Next up, nice_value is used for prioritizing rules over others in case two rules
