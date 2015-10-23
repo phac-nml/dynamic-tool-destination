@@ -35,7 +35,7 @@ vYMLTest1 = """
             upper_bound: 100000000
             destination: things
     default_destination: waffles_default
-    verbose: False
+    verbose: True
 """
 
 vdictTest1_yml = {
@@ -75,7 +75,7 @@ vYMLTest2 ='''
             fail_message: Too few reads for smalt to work
             destination: fail
     default_destination: waffles_low
-    verbose: False
+    verbose: True
 '''
 
 vdictTest2_yml = {
@@ -119,7 +119,7 @@ vYMLTest3 = '''
             fail_message: Whats hax
             destination: fail
     default_destination: waffles_default
-    verbose: False
+    verbose: True
 '''
 
 vdictTest3_yml = {
@@ -153,7 +153,7 @@ vYMLTest4 = """
             fail_message: Failure
             destination: fail
     default_destination: waffles_default
-    verbose: False
+    verbose: True
 """
 
 vdictTest4_yml = {
@@ -186,7 +186,7 @@ vYMLTest5 = '''
             upper_bound: 100000000
             destination: waffles_low_4
     default_destination: waffles_default
-    verbose: False
+    verbose: True
 '''
 
 vdictTest5_yml = {
@@ -221,7 +221,7 @@ ivYMLTest3 = '''
           lower_bound: 0
           destination: fail
     default_destination: waffles_default
-    verbose: False
+    verbose: True
 '''
 
 iv3dict = {
@@ -239,7 +239,7 @@ ivYMLTest4 = '''
             fail_message: No type...
             destination: fail
     default_destination: waffles_default
-    verbose: False
+    verbose: True
 '''
 
 # Condition missing attribute
@@ -253,7 +253,7 @@ ivYMLTest51 = '''
             fail_message: No type...
             destination: fail
     default_destination: waffles_default
-    verbose: False
+    verbose: True
 '''
 
 # Condition missing attribute
@@ -267,7 +267,7 @@ ivYMLTest52 = '''
             fail_message: No type...
             destination: fail
     default_destination: waffles_default
-    verbose: False
+    verbose: True
 '''
 
 # Condition missing attribute
@@ -281,7 +281,7 @@ ivYMLTest53 = '''
             upper_bound: 0
             fail_message: No type...
     default_destination: waffles_default
-    verbose: False
+    verbose: True
 '''
 
 ivDict53 = {
@@ -316,7 +316,7 @@ ivYMLTest6 = '''
             fail_message: No type...
             destination: fail
     default_destination: waffles_default
-    verbose: False
+    verbose: True
 '''
 
 # No default destination
@@ -343,7 +343,7 @@ ivYMLTest91 = '''
             upper_bound: 0
             destination: fail
     default_destination: waffles_default
-    verbose: False
+    verbose: True
 '''
 
 iv91dict = {
@@ -376,7 +376,7 @@ ivYMLTest11 = '''
             destination: waffles_low
         default_destination: waffles_low
     default_destination: waffles_default
-    verbose: False
+    verbose: True
 '''
 
 # Arguments fail no fail_message
@@ -390,7 +390,7 @@ ivYMLTest12 = """
               careful: true
             destination: fail
     default_destination: waffles_default
-    verbose: False
+    verbose: True
 """
 
 iv12dict = {
@@ -422,7 +422,7 @@ ivYMLTest131 = """
             fail_message: Something went wrong
             destination: fail
     default_destination: waffles_default
-    verbose: False
+    verbose: True
 """
 
 iv131dict = {
@@ -440,7 +440,7 @@ ivYMLTest132 = """
             arguments:
               careful: true
     default_destination: waffles_default
-    verbose: False
+    verbose: True
 """
 
 iv132dict = {
@@ -478,7 +478,7 @@ ivYMLTest133 ='''
             upper_bound: Infinity
             destination: waffles_low_4
     default_destination: waffles_low
-    verbose: False
+    verbose: True
 '''
 
 iv133dict = {
@@ -515,7 +515,7 @@ ivYMLTest134 = """
             lower_bound: 0
             nice_value: 0
     default_destination: waffles_default
-    verbose: False
+    verbose: True
 """
 
 iv134dict = {
@@ -545,7 +545,7 @@ ivYMLTest135 = """
             nice_value: 0
             destination: waffles_low_4
     default_destination: waffles_default
-    verbose: False
+    verbose: True
 """
 
 iv135dict = {
