@@ -523,6 +523,7 @@ def validate_config(obj, return_bool=False):
 
         if 'verbose' in obj and isinstance(obj['verbose'], bool):
             verbose = obj['verbose']
+
         else:
             error = "Missing mandatory field 'verbose' in config!"
             if verbose:

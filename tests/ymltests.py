@@ -564,3 +564,17 @@ iv135dict = {
         }
     }
 }
+
+# No verbose
+ivYMLTest136 = """
+    tools:
+      spades:
+        rules:
+          - rule_type: file_size
+            upper_bound: 100
+            lower_bound: 200
+            nice_value: 0
+            destination: waffles_low_4
+    default_destination: waffles_default
+    verbose: False
+"""

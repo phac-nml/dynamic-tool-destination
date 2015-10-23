@@ -100,16 +100,15 @@ defaultTool = mg.Tool( 'test_tooldefault' )
 dbTool = mg.Tool( 'test_db' )
 dbinfTool = mg.Tool( 'test_db_high' )
 
-nomsgTool = mg.Tool( 'test_no_errmsg' )
-
 paramTool = mg.Tool( 'test_arguments' )
 
 vfdbTool = mg.Tool( 'test_db' )
 vfdbTool.add_tool_dependency( mg.ToolDependency("vfdb", os.getcwd() + "/tests") )
 
+noVBTool = mg.Tool( 'test_no_verbose')
+
 #=======================YML file================================
 path = os.getcwd() + "/tests/data/tool_destination.yml"
-err_path = os.getcwd() + "/tests/data/no_errmsg.yml"
 broken_default_dest_path = os.getcwd() + "/tests/data/dest_fail.yml"
 
 #======================Test Variables=========================
@@ -507,16 +506,6 @@ class TestDynamicToolDestination(unittest.TestCase):
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "lower_bound exceeds upper_bound for rule 1 in 'spades'. Reversing bounds."),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.')
         )
-
-    @log_capture()
-    def test_return_rule_for_reversed_bounds(self, l):
-        self.assertEquals(dt.parse_yaml(path=yt.ivYMLTest135, test=True), yt.iv135dict)
-        l.check(
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "lower_bound exceeds upper_bound for rule 1 in 'spades'. Reversing bounds."),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.')
-        )
-
 
 #================================Valid yaml files==============================
     @log_capture()
