@@ -200,6 +200,7 @@ class TestDynamicToolDestination(unittest.TestCase):
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total amount of records: 0'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Running 'test' with 'Destination1'.")
         )
 
     @log_capture()
@@ -213,7 +214,8 @@ class TestDynamicToolDestination(unittest.TestCase):
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total amount of records: 0'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Tool 'test_tooldefault' not specified in config. Using default destination.")
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Tool 'test_tooldefault' not specified in config. Using default destination."),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Running 'test_tooldefault' with 'waffles_default'.")
         )
 
     @log_capture()
@@ -226,7 +228,8 @@ class TestDynamicToolDestination(unittest.TestCase):
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total size: 3.23 KB'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total amount of records: 0'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.')
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Running 'test_arguments' with 'Destination6'.")
         )
 
     @log_capture()
@@ -239,7 +242,8 @@ class TestDynamicToolDestination(unittest.TestCase):
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total size: 3.23 KB'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total amount of records: 0'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.')
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Running 'test_arguments' with 'waffles_default'.")
         )
 
     @log_capture()
@@ -254,7 +258,8 @@ class TestDynamicToolDestination(unittest.TestCase):
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total amount of records: 0'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Tool 'unregistered' not specified in config. Using default destination.")
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Tool 'unregistered' not specified in config. Using default destination."),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Running 'unregistered' with 'waffles_default'.")
 
         )
 
@@ -268,7 +273,8 @@ class TestDynamicToolDestination(unittest.TestCase):
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total size: 0.00 B'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total amount of records: 10'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.')
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Running 'test_db' with 'Destination4'.")
         )
 
     @log_capture()
@@ -281,7 +287,8 @@ class TestDynamicToolDestination(unittest.TestCase):
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total size: 0.00 B'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total amount of records: 6'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.')
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Running 'test_db' with 'Destination4'.")
         )
 
     @log_capture()
@@ -295,7 +302,8 @@ class TestDynamicToolDestination(unittest.TestCase):
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total size: 3.23 KB'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total amount of records: 4'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.')
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Running 'test_db' with 'Destination4'.")
         )
 
     @log_capture()
@@ -310,7 +318,8 @@ class TestDynamicToolDestination(unittest.TestCase):
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total size: 3.23 KB'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total amount of records: 0'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.')
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Running 'test_db' with 'Destination4'.")
         )
 
 #================================Invalid yaml files==============================
@@ -487,6 +496,15 @@ class TestDynamicToolDestination(unittest.TestCase):
         l.check(
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "No destination specified for rule 1 in 'spades'. Ignoring..."),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.')
+        )
+
+    @log_capture()
+    def test_return_rule_for_reversed_bounds(self, l):
+        self.assertEquals(dt.parse_yaml(path=yt.ivYMLTest135, test=True), yt.iv135dict)
+        l.check(
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "lower_bound exceeds upper_bound for rule 1 in 'spades'. Reversing bounds."),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.')
         )
 

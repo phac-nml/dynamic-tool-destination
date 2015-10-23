@@ -961,6 +961,15 @@ def map_tool_to_destination(
         else:
             raise JobMappingException(matched_rule["fail_message"])
 
+    if config is not None:
+        if destination == "fail":
+            output = "An error occurred: " + fail_message
+
+        else:
+            output = "Running '" + str(tool.old_id) + "' with '"
+            output += destination + "'."
+            log.debug(output)
+
     return destination
 
 if __name__ == '__main__':
