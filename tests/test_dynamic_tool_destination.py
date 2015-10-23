@@ -105,9 +105,12 @@ paramTool = mg.Tool( 'test_arguments' )
 vfdbTool = mg.Tool( 'test_db' )
 vfdbTool.add_tool_dependency( mg.ToolDependency("vfdb", os.getcwd() + "/tests") )
 
+noVBTool = mg.Tool( 'test_no_verbose' )
+
 #=======================YML file================================
 path = os.getcwd() + "/tests/data/tool_destination.yml"
 broken_default_dest_path = os.getcwd() + "/tests/data/dest_fail.yml"
+no_verbose_path = os.getcwd() + "/tests/data/test_no_verbose.yml"
 
 #======================Test Variables=========================
 value = 1
@@ -133,12 +136,12 @@ class TestDynamicToolDestination(unittest.TestCase):
         self.assertRaises(mg.JobMappingException, map_tool_to_destination, runJob, theApp, vanillaTool, True, broken_default_dest_path)
 
         l.check(
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Loading file: input1' + os.getcwd() + '/tests/data/test3.full'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total size: 3.23 KB'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total amount of records: 0'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'No global default destination specified in config!'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.')
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Loading file: input1' + os.getcwd() + '/tests/data/test3.full'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total size: 3.23 KB'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total amount of records: 0')
         )
 
     @log_capture()
@@ -146,11 +149,12 @@ class TestDynamicToolDestination(unittest.TestCase):
         self.assertRaises(mg.JobMappingException, map_tool_to_destination, emptyJob, theApp, vanillaTool, True, path)
 
         l.check(
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Loading file: input1' + os.getcwd() + '/tests/data/test.empty'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total size: 0.00 B'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total amount of records: 0'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.')
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total amount of records: 0')
+
         )
 
     @log_capture()
@@ -158,10 +162,10 @@ class TestDynamicToolDestination(unittest.TestCase):
         self.assertRaises(mg.JobMappingException, map_tool_to_destination, zeroJob, theApp, vanillaTool, True, path)
 
         l.check(
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total size: 0.00 B'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total amount of records: 0'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.')
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total size: 0.00 B'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total amount of records: 0')
         )
 
     @log_capture()
@@ -169,22 +173,22 @@ class TestDynamicToolDestination(unittest.TestCase):
         self.assertRaises(mg.JobMappingException, map_tool_to_destination, failJob, theApp, vanillaTool, True, path)
 
         l.check(
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Loading file: input1' + os.getcwd() + '/tests/data/test1.full'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total size: 293.00 B'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total amount of records: 0'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.')
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total amount of records: 0')
         )
 
     @log_capture()
     def test_fnf(self, l):
         self.assertRaises(mg.JobMappingException, map_tool_to_destination, msfileJob, theApp, vanillaTool, True, path)
         if sys.version_info < (2, 7):
-            self.assertTrue(re.match( r".*Total size: 0\.00 B", str(l.records[1]) ))
-            self.assertTrue(re.match( r".*Total amount of records: 0", str(l.records[2]) ))
+            self.assertTrue(re.match( r".*Total size: 0\.00 B", str(l.records[3]) ))
+            self.assertTrue(re.match( r".*Total amount of records: 0", str(l.records[4]) ))
         else:
-            self.assertRegexpMatches( str(l.records[1]), r".*Total size: 0\.00 B")
-            self.assertRegexpMatches( str(l.records[2]), r".*Total amount of records: 0")
+            self.assertRegexpMatches( str(l.records[3]), r".*Total size: 0\.00 B")
+            self.assertRegexpMatches( str(l.records[4]), r".*Total amount of records: 0")
 
     @log_capture()
     def test_filesize_run(self, l):
@@ -192,11 +196,11 @@ class TestDynamicToolDestination(unittest.TestCase):
         self.assertEquals( job, 'Destination1' )
 
         l.check(
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Loading file: input1' + os.getcwd() + '/tests/data/test3.full'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total size: 3.23 KB'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total amount of records: 0'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Running 'test' with 'Destination1'.")
         )
 
@@ -206,11 +210,11 @@ class TestDynamicToolDestination(unittest.TestCase):
         self.assertEquals( job, 'waffles_default' )
 
         l.check(
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Loading file: input1' + os.getcwd() + '/tests/data/test3.full'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total size: 3.23 KB'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total amount of records: 0'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Tool 'test_tooldefault' not specified in config. Using default destination."),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Running 'test_tooldefault' with 'waffles_default'.")
         )
@@ -221,11 +225,11 @@ class TestDynamicToolDestination(unittest.TestCase):
         self.assertEquals( job, 'Destination6' )
 
         l.check(
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Loading file: input1' + os.getcwd() + '/tests/data/test3.full'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total size: 3.23 KB'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total amount of records: 0'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Running 'test_arguments' with 'Destination6'.")
         )
 
@@ -235,11 +239,11 @@ class TestDynamicToolDestination(unittest.TestCase):
         self.assertEquals( job, 'waffles_default' )
 
         l.check(
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Loading file: input1' + os.getcwd() + '/tests/data/test3.full'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total size: 3.23 KB'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total amount of records: 0'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Running 'test_arguments' with 'waffles_default'.")
         )
 
@@ -249,12 +253,12 @@ class TestDynamicToolDestination(unittest.TestCase):
         self.assertEquals( job, 'waffles_default' )
 
         l.check(
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG',
              'Loading file: input1' + os.getcwd() + '/tests/data/test3.full'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total size: 3.23 KB'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total amount of records: 0'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Tool 'unregistered' not specified in config. Using default destination."),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Running 'unregistered' with 'waffles_default'.")
 
@@ -266,11 +270,11 @@ class TestDynamicToolDestination(unittest.TestCase):
         self.assertEquals( job, 'Destination4' )
 
         l.check(
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Loading file: input1' + os.getcwd() + '/tests/data/test.fasta'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total size: 0.00 B'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total amount of records: 10'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Running 'test_db' with 'Destination4'.")
         )
 
@@ -280,11 +284,11 @@ class TestDynamicToolDestination(unittest.TestCase):
         self.assertEquals( job, 'Destination4' )
 
         l.check(
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Loading file: input1' + os.getcwd() + '/tests/data/test.fasta'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total size: 0.00 B'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total amount of records: 6'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Running 'test_db' with 'Destination4'.")
         )
 
@@ -294,12 +298,12 @@ class TestDynamicToolDestination(unittest.TestCase):
         self.assertEquals( job, 'Destination4' )
 
         l.check(
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Loading file: ' + os.getcwd() + '/tests/vfdb/?bact.test'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Loading file: input1' + os.getcwd() + '/tests/data/test3.full'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total size: 3.23 KB'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total amount of records: 4'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Running 'test_db' with 'Destination4'.")
         )
 
@@ -309,14 +313,23 @@ class TestDynamicToolDestination(unittest.TestCase):
         self.assertEquals( job, 'Destination4' )
 
         l.check(
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.'),
             ('dynamic_tool_destination.DynamicToolDestination', 'INFO', 'No virulence factors database'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG',
              'Loading file: input1' + os.getcwd() + '/tests/data/test3.full'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total size: 3.23 KB'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total amount of records: 0'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Running 'test_db' with 'Destination4'.")
+        )
+
+    @log_capture()
+    def test_no_verbose(self, l):
+        job = map_tool_to_destination( runJob, theApp, noVBTool, True, no_verbose_path )
+        self.assertEquals( job, 'Destination1' )
+
+        l.check(
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Running 'test_no_verbose' with 'Destination1'.")
         )
 
 #================================Invalid yaml files==============================
@@ -341,6 +354,7 @@ class TestDynamicToolDestination(unittest.TestCase):
         self.assertEquals(dt.parse_yaml(path=yt.ivYMLTest2, test=True), {})
         l.check(
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Missing mandatory field 'verbose' in config!"),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'No (or empty) config file supplied!'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.')
         )

@@ -507,12 +507,19 @@ def validate_config(obj, return_bool=False):
     new_config = collections.defaultdict(lambda: collections.defaultdict(dict))
 
     global verbose
+    valid_config = True
+    valid_rule = True
+
+    if obj is not None and 'verbose' in obj and isinstance(obj['verbose'], bool):
+        verbose = obj['verbose']
+    else:
+        valid_config = False
 
     if not return_bool and verbose:
         log.debug("Running config validation...")
-
-    config_valid = True
-    result = True
+        # if this is false, then it's definitely because of verbose missing
+        if not valid_config:
+            log.debug("Missing mandatory field 'verbose' in config!")
 
     # a list with the available rule_types. Can be expanded on easily in the future
     available_rule_types = ['file_size', 'records', 'arguments']
@@ -520,15 +527,6 @@ def validate_config(obj, return_bool=False):
     if obj is not None:
         # in obj, there should always be only 3 categories: tools, default_destination,
         # and verbose
-
-        if 'verbose' in obj and isinstance(obj['verbose'], bool):
-            verbose = obj['verbose']
-
-        else:
-            error = "Missing mandatory field 'verbose' in config!"
-            if verbose:
-                log.debug(error)
-            valid_config = False
 
         if 'default_destination' in obj and isinstance(obj['default_destination'], str):
             new_config["default_destination"] = obj['default_destination']
@@ -793,6 +791,17 @@ def map_tool_to_destination(
     """
     importer(test)
 
+    # set verbose to True by default, just in case (some tests fail without this due to
+    # how the tests apparently work)
+    global verbose
+    verbose = True
+
+    # Get configuration from tool_destinations.yml
+    try:
+        config = parse_yaml(path)
+    except MalformedYMLException as e:
+        raise JobMappingException(e)
+
     # Get all inputs from tool and databases
     inp_data = dict([(da.name, da.dataset) for da in job.input_datasets])
     inp_data.update([(da.name, da.dataset) for da in job.input_library_datasets])
@@ -854,12 +863,6 @@ def map_tool_to_destination(
     if verbose:
         log.debug("Total size: " + bytes_to_str(file_size))
         log.debug("Total amount of records: " + str(records))
-
-    # Get configuration from tool_destinations.yml
-    try:
-        config = parse_yaml(path)
-    except MalformedYMLException as e:
-        raise JobMappingException(e)
 
     matched_rule = None
 
