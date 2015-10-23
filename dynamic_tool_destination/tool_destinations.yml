@@ -134,7 +134,7 @@ tools:
         lower_bound: 1000000
         upper_bound: Infinity
         fail_message: Using the wrong tool
-        destination: waffles_low_8
+        destination: fail
     default_destination: waffles_default
 
   smalt_map:
