@@ -105,8 +105,6 @@ paramTool = mg.Tool( 'test_arguments' )
 vfdbTool = mg.Tool( 'test_db' )
 vfdbTool.add_tool_dependency( mg.ToolDependency("vfdb", os.getcwd() + "/tests") )
 
-noVBTool = mg.Tool( 'test_no_verbose')
-
 #=======================YML file================================
 path = os.getcwd() + "/tests/data/tool_destination.yml"
 broken_default_dest_path = os.getcwd() + "/tests/data/dest_fail.yml"
