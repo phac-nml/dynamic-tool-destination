@@ -519,7 +519,8 @@ def validate_config(obj, return_bool=False):
     valid_rule = True
 
     if obj is not None and 'verbose' in obj and isinstance(obj['verbose'], bool):
-        verbose = obj['verbose']
+        if not return_bool:
+            verbose = obj['verbose']
     else:
         valid_config = False
 
