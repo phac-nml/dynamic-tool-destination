@@ -40,9 +40,9 @@ This project dynamically maps tools to destinations based on the following rules
 ```make install GALAXY_PATH="your-galaxy-path"```
 
 3. Make sure you read https://wiki.galaxyproject.org/Admin/Config/Jobs for instructions on
-how to set up the tool_conf.xml files.
+how to set up job_conf.xml.
 
-4. In the <destinations> section, add the following to make sure Galaxy sees
+4. In the ```<destinations>``` section, add the following to make sure Galaxy sees
 DynamicToolDestination:
 ```
 <destination id="dynamic_destination" runner="dynamic">  
