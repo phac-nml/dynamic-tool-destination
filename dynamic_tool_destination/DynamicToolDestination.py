@@ -858,10 +858,12 @@ def map_tool_to_destination(
                 # If the input is a file, check and add the size
                 if os.path.isfile(str(inp_data[da].file_name)):
                     if verbose:
-                        log.debug("Loading file: " + str(da) + str(inp_data[da].file_name))
+                        message = "Loading file: " + str(da)
+                        message += str(inp_data[da].file_name)
+                        log.debug(message)
 
                     # Add to records if the file type is fasta
-                    if inp_data[da].datatype.file_ext == "fasta":
+                    if inp_data[da].datatype.file_ext == "fasta" and records_rule_present:
                         inp_db = open(inp_data[da].file_name)
 
                         # Try to find automatically computed sequences
@@ -873,7 +875,7 @@ def map_tool_to_destination(
                             for line in inp_db:
                                 if line[0] == ">":
                                     records += 1
-                    else:
+                    elif filesize_rule_present:
                         query_file = str(inp_data[da].file_name)
                         file_size += os.path.getsize(query_file)
             except AttributeError:
@@ -882,8 +884,10 @@ def map_tool_to_destination(
                     log.debug("Not a file: " + str(inp_data[da]))
 
         if verbose:
-            log.debug("Total size: " + bytes_to_str(file_size))
-            log.debug("Total amount of records: " + str(records))
+            if filesize_rule_present:
+                log.debug("Total size: " + bytes_to_str(file_size))
+            if records_rule_present:
+                log.debug("Total amount of records: " + str(records))
 
     matched_rule = None
 
