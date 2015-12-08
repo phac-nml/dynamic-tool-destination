@@ -564,3 +564,30 @@ iv135dict = {
         }
     }
 }
+
+# Tool has rules category but no rules, and no tool-specific default destination
+ivYMLTest136 = """
+    tools:
+      spades:
+        rules:
+
+    default_destination: waffles_default
+    verbose: True
+"""
+
+iv136dict = {
+    'default_destination': 'waffles_default'
+}
+
+# Tool is blank; no tool-specific default destination, no rules category
+ivYMLTest137 = """
+    tools:
+      spades:
+
+    default_destination: waffles_default
+    verbose: True
+"""
+
+iv137dict = {
+    'default_destination': 'waffles_default'
+}

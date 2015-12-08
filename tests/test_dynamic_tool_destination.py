@@ -447,13 +447,6 @@ class TestDynamicToolDestination(unittest.TestCase):
         )
 
     @log_capture()
-    def test_return_bool_for_records_rule(self, l):
-        self.assertFalse(dt.parse_yaml(path=yt.ivYMLTest133, test=True, return_bool=True))
-        l.check(
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Missing a fail_message for rule 1 in 'smalt'.")
-        )
-
-    @log_capture()
     def test_return_rule_for_multiple_jobs(self, l):
         self.assertEquals(dt.parse_yaml(path=yt.ivYMLTest133, test=True), yt.iv133dict)
         l.check(
@@ -468,6 +461,7 @@ class TestDynamicToolDestination(unittest.TestCase):
         l.check(
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "No destination specified for rule 1 in 'spades'.")
         )
+
 
     @log_capture()
     def test_return_rule_for_no_destination(self, l):
@@ -484,6 +478,38 @@ class TestDynamicToolDestination(unittest.TestCase):
         l.check(
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "lower_bound exceeds upper_bound for rule 1 in 'spades'. Reversing bounds."),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.')
+        )
+
+    @log_capture()
+    def test_return_bool_for_missing_tool_fields(self, l):
+        self.assertFalse(dt.parse_yaml(path=yt.ivYMLTest136, test=True, return_bool=True))
+        l.check(
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Tool 'spades' does not have rules nor a default_destination!")
+        )
+
+    @log_capture()
+    def test_return_rule_for_missing_tool_fields(self, l):
+        self.assertEquals(dt.parse_yaml(path=yt.ivYMLTest136, test=True), yt.iv136dict)
+        l.check(
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Tool 'spades' does not have rules nor a default_destination!"),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.')
+        )
+
+    @log_capture()
+    def test_return_bool_for_blank_tool(self, l):
+        self.assertFalse(dt.parse_yaml(path=yt.ivYMLTest137, test=True, return_bool=True))
+        l.check(
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Config section for tool 'spades' is blank!")
+        )
+
+    @log_capture()
+    def test_return_rule_for_blank_tool(self, l):
+        self.assertEquals(dt.parse_yaml(path=yt.ivYMLTest137, test=True), yt.iv137dict)
+        l.check(
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Config section for tool 'spades' is blank!"),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.')
         )
 
