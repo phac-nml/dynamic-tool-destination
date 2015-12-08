@@ -514,12 +514,15 @@ def validate_config(obj, return_bool=False):
     new_config = collections.defaultdict(lambda: collections.defaultdict(dict))
 
     global verbose
-    verbose = True
+    verbose = False
     valid_config = True
     valid_rule = True
     tool_has_default = False
 
-    if obj is not None and 'verbose' in obj and isinstance(obj['verbose'], bool):
+    if return_bool:
+        verbose = True
+
+    elif obj is not None and 'verbose' in obj and isinstance(obj['verbose'], bool):
         if not return_bool:
             verbose = obj['verbose']
     else:

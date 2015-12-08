@@ -322,6 +322,7 @@ ivYMLTest6 = '''
 # No default destination
 ivYMLTest7 = '''
     default_destination:
+    verbose: True
 '''
 
 ivDict = {
@@ -331,6 +332,7 @@ ivDict = {
 # Invalid category
 ivYMLTest8= '''
     ice_cream:
+    verbose: True
 '''
 
 # Tool condition fail no fail_message and apparently no nice_value

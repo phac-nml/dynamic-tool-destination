@@ -318,12 +318,6 @@ class TestDynamicToolDestination(unittest.TestCase):
     @log_capture()
     def test_empty_file(self, l):
         self.assertEquals(dt.parse_yaml(path=yt.ivYMLTest2, test=True), {})
-        l.check(
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Missing mandatory field 'verbose' in config!"),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'No (or empty) config file supplied!'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.')
-        )
 
     @log_capture()
     def test_no_tool_name(self, l):
@@ -394,7 +388,6 @@ class TestDynamicToolDestination(unittest.TestCase):
         dt.parse_yaml(path=yt.ivYMLTest7, test=True)
         l.check(
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Missing mandatory field 'verbose' in config!"),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'No global default destination specified in config!'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.')
         )
@@ -404,7 +397,6 @@ class TestDynamicToolDestination(unittest.TestCase):
         dt.parse_yaml(path=yt.ivYMLTest8, test=True)
         l.check(
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Missing mandatory field 'verbose' in config!"),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'No global default destination specified in config!'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Unrecognized category 'ice_cream' found in config file!"),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.')
