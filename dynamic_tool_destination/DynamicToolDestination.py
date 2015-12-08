@@ -630,7 +630,6 @@ def validate_config(obj, return_bool=False):
                             error = "No rules found for '" + str(tool) + "'!"
                             if verbose:
                                 log.debug(error)
-                            valid_config = False
 
                     if curr_tool_rules:
                         new_config['tools'][str(tool)]['rules'] = curr_tool_rules
@@ -883,66 +882,68 @@ def map_tool_to_destination(
             destination = config['default_destination']
             config = config['tools']
             if str(tool.old_id) in config:
-                for rule in config[str(tool.old_id)]['rules']:
-                    if rule["rule_type"] == "file_size":
+                if 'rules' in config[str(tool.old_id)]:
+                    for rule in config[str(tool.old_id)]['rules']:
+                        if rule["rule_type"] == "file_size":
 
-                        # bounds comparisons
-                        upper_bound = str_to_bytes(rule["upper_bound"])
-                        lower_bound = str_to_bytes(rule["lower_bound"])
+                            # bounds comparisons
+                            upper_bound = str_to_bytes(rule["upper_bound"])
+                            lower_bound = str_to_bytes(rule["lower_bound"])
 
-                        if upper_bound == -1:
-                            if lower_bound <= file_size:
-                                # nice_value comparisons
-                                if (matched_rule is None or rule["nice_value"]
-                                        < matched_rule["nice_value"]):
-                                    matched_rule = rule
-                        else:
-                            if lower_bound <= file_size and file_size < upper_bound:
-                                # nice_value comparisons
-                                if (matched_rule is None or rule["nice_value"]
-                                        < matched_rule["nice_value"]):
-                                    matched_rule = rule
-
-                    elif rule["rule_type"] == "records":
-
-                        # bounds comparisons
-                        upper_bound = str_to_bytes(rule["upper_bound"])
-                        lower_bound = str_to_bytes(rule["lower_bound"])
-
-                        if upper_bound == -1:
-                            if lower_bound <= records:
-                                # nice_value comparisons
-                                if (matched_rule is None or rule["nice_value"]
-                                        < matched_rule["nice_value"]):
-                                    matched_rule = rule
-
-                        else:
-                            if lower_bound <= records and records < upper_bound:
-                                # nice_value comparisons
-                                if (matched_rule is None or rule["nice_value"]
-                                        < matched_rule["nice_value"]):
-                                    matched_rule = rule
-
-                    elif rule["rule_type"] == "arguments":
-                        options = job.get_param_values(app)
-                        matched = True
-
-                        # check if the args in the config file are available
-                        for arg in rule["arguments"]:
-                            if arg in options:
-                                if rule["arguments"][arg] != options[arg]:
-                                    matched = False
-                                    options = "test"
+                            if upper_bound == -1:
+                                if lower_bound <= file_size:
+                                    # nice_value comparisons
+                                    if (matched_rule is None or rule["nice_value"]
+                                            < matched_rule["nice_value"]):
+                                        matched_rule = rule
                             else:
-                                matched = False
-                                if verbose:
-                                    error = "Argument '" + str(arg) + "' not recognized!"
-                                    log.debug(error)
+                                if lower_bound <= file_size and file_size < upper_bound:
+                                    # nice_value comparisons
+                                    if (matched_rule is None or rule["nice_value"]
+                                            < matched_rule["nice_value"]):
+                                        matched_rule = rule
 
-                            if matched is True:
-                                if (matched_rule is None or rule["nice_value"]
-                                        < matched_rule["nice_value"]):
-                                    matched_rule = rule
+                        elif rule["rule_type"] == "records":
+
+                            # bounds comparisons
+                            upper_bound = str_to_bytes(rule["upper_bound"])
+                            lower_bound = str_to_bytes(rule["lower_bound"])
+
+                            if upper_bound == -1:
+                                if lower_bound <= records:
+                                    # nice_value comparisons
+                                    if (matched_rule is None or rule["nice_value"]
+                                            < matched_rule["nice_value"]):
+                                        matched_rule = rule
+
+                            else:
+                                if lower_bound <= records and records < upper_bound:
+                                    # nice_value comparisons
+                                    if (matched_rule is None or rule["nice_value"]
+                                            < matched_rule["nice_value"]):
+                                        matched_rule = rule
+
+                        elif rule["rule_type"] == "arguments":
+                            options = job.get_param_values(app)
+                            matched = True
+
+                            # check if the args in the config file are available
+                            for arg in rule["arguments"]:
+                                if arg in options:
+                                    if rule["arguments"][arg] != options[arg]:
+                                        matched = False
+                                        options = "test"
+                                else:
+                                    matched = False
+                                    if verbose:
+                                        error = "Argument '" + str(arg)
+                                        error = + "' not recognized!"
+                                        log.debug(error)
+
+                                if matched is True:
+                                    if (matched_rule is None or rule["nice_value"]
+                                            < matched_rule["nice_value"]):
+                                        matched_rule = rule
 
             # if str(tool.old_id) in config
             else:
