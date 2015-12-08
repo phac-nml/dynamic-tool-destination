@@ -528,8 +528,9 @@ def validate_config(obj, return_bool=False):
     if not return_bool and verbose:
         log.debug("Running config validation...")
         # if this is false, then it's definitely because of verbose missing
-        if not valid_config:
-            log.debug("Missing mandatory field 'verbose' in config!")
+
+    if not valid_config and return_bool:
+        log.debug("Missing mandatory field 'verbose' in config!")
 
     # a list with the available rule_types. Can be expanded on easily in the future
     available_rule_types = ['file_size', 'records', 'arguments']
