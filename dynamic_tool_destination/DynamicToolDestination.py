@@ -625,12 +625,6 @@ def validate_config(obj, return_bool=False):
                                         log.debug(error)
                                     valid_config = False
 
-                        # if "rules" in curr and isinstance(curr['rules'], list)
-                        else:
-                            error = "No rules found for '" + str(tool) + "'!"
-                            if verbose:
-                                log.debug(error)
-
                     if curr_tool_rules:
                         new_config['tools'][str(tool)]['rules'] = curr_tool_rules
 

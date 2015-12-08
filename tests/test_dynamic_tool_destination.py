@@ -501,7 +501,6 @@ class TestDynamicToolDestination(unittest.TestCase):
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "No rules found for 'spades'!"),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.'),
