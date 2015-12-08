@@ -61,14 +61,5 @@ tools:
         destination: Destination6
     default_destination: waffles_default
 
-  test_custom_runner:
-    rules:
-      - rule_type: records
-        nice_value: 0
-        lower_bound: 0
-        upper_bound: Infinity
-        runner: custom_runner
-        destination: Destination7
-
 default_destination: waffles_default
 verbose: True
