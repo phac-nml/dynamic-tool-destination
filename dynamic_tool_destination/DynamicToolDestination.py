@@ -862,18 +862,19 @@ def map_tool_to_destination(
                         log.debug(message)
 
                     # Add to records if the file type is fasta
-                    if inp_data[da].datatype.file_ext == "fasta" and records_rule_present:
-                        inp_db = open(inp_data[da].file_name)
+                    if inp_data[da].datatype.file_ext == "fasta":
+                        if records_rule_present:
+                            inp_db = open(inp_data[da].file_name)
 
-                        # Try to find automatically computed sequences
-                        metadata = inp_data[da].get_metadata()
+                            # Try to find automatically computed sequences
+                            metadata = inp_data[da].get_metadata()
 
-                        try:
-                            records += int(metadata.get("sequences"))
-                        except (TypeError, KeyError):
-                            for line in inp_db:
-                                if line[0] == ">":
-                                    records += 1
+                            try:
+                                records += int(metadata.get("sequences"))
+                            except (TypeError, KeyError):
+                                for line in inp_db:
+                                    if line[0] == ">":
+                                        records += 1
                     elif filesize_rule_present:
                         query_file = str(inp_data[da].file_name)
                         file_size += os.path.getsize(query_file)
