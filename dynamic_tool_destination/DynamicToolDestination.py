@@ -517,6 +517,7 @@ def validate_config(obj, return_bool=False):
     verbose = True
     valid_config = True
     valid_rule = True
+    tool_has_default = False
 
     if obj is not None and 'verbose' in obj and isinstance(obj['verbose'], bool):
         if not return_bool:
@@ -562,6 +563,7 @@ def validate_config(obj, return_bool=False):
                                 isinstance(curr['default_destination'], str)):
                             new_config['tools'][tool]['default_destination'] = (
                                 curr['default_destination'])
+                            tool_has_default = True
 
                         if "rules" in curr and isinstance(curr['rules'], list):
 
@@ -624,6 +626,19 @@ def validate_config(obj, return_bool=False):
                                     if verbose:
                                         log.debug(error)
                                     valid_config = False
+
+                        elif not tool_has_default:
+                            valid_config = False
+                            error = "Tool '" + str(tool) + "' does not have rules nor a"
+                            error += " default_destination!"
+                            if verbose:
+                                log.debug(error)
+
+                    else:
+                        valid_config = False
+                        error = "Config section for tool '" + str(tool) + "' is blank!"
+                        if verbose:
+                            log.debug(error)
 
                     if curr_tool_rules:
                         new_config['tools'][str(tool)]['rules'] = curr_tool_rules
