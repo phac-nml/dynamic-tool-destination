@@ -566,7 +566,6 @@ def validate_config(obj, return_bool=False):
                             tool_has_default = True
 
                         if "rules" in curr and isinstance(curr['rules'], list):
-
                             # under rules, there should only be a list of rules
                             curr_tool = curr
                             counter = 0
@@ -627,6 +626,7 @@ def validate_config(obj, return_bool=False):
                                         log.debug(error)
                                     valid_config = False
 
+                        # if "rules" in curr and isinstance(curr['rules'], list):
                         elif not tool_has_default:
                             valid_config = False
                             error = "Tool '" + str(tool) + "' does not have rules nor a"
@@ -634,6 +634,7 @@ def validate_config(obj, return_bool=False):
                             if verbose:
                                 log.debug(error)
 
+                    # if obj['tools'][tool] is not None:
                     else:
                         valid_config = False
                         error = "Config section for tool '" + str(tool) + "' is blank!"
