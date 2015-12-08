@@ -830,27 +830,26 @@ def map_tool_to_destination(
         if verbose:
             log.info("No virulence factors database")
 
-    if config is not None and str(tool.old_id) in config:
-        if 'rule' in config[str(tool.old_id)]:
-            for rule in config[str(tool.old_id)]['rules']:
+    if config is not None and str(tool.old_id) in config['tools']:
+        if 'rules' in config['tools'][str(tool.old_id)]:
+            for rule in config['tools'][str(tool.old_id)]['rules']:
                 if rule["rule_type"] == "file_size":
                     filesize_rule_present = True
 
-                elif rule["rule_type"] == "records":
+                if rule["rule_type"] == "records":
                     records_rule_present = True
 
     file_size = 0
     records = 0
 
-    # Loop through the database and look for amount of records
-    try:
-        for line in inp_db:
-            if line[0] == ">":
-                records += 1
-    except NameError:
-        pass
-
     if filesize_rule_present or records_rule_present:
+        # Loop through the database and look for amount of records
+        try:
+            for line in inp_db:
+                if line[0] == ">":
+                    records += 1
+        except NameError:
+            pass
         # Loop through each input file and adds the size to the total
         # or looks through db for records
         for da in inp_data:
