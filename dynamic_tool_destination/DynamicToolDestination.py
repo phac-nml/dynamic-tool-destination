@@ -952,7 +952,7 @@ def map_tool_to_destination(
                 if verbose:
                     log.debug(error)
 
-            if matched_rule is None or matched_rule is False:
+            if matched_rule is None:
                 if "default_destination" in config[str(tool.old_id)]:
                     destination = config[str(tool.old_id)]['default_destination']
             else:
