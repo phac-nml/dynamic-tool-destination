@@ -140,8 +140,7 @@ class TestDynamicToolDestination(unittest.TestCase):
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'No global default destination specified in config!'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Loading file: input1' + os.getcwd() + '/tests/data/test3.full'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total size: 3.23 KB'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total amount of records: 0')
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total size: 3.23 KB')
         )
 
     @log_capture()
@@ -152,9 +151,7 @@ class TestDynamicToolDestination(unittest.TestCase):
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Loading file: input1' + os.getcwd() + '/tests/data/test.empty'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total size: 0.00 B'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total amount of records: 0')
-
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total size: 0.00 B')
         )
 
     @log_capture()
@@ -164,8 +161,7 @@ class TestDynamicToolDestination(unittest.TestCase):
         l.check(
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total size: 0.00 B'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total amount of records: 0')
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total size: 0.00 B')
         )
 
     @log_capture()
@@ -176,19 +172,8 @@ class TestDynamicToolDestination(unittest.TestCase):
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Loading file: input1' + os.getcwd() + '/tests/data/test1.full'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total size: 293.00 B'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total amount of records: 0')
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total size: 293.00 B')
         )
-
-    @log_capture()
-    def test_fnf(self, l):
-        self.assertRaises(mg.JobMappingException, map_tool_to_destination, msfileJob, theApp, vanillaTool, True, path)
-        if sys.version_info < (2, 7):
-            self.assertTrue(re.match( r".*Total size: 0\.00 B", str(l.records[3]) ))
-            self.assertTrue(re.match( r".*Total amount of records: 0", str(l.records[4]) ))
-        else:
-            self.assertRegexpMatches( str(l.records[3]), r".*Total size: 0\.00 B")
-            self.assertRegexpMatches( str(l.records[4]), r".*Total amount of records: 0")
 
     @log_capture()
     def test_filesize_run(self, l):
@@ -200,7 +185,6 @@ class TestDynamicToolDestination(unittest.TestCase):
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Loading file: input1' + os.getcwd() + '/tests/data/test3.full'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total size: 3.23 KB'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total amount of records: 0'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Running 'test' with 'Destination1'.")
         )
 
@@ -212,9 +196,6 @@ class TestDynamicToolDestination(unittest.TestCase):
         l.check(
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Loading file: input1' + os.getcwd() + '/tests/data/test3.full'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total size: 3.23 KB'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total amount of records: 0'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Tool 'test_tooldefault' not specified in config. Using default destination."),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Running 'test_tooldefault' with 'waffles_default'.")
         )
@@ -227,9 +208,6 @@ class TestDynamicToolDestination(unittest.TestCase):
         l.check(
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Loading file: input1' + os.getcwd() + '/tests/data/test3.full'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total size: 3.23 KB'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total amount of records: 0'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Running 'test_arguments' with 'Destination6'.")
         )
 
@@ -241,9 +219,6 @@ class TestDynamicToolDestination(unittest.TestCase):
         l.check(
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Loading file: input1' + os.getcwd() + '/tests/data/test3.full'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total size: 3.23 KB'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total amount of records: 0'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Running 'test_arguments' with 'waffles_default'.")
         )
 
@@ -255,13 +230,8 @@ class TestDynamicToolDestination(unittest.TestCase):
         l.check(
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG',
-             'Loading file: input1' + os.getcwd() + '/tests/data/test3.full'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total size: 3.23 KB'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total amount of records: 0'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Tool 'unregistered' not specified in config. Using default destination."),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Running 'unregistered' with 'waffles_default'.")
-
         )
 
     @log_capture()
@@ -273,7 +243,6 @@ class TestDynamicToolDestination(unittest.TestCase):
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Loading file: input1' + os.getcwd() + '/tests/data/test.fasta'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total size: 0.00 B'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total amount of records: 10'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Running 'test_db' with 'Destination4'.")
         )
@@ -287,7 +256,6 @@ class TestDynamicToolDestination(unittest.TestCase):
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Loading file: input1' + os.getcwd() + '/tests/data/test.fasta'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total size: 0.00 B'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total amount of records: 6'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Running 'test_db' with 'Destination4'.")
         )
@@ -302,7 +270,6 @@ class TestDynamicToolDestination(unittest.TestCase):
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Loading file: ' + os.getcwd() + '/tests/vfdb/?bact.test'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Loading file: input1' + os.getcwd() + '/tests/data/test3.full'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total size: 3.23 KB'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total amount of records: 4'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Running 'test_db' with 'Destination4'.")
         )
@@ -318,7 +285,6 @@ class TestDynamicToolDestination(unittest.TestCase):
             ('dynamic_tool_destination.DynamicToolDestination', 'INFO', 'No virulence factors database'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG',
              'Loading file: input1' + os.getcwd() + '/tests/data/test3.full'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total size: 3.23 KB'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total amount of records: 0'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Running 'test_db' with 'Destination4'.")
         )
