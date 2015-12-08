@@ -833,10 +833,10 @@ def map_tool_to_destination(
     if config is not None and str(tool.old_id) in config:
         if 'rule' in config[str(tool.old_id)]:
             for rule in config[str(tool.old_id)]['rules']:
-                if rule["rule_type"] == "file_size" and file_size is None:
+                if rule["rule_type"] == "file_size":
                     filesize_rule_present = True
 
-                elif rule["rule_type"] == "records" and records is None:
+                elif rule["rule_type"] == "records":
                     records_rule_present = True
 
     file_size = 0
