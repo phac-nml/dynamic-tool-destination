@@ -803,6 +803,8 @@ def map_tool_to_destination(
     # how the tests apparently work)
     global verbose
     verbose = True
+    filesize_rule_present = False
+    records_rule_present = False
 
     # Get configuration from tool_destinations.yml
     try:
@@ -813,8 +815,6 @@ def map_tool_to_destination(
     # Get all inputs from tool and databases
     inp_data = dict([(da.name, da.dataset) for da in job.input_datasets])
     inp_data.update([(da.name, da.dataset) for da in job.input_library_datasets])
-    file_size = 0
-    records = 0
 
     try:
         # If you're going to the vfdb do this.
@@ -830,6 +830,18 @@ def map_tool_to_destination(
         if verbose:
             log.info("No virulence factors database")
 
+    if config is not None and str(tool.old_id) in config:
+        if 'rule' in config[str(tool.old_id)]:
+            for rule in config[str(tool.old_id)]['rules']:
+                if rule["rule_type"] == "file_size" and file_size is None:
+                    filesize_rule_present = True
+
+                elif rule["rule_type"] == "records" and records is None:
+                    records_rule_present = True
+
+    file_size = 0
+    records = 0
+
     # Loop through the database and look for amount of records
     try:
         for line in inp_db:
@@ -838,39 +850,40 @@ def map_tool_to_destination(
     except NameError:
         pass
 
-    # Loop through each input file and adds the size to the total
-    # or looks through db for records
-    for da in inp_data:
-        try:
-            # If the input is a file, check and add the size
-            if os.path.isfile(str(inp_data[da].file_name)):
+    if filesize_rule_present or records_rule_present:
+        # Loop through each input file and adds the size to the total
+        # or looks through db for records
+        for da in inp_data:
+            try:
+                # If the input is a file, check and add the size
+                if os.path.isfile(str(inp_data[da].file_name)):
+                    if verbose:
+                        log.debug("Loading file: " + str(da) + str(inp_data[da].file_name))
+
+                    # Add to records if the file type is fasta
+                    if inp_data[da].datatype.file_ext == "fasta":
+                        inp_db = open(inp_data[da].file_name)
+
+                        # Try to find automatically computed sequences
+                        metadata = inp_data[da].get_metadata()
+
+                        try:
+                            records += int(metadata.get("sequences"))
+                        except (TypeError, KeyError):
+                            for line in inp_db:
+                                if line[0] == ">":
+                                    records += 1
+                    else:
+                        query_file = str(inp_data[da].file_name)
+                        file_size += os.path.getsize(query_file)
+            except AttributeError:
+                # Otherwise, say that input isn't a file
                 if verbose:
-                    log.debug("Loading file: " + str(da) + str(inp_data[da].file_name))
+                    log.debug("Not a file: " + str(inp_data[da]))
 
-                # Add to records if the file type is fasta
-                if inp_data[da].datatype.file_ext == "fasta":
-                    inp_db = open(inp_data[da].file_name)
-
-                    # Try to find automatically computed sequences
-                    metadata = inp_data[da].get_metadata()
-
-                    try:
-                        records += int(metadata.get("sequences"))
-                    except (TypeError, KeyError):
-                        for line in inp_db:
-                            if line[0] == ">":
-                                records += 1
-                else:
-                    query_file = str(inp_data[da].file_name)
-                    file_size += os.path.getsize(query_file)
-        except AttributeError:
-            # Otherwise, say that input isn't a file
-            if verbose:
-                log.debug("Not a file: " + str(inp_data[da]))
-
-    if verbose:
-        log.debug("Total size: " + bytes_to_str(file_size))
-        log.debug("Total amount of records: " + str(records))
+        if verbose:
+            log.debug("Total size: " + bytes_to_str(file_size))
+            log.debug("Total amount of records: " + str(records))
 
     matched_rule = None
 
