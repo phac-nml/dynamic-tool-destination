@@ -632,3 +632,40 @@ iv138dict = {
         }
     }
 }
+
+# Tool does not specify list under users
+ivYMLTest139 = """
+    tools:
+      spades:
+        rules:
+          - rule_type: file_size
+            upper_bound: 600
+            lower_bound: 200
+            nice_value: 0
+            destination: waffles_high
+          - rule_type: file_size
+            upper_bound: 199
+            lower_bound: 100
+            nice_value: 0
+            destination: waffles_low_4
+            users:
+    default_destination: waffles_default
+    verbose: True
+"""
+
+iv139dict = {
+    'default_destination': 'waffles_default',
+    'tools': {
+        'spades': {
+            'rules': [
+                {
+                    'rule_type': 'file_size',
+                    'upper_bound': 600,
+                    'lower_bound': 200,
+                    'nice_value': 0,
+                    'destination': 'waffles_high'
+                }
+            ]
+        }
+    }
+}

@@ -119,20 +119,24 @@ class RuleValidator:
         valid_rule = True
 
         # Users Verification #
-        valid_rule, rule = cls.__validate_users(
-            valid_rule, return_bool, rule, tool, counter)
+        if rule is not None:
+            valid_rule, rule = cls.__validate_users(
+                valid_rule, return_bool, rule, tool, counter)
 
         # Nice_value Verification #
-        valid_rule, rule = cls.__validate_nice_value(
-            valid_rule, return_bool, rule, tool, counter)
+        if rule is not None:
+            valid_rule, rule = cls.__validate_nice_value(
+                valid_rule, return_bool, rule, tool, counter)
 
         # Destination Verification #
-        valid_rule, rule = cls.__validate_destination(
-            valid_rule, return_bool, rule, tool, counter)
+        if rule is not None:
+            valid_rule, rule = cls.__validate_destination(
+                valid_rule, return_bool, rule, tool, counter)
 
         # Bounds Verification #
-        valid_rule, rule = cls.__validate_bounds(
-            valid_rule, return_bool, rule, tool, counter)
+        if rule is not None:
+            valid_rule, rule = cls.__validate_bounds(
+                valid_rule, return_bool, rule, tool, counter)
 
         if return_bool:
             return valid_rule
@@ -167,20 +171,24 @@ class RuleValidator:
         valid_rule = True
 
         # Users Verification #
-        valid_rule, rule = cls.__validate_users(
-            valid_rule, return_bool, rule, tool, counter)
+        if rule is not None:
+            valid_rule, rule = cls.__validate_users(
+                valid_rule, return_bool, rule, tool, counter)
 
         # Nice_value Verification #
-        valid_rule, rule = cls.__validate_nice_value(
-            valid_rule, return_bool, rule, tool, counter)
+        if rule is not None:
+            valid_rule, rule = cls.__validate_nice_value(
+                valid_rule, return_bool, rule, tool, counter)
 
         # Destination Verification #
-        valid_rule, rule = cls.__validate_destination(
-            valid_rule, return_bool, rule, tool, counter)
+        if rule is not None:
+            valid_rule, rule = cls.__validate_destination(
+                valid_rule, return_bool, rule, tool, counter)
 
         # Bounds Verification #
-        valid_rule, rule = cls.__validate_bounds(
-            valid_rule, return_bool, rule, tool, counter)
+        if rule is not None:
+            valid_rule, rule = cls.__validate_bounds(
+                valid_rule, return_bool, rule, tool, counter)
 
         if return_bool:
             return valid_rule
@@ -216,21 +224,25 @@ class RuleValidator:
         valid_rule = True
 
         # Users Verification #
-        valid_rule, rule = cls.__validate_users(
-            valid_rule, return_bool, rule, tool, counter)
+        if rule is not None:
+            valid_rule, rule = cls.__validate_users(
+                valid_rule, return_bool, rule, tool, counter)
 
         # Nice_value Verification #
-        valid_rule, rule = cls.__validate_nice_value(
-            valid_rule, return_bool, rule, tool, counter)
+        if rule is not None:
+            valid_rule, rule = cls.__validate_nice_value(
+                valid_rule, return_bool, rule, tool, counter)
 
         # Destination Verification #
-        valid_rule, rule = cls.__validate_destination(
-            valid_rule, return_bool, rule, tool, counter)
+        if rule is not None:
+            valid_rule, rule = cls.__validate_destination(
+                valid_rule, return_bool, rule, tool, counter)
 
         # Arguments Verification (for rule_type arguments; read comment block at top
         # of function for clarification.
-        valid_rule, rule = cls.__validate_arguments(
-            valid_rule, return_bool, rule, tool, counter)
+        if rule is not None:
+            valid_rule, rule = cls.__validate_arguments(
+                valid_rule, return_bool, rule, tool, counter)
 
         if return_bool:
             return valid_rule
@@ -504,6 +516,14 @@ class RuleValidator:
                             valid_rule = False
 
                     index += 1
+            else:
+                error = "Couldn't find a list under 'users:'!"
+                if not return_bool:
+                    error += " Ignoring rule."
+                    rule = None
+                if verbose:
+                    log.debug(error)
+                valid_rule = False
 
         return valid_rule, rule
 

@@ -544,6 +544,22 @@ class TestDynamicToolDestination(unittest.TestCase):
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.')
         )
 
+    @log_capture()
+    def test_return_bool_for_malformed_users(self, l):
+        self.assertFalse(dt.parse_yaml(path=yt.ivYMLTest139, test=True, return_bool=True))
+        l.check(
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Couldn't find a list under 'users:'!")
+        )
+
+    @log_capture()
+    def test_return_rule_for_malformed_users(self, l):
+        self.assertEquals(dt.parse_yaml(path=yt.ivYMLTest139, test=True), yt.iv139dict)
+        l.check(
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Couldn't find a list under 'users:'! Ignoring rule."),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.')
+        )
+
 #================================Valid yaml files==============================
     @log_capture()
     def test_parse_valid_yml(self, l):
