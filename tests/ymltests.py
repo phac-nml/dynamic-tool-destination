@@ -593,3 +593,42 @@ ivYMLTest137 = """
 iv137dict = {
     'default_destination': 'waffles_default'
 }
+
+# Tool specifies authorized users with an invalid entry
+ivYMLTest138 = """
+    tools:
+      spades:
+        rules:
+          - rule_type: file_size
+            upper_bound: 200
+            lower_bound: 100
+            nice_value: 0
+            destination: waffles_low_4
+            users:
+              - validuser@email.com
+              - invaliduser.email@com
+              - 123
+    default_destination: waffles_default
+    verbose: True
+"""
+
+iv138dict = {
+    'default_destination': 'waffles_default',
+    'tools': {
+        'spades': {
+            'rules': [
+                {
+                    'rule_type': 'file_size',
+                    'upper_bound': 200,
+                    'lower_bound': 100,
+                    'nice_value': 0,
+                    'destination': 'waffles_low_4',
+                    'users': [
+                        'validuser@email.com',
+                        'invaliduser.email@com'
+                    ]
+                }
+            ]
+        }
+    }
+}

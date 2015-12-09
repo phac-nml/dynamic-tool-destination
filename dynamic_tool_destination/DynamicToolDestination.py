@@ -42,6 +42,7 @@ import sys
 import copy
 import string
 import collections
+import re
 
 
 # log to galaxy's logger
@@ -474,10 +475,12 @@ class RuleValidator:
         @return: validated rule and result of validation
         """
 
+        emailregex = "^[A-Za-z0-9\.\+_-]+@[A-Za-z0-9\._-]+\.[a-zA-Z]*$"
+
         if "users" in rule:
             if isinstance(rule["users"], list):
                 index = 0
-                for user in rule["users"]:
+                for user in reversed(rule["users"]):
                     if not isinstance(user, str):
                         error = "Entry '" + str(user) + "' in users for rule "
                         error += str(counter) + " in tool '" + str(tool) + "' is in an "
@@ -487,8 +490,20 @@ class RuleValidator:
                         if verbose:
                             log.debug(error)
                         valid_rule = False
-                        del rule["users"][index]
-                        index += 1
+                        rule["users"].remove(user)
+
+                    else:
+                        if re.match(emailregex, user) is None:
+                            error = "Supplied email '" + str(user) + "' for rule "
+                            error += str(counter) + " in tool '" + str(tool) + "' is in "
+                            error += "an invalid format!"
+                            if not return_bool:
+                                error += " Ignoring email."
+                            if verbose:
+                                log.debug(error)
+                            valid_rule = False
+
+                    index += 1
 
         return valid_rule, rule
 

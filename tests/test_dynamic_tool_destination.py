@@ -107,10 +107,13 @@ vfdbTool.add_tool_dependency( mg.ToolDependency("vfdb", os.getcwd() + "/tests") 
 
 noVBTool = mg.Tool( 'test_no_verbose' )
 
+usersTool = mg.Tool( 'test_users' )
+
 #=======================YML file================================
 path = os.getcwd() + "/tests/data/tool_destination.yml"
 broken_default_dest_path = os.getcwd() + "/tests/data/dest_fail.yml"
 no_verbose_path = os.getcwd() + "/tests/data/test_no_verbose.yml"
+users_test_path = os.getcwd() + "/tests/data/test_users.yml"
 
 #======================Test Variables=========================
 value = 1
@@ -296,6 +299,24 @@ class TestDynamicToolDestination(unittest.TestCase):
 
         l.check(
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Running 'test_no_verbose' with 'Destination1'.")
+        )
+
+    @log_capture()
+    def test_authorized_user(self, l):
+        job = map_tool_to_destination( runJob, theApp, usersTool, "user@email.com", True, users_test_path )
+        self.assertEquals( job, 'special_cluster' )
+
+        l.check(
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Running 'test_users' with 'special_cluster'."),
+        )
+
+    @log_capture()
+    def test_unauthorized_user(self, l):
+        job = map_tool_to_destination( runJob, theApp, usersTool, "userblah@email.com", True, users_test_path )
+        self.assertEquals( job, 'lame_cluster' )
+
+        l.check(
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Running 'test_users' with 'lame_cluster'.")
         )
 
 #================================Invalid yaml files==============================
@@ -502,6 +523,24 @@ class TestDynamicToolDestination(unittest.TestCase):
         l.check(
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Config section for tool 'spades' is blank!"),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.')
+        )
+
+    @log_capture()
+    def test_return_bool_for_unauthorized_user(self, l):
+        self.assertFalse(dt.parse_yaml(path=yt.ivYMLTest138, test=True, return_bool=True))
+        l.check(
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Entry '123' in users for rule 1 in tool 'spades' is in an invalid format!"),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Supplied email 'invaliduser.email@com' for rule 1 in tool 'spades' is in an invalid format!")
+        )
+
+    @log_capture()
+    def test_return_rule_for_unauthorized_user(self, l):
+        self.assertEquals(dt.parse_yaml(path=yt.ivYMLTest138, test=True), yt.iv138dict)
+        l.check(
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Entry '123' in users for rule 1 in tool 'spades' is in an invalid format! Ignoring entry."),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Supplied email 'invaliduser.email@com' for rule 1 in tool 'spades' is in an invalid format! Ignoring email."),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.')
         )
 
