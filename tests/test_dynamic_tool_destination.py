@@ -5,6 +5,8 @@ Copyright Government of Canada 2015
 
 Written by: Eric Enns, Public Health Agency of Canada,
                        National Microbiology Laboratory
+            Mark Iskander, Public Health Agency of Canada,
+                       National Microbiology Laboratory
             Daniel Bouchard, Public Health Agency of Canada,
                        National Microbiology Laboratory
 
@@ -23,11 +25,12 @@ specific language governing permissions and limitations under the License.
 
 # =============================================================================
 """
-'''
+"""
 Created on June 23rd, 2015
+@currentauthor: Mark Iskander
+@originalauthor: Daniel Bouchard
+"""
 
-@author: Daniel Bouchard
-'''
 import logging
 import os
 import re
@@ -557,6 +560,26 @@ class TestDynamicToolDestination(unittest.TestCase):
         l.check(
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Couldn't find a list under 'users:'! Ignoring rule."),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.')
+        )
+
+    @log_capture()
+    def test_return_bool_for_malformed_users(self, l):
+        self.assertFalse(dt.parse_yaml(path=yt.ivYMLTest140, test=True, return_bool=True))
+        l.check(
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Supplied email 'invalid.user2@com' for rule 2 in tool 'spades' is in an invalid format!"),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Supplied email 'invalid.user1@com' for rule 2 in tool 'spades' is in an invalid format!"),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "No valid user emails were specified for rule 2 in tool 'spades'!")
+        )
+
+    @log_capture()
+    def test_return_rule_for_malformed_users(self, l):
+        self.assertEquals(dt.parse_yaml(path=yt.ivYMLTest140, test=True), yt.iv140dict)
+        l.check(
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Supplied email 'invalid.user2@com' for rule 2 in tool 'spades' is in an invalid format! Ignoring email."),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Supplied email 'invalid.user1@com' for rule 2 in tool 'spades' is in an invalid format! Ignoring email."),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "No valid user emails were specified for rule 2 in tool 'spades'! Ignoring rule."),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.')
         )
 

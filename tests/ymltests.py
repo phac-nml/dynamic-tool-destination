@@ -624,8 +624,7 @@ iv138dict = {
                     'nice_value': 0,
                     'destination': 'waffles_low_4',
                     'users': [
-                        'validuser@email.com',
-                        'invaliduser.email@com'
+                        'validuser@email.com'
                     ]
                 }
             ]
@@ -654,6 +653,45 @@ ivYMLTest139 = """
 """
 
 iv139dict = {
+    'default_destination': 'waffles_default',
+    'tools': {
+        'spades': {
+            'rules': [
+                {
+                    'rule_type': 'file_size',
+                    'upper_bound': 600,
+                    'lower_bound': 200,
+                    'nice_value': 0,
+                    'destination': 'waffles_high'
+                }
+            ]
+        }
+    }
+}
+
+# Tool supplies only invalid users
+ivYMLTest140 = """
+    tools:
+      spades:
+        rules:
+          - rule_type: file_size
+            upper_bound: 600
+            lower_bound: 200
+            nice_value: 0
+            destination: waffles_high
+          - rule_type: file_size
+            upper_bound: 199
+            lower_bound: 100
+            nice_value: 0
+            destination: waffles_low_4
+            users:
+                - invalid.user1@com
+                - invalid.user2@com
+    default_destination: waffles_default
+    verbose: True
+"""
+
+iv140dict = {
     'default_destination': 'waffles_default',
     'tools': {
         'spades': {

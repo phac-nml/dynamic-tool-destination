@@ -7,6 +7,8 @@ Copyright Government of Canada 2015
 
 Written by: Eric Enns, Public Health Agency of Canada,
                        National Microbiology Laboratory
+            Mark Iskander, Public Health Agency of Canada,
+                       National Microbiology Laboratory
             Daniel Bouchard, Public Health Agency of Canada,
                        National Microbiology Laboratory
 
@@ -29,7 +31,8 @@ specific language governing permissions and limitations under the License.
 """
 Created on May 13, 2015
 
-@author: Daniel Bouchard
+@currentauthor: Mark Iskander
+@originalauthor: Daniel Bouchard
 """
 
 from yaml import load
@@ -488,11 +491,12 @@ class RuleValidator:
         """
 
         emailregex = "^[A-Za-z0-9\.\+_-]+@[A-Za-z0-9\._-]+\.[a-zA-Z]*$"
+        index = -1
 
         if "users" in rule:
             if isinstance(rule["users"], list):
-                index = 0
                 for user in reversed(rule["users"]):
+                    index += 1
                     if not isinstance(user, str):
                         error = "Entry '" + str(user) + "' in users for rule "
                         error += str(counter) + " in tool '" + str(tool) + "' is in an "
@@ -514,10 +518,22 @@ class RuleValidator:
                             if verbose:
                                 log.debug(error)
                             valid_rule = False
+                            rule["users"].remove(user)
 
-                    index += 1
             else:
                 error = "Couldn't find a list under 'users:'!"
+                if not return_bool:
+                    error += " Ignoring rule."
+                    rule = None
+                if verbose:
+                    log.debug(error)
+                valid_rule = False
+
+            # post-processing checking to make sure we didn't just remove all the users
+            # if we did, we should ignore the rule
+            if len(rule["users"]) == 0:
+                error = "No valid user emails were specified for rule " + str(counter)
+                error += " in tool '" + str(tool) + "'!"
                 if not return_bool:
                     error += " Ignoring rule."
                     rule = None
