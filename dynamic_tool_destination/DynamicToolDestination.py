@@ -117,6 +117,10 @@ class RuleValidator:
         rule = copy.deepcopy(original_rule)
         valid_rule = True
 
+        # Users Verification #
+        valid_rule, rule = cls.__validate_users(
+            valid_rule, return_bool, rule, tool, counter)
+
         # Nice_value Verification #
         valid_rule, rule = cls.__validate_nice_value(
             valid_rule, return_bool, rule, tool, counter)
@@ -160,6 +164,10 @@ class RuleValidator:
 
         rule = copy.deepcopy(original_rule)
         valid_rule = True
+
+        # Users Verification #
+        valid_rule, rule = cls.__validate_users(
+            valid_rule, return_bool, rule, tool, counter)
 
         # Nice_value Verification #
         valid_rule, rule = cls.__validate_nice_value(
@@ -205,6 +213,10 @@ class RuleValidator:
 
         rule = copy.deepcopy(original_rule)
         valid_rule = True
+
+        # Users Verification #
+        valid_rule, rule = cls.__validate_users(
+            valid_rule, return_bool, rule, tool, counter)
 
         # Nice_value Verification #
         valid_rule, rule = cls.__validate_nice_value(
@@ -432,6 +444,51 @@ class RuleValidator:
             if verbose:
                 log.debug(error)
             valid_rule = False
+
+        return valid_rule, rule
+
+    @classmethod
+    def __validate_users(cls, valid_rule, return_bool, rule, tool, counter):
+        """
+        This function is responsible for validating users (if present).
+
+        @type return_bool: bool
+        @param return_bool: True when we are only interested in the result of the
+                              validation, and not the validated rule itself.
+
+        @type valid_rule: bool
+        @param valid_rule: returns True if everything is valid. False if it encounters any
+                       abnormalities in the config.
+
+        @type original_rule: dict
+        @param original_rule: contains the original received rule
+
+        @type counter: int
+        @param counter: this counter is used to identify what rule # is currently being
+                        validated. Necessary for log output.
+
+        @type tool: str
+        @param tool: the name of the current tool. Necessary for log output.
+
+        @rtype: bool, dict (tuple)
+        @return: validated rule and result of validation
+        """
+
+        if "users" in rule:
+            if isinstance(rule["users"], list):
+                index = 0
+                for user in rule["users"]:
+                    if not isinstance(user, str):
+                        error = "Entry '" + str(user) + "' in users for rule "
+                        error += str(counter) + " in tool '" + str(tool) + "' is in an "
+                        error += "invalid format!"
+                        if not return_bool:
+                            error += " Ignoring entry."
+                        if verbose:
+                            log.debug(error)
+                        valid_rule = False
+                        del rule["users"][index]
+                        index += 1
 
         return valid_rule, rule
 
@@ -796,7 +853,7 @@ def importer(test):
 
 
 def map_tool_to_destination(
-        job, app, tool, test=False, path="/config/tool_destinations.yml"):
+        job, app, tool, user_email, test=False, path="/config/tool_destinations.yml"):
     """
     Dynamically allocate resources
 
@@ -903,6 +960,8 @@ def map_tool_to_destination(
                 log.debug("Total amount of records: " + str(records))
 
     matched_rule = None
+    user_authorized = None
+    rule_counter = 0
 
     # For each different rule for the tool that's running
     fail_message = None
@@ -914,66 +973,85 @@ def map_tool_to_destination(
             if str(tool.old_id) in config:
                 if 'rules' in config[str(tool.old_id)]:
                     for rule in config[str(tool.old_id)]['rules']:
-                        if rule["rule_type"] == "file_size":
+                        rule_counter += 1
+                        user_authorized = False
+                        if 'users' in rule and isinstance(rule['users'], list):
+                            if user_email in rule['users']:
+                                user_authorized = True
+                        else:
+                            user_authorized = True
 
-                            # bounds comparisons
-                            upper_bound = str_to_bytes(rule["upper_bound"])
-                            lower_bound = str_to_bytes(rule["lower_bound"])
+                        if user_authorized:
+                            if rule["rule_type"] == "file_size":
 
-                            if upper_bound == -1:
-                                if lower_bound <= file_size:
-                                    # nice_value comparisons
-                                    if (matched_rule is None or rule["nice_value"]
-                                            < matched_rule["nice_value"]):
-                                        matched_rule = rule
-                            else:
-                                if lower_bound <= file_size and file_size < upper_bound:
-                                    # nice_value comparisons
-                                    if (matched_rule is None or rule["nice_value"]
-                                            < matched_rule["nice_value"]):
-                                        matched_rule = rule
+                                # bounds comparisons
+                                upper_bound = str_to_bytes(rule["upper_bound"])
+                                lower_bound = str_to_bytes(rule["lower_bound"])
 
-                        elif rule["rule_type"] == "records":
-
-                            # bounds comparisons
-                            upper_bound = str_to_bytes(rule["upper_bound"])
-                            lower_bound = str_to_bytes(rule["lower_bound"])
-
-                            if upper_bound == -1:
-                                if lower_bound <= records:
-                                    # nice_value comparisons
-                                    if (matched_rule is None or rule["nice_value"]
-                                            < matched_rule["nice_value"]):
-                                        matched_rule = rule
-
-                            else:
-                                if lower_bound <= records and records < upper_bound:
-                                    # nice_value comparisons
-                                    if (matched_rule is None or rule["nice_value"]
-                                            < matched_rule["nice_value"]):
-                                        matched_rule = rule
-
-                        elif rule["rule_type"] == "arguments":
-                            options = job.get_param_values(app)
-                            matched = True
-
-                            # check if the args in the config file are available
-                            for arg in rule["arguments"]:
-                                if arg in options:
-                                    if rule["arguments"][arg] != options[arg]:
-                                        matched = False
-                                        options = "test"
+                                if upper_bound == -1:
+                                    if lower_bound <= file_size:
+                                        # nice_value comparisons
+                                        if (matched_rule is None or rule["nice_value"]
+                                                < matched_rule["nice_value"]):
+                                            matched_rule = rule
                                 else:
-                                    matched = False
-                                    if verbose:
-                                        error = "Argument '" + str(arg)
-                                        error = + "' not recognized!"
-                                        log.debug(error)
+                                    if (lower_bound <= file_size
+                                       and file_size < upper_bound):
+                                        # nice_value comparisons
+                                        if (matched_rule is None or rule["nice_value"]
+                                                < matched_rule["nice_value"]):
+                                            matched_rule = rule
 
-                                if matched is True:
-                                    if (matched_rule is None or rule["nice_value"]
-                                            < matched_rule["nice_value"]):
-                                        matched_rule = rule
+                            elif rule["rule_type"] == "records":
+
+                                # bounds comparisons
+                                upper_bound = str_to_bytes(rule["upper_bound"])
+                                lower_bound = str_to_bytes(rule["lower_bound"])
+
+                                if upper_bound == -1:
+                                    if lower_bound <= records:
+                                        # nice_value comparisons
+                                        if (matched_rule is None or rule["nice_value"]
+                                                < matched_rule["nice_value"]):
+                                            matched_rule = rule
+
+                                else:
+                                    if lower_bound <= records and records < upper_bound:
+                                        # nice_value comparisons
+                                        if (matched_rule is None or rule["nice_value"]
+                                                < matched_rule["nice_value"]):
+                                            matched_rule = rule
+
+                            elif rule["rule_type"] == "arguments":
+                                options = job.get_param_values(app)
+                                matched = True
+
+                                # check if the args in the config file are available
+                                for arg in rule["arguments"]:
+                                    if arg in options:
+                                        if rule["arguments"][arg] != options[arg]:
+                                            matched = False
+                                            options = "test"
+                                    else:
+                                        matched = False
+                                        if verbose:
+                                            error = "Argument '" + str(arg)
+                                            error = + "' not recognized!"
+                                            log.debug(error)
+
+                                    if matched is True:
+                                        if (matched_rule is None or rule["nice_value"]
+                                                < matched_rule["nice_value"]):
+                                            matched_rule = rule
+
+                        # if user_authorized
+                        else:
+                            if verbose:
+                                error = "User email '" + str(user_email) + "' not "
+                                error += "specified in list of authorized users for "
+                                error += "rule " + str(rule_counter) + " in tool '"
+                                error += str(tool.old_id) + "'! Ignoring rule."
+                                log.debug(error)
 
             # if str(tool.old_id) in config
             else:

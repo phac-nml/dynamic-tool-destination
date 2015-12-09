@@ -133,7 +133,7 @@ class TestDynamicToolDestination(unittest.TestCase):
 
     @log_capture()
     def test_brokenDestYML(self, l):
-        self.assertRaises(mg.JobMappingException, map_tool_to_destination, runJob, theApp, vanillaTool, True, broken_default_dest_path)
+        self.assertRaises(mg.JobMappingException, map_tool_to_destination, runJob, theApp, vanillaTool, "user@email.com", True, broken_default_dest_path)
 
         l.check(
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
@@ -145,7 +145,7 @@ class TestDynamicToolDestination(unittest.TestCase):
 
     @log_capture()
     def test_filesize_empty(self, l):
-        self.assertRaises(mg.JobMappingException, map_tool_to_destination, emptyJob, theApp, vanillaTool, True, path)
+        self.assertRaises(mg.JobMappingException, map_tool_to_destination, emptyJob, theApp, vanillaTool, "user@email.com", True, path)
 
         l.check(
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
@@ -156,7 +156,7 @@ class TestDynamicToolDestination(unittest.TestCase):
 
     @log_capture()
     def test_filesize_zero(self, l):
-        self.assertRaises(mg.JobMappingException, map_tool_to_destination, zeroJob, theApp, vanillaTool, True, path)
+        self.assertRaises(mg.JobMappingException, map_tool_to_destination, zeroJob, theApp, vanillaTool, "user@email.com", True, path)
 
         l.check(
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
@@ -166,7 +166,7 @@ class TestDynamicToolDestination(unittest.TestCase):
 
     @log_capture()
     def test_filesize_fail(self, l):
-        self.assertRaises(mg.JobMappingException, map_tool_to_destination, failJob, theApp, vanillaTool, True, path)
+        self.assertRaises(mg.JobMappingException, map_tool_to_destination, failJob, theApp, vanillaTool, "user@email.com", True, path)
 
         l.check(
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
@@ -177,7 +177,7 @@ class TestDynamicToolDestination(unittest.TestCase):
 
     @log_capture()
     def test_filesize_run(self, l):
-        job = map_tool_to_destination( runJob, theApp, vanillaTool, True, path )
+        job = map_tool_to_destination( runJob, theApp, vanillaTool, "user@email.com", True, path )
         self.assertEquals( job, 'Destination1' )
 
         l.check(
@@ -190,7 +190,7 @@ class TestDynamicToolDestination(unittest.TestCase):
 
     @log_capture()
     def test_default_tool(self, l):
-        job = map_tool_to_destination( runJob, theApp, defaultTool, True, path )
+        job = map_tool_to_destination( runJob, theApp, defaultTool, "user@email.com", True, path )
         self.assertEquals( job, 'waffles_default' )
 
         l.check(
@@ -202,7 +202,7 @@ class TestDynamicToolDestination(unittest.TestCase):
 
     @log_capture()
     def test_parameter_tool(self, l):
-        job = map_tool_to_destination( paramJob, theApp, paramTool, True, path )
+        job = map_tool_to_destination( paramJob, theApp, paramTool, "user@email.com", True, path )
         self.assertEquals( job, 'Destination6' )
 
         l.check(
@@ -213,7 +213,7 @@ class TestDynamicToolDestination(unittest.TestCase):
 
     @log_capture()
     def test_parameter_arg_not_found(self, l):
-        job = map_tool_to_destination( argNotFoundJob, theApp, paramTool, True, path )
+        job = map_tool_to_destination( argNotFoundJob, theApp, paramTool, "user@email.com", True, path )
         self.assertEquals( job, 'waffles_default' )
 
         l.check(
@@ -224,7 +224,7 @@ class TestDynamicToolDestination(unittest.TestCase):
 
     @log_capture()
     def test_tool_not_found(self, l):
-        job = map_tool_to_destination( runJob, theApp, unTool, True, path )
+        job = map_tool_to_destination( runJob, theApp, unTool, True, "user@email.com", path )
         self.assertEquals( job, 'waffles_default' )
 
         l.check(
@@ -236,7 +236,7 @@ class TestDynamicToolDestination(unittest.TestCase):
 
     @log_capture()
     def test_fasta(self, l):
-        job = map_tool_to_destination( dbJob, theApp, dbTool, True, path )
+        job = map_tool_to_destination( dbJob, theApp, dbTool, True, "user@email.com", path )
         self.assertEquals( job, 'Destination4' )
 
         l.check(
@@ -249,7 +249,7 @@ class TestDynamicToolDestination(unittest.TestCase):
 
     @log_capture()
     def test_fasta_count(self, l):
-        job = map_tool_to_destination( dbcountJob, theApp, dbTool, True, path )
+        job = map_tool_to_destination( dbcountJob, theApp, dbTool, True, "user@email.com", path )
         self.assertEquals( job, 'Destination4' )
 
         l.check(
@@ -262,7 +262,7 @@ class TestDynamicToolDestination(unittest.TestCase):
 
     @log_capture()
     def test_vf(self, l):
-        job = map_tool_to_destination( vfJob, theApp, vfdbTool, True, path )
+        job = map_tool_to_destination( vfJob, theApp, vfdbTool, True, "user@email.com", path )
         self.assertEquals( job, 'Destination4' )
 
         l.check(
@@ -276,7 +276,7 @@ class TestDynamicToolDestination(unittest.TestCase):
 
     @log_capture()
     def test_vf_not_found(self, l):
-        job = map_tool_to_destination( notvfJob, theApp, vfdbTool, True, path )
+        job = map_tool_to_destination( notvfJob, theApp, vfdbTool, "user@email.com", True, path )
         self.assertEquals( job, 'Destination4' )
 
         l.check(
@@ -291,7 +291,7 @@ class TestDynamicToolDestination(unittest.TestCase):
 
     @log_capture()
     def test_no_verbose(self, l):
-        job = map_tool_to_destination( runJob, theApp, noVBTool, True, no_verbose_path )
+        job = map_tool_to_destination( runJob, theApp, noVBTool, "user@email.com", True, no_verbose_path )
         self.assertEquals( job, 'Destination1' )
 
         l.check(
