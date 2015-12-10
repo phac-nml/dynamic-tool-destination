@@ -583,6 +583,26 @@ class TestDynamicToolDestination(unittest.TestCase):
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.')
         )
 
+    @log_capture()
+    def test_return_bool_for_malformed_users(self, l):
+        self.assertFalse(dt.parse_yaml(path=yt.ivYMLTest141, test=True, return_bool=True))
+        l.check(
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Entry 'None' in users for rule 2 in tool 'spades' is in an invalid format!"),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Entry 'None' in users for rule 2 in tool 'spades' is in an invalid format!"),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "No valid user emails were specified for rule 2 in tool 'spades'!")
+        )
+
+    @log_capture()
+    def test_return_rule_for_malformed_users(self, l):
+        self.assertEquals(dt.parse_yaml(path=yt.ivYMLTest141, test=True), yt.iv141dict)
+        l.check(
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Entry 'None' in users for rule 2 in tool 'spades' is in an invalid format! Ignoring entry."),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Entry 'None' in users for rule 2 in tool 'spades' is in an invalid format! Ignoring entry."),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "No valid user emails were specified for rule 2 in tool 'spades'! Ignoring rule."),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.')
+        )
+
 #================================Valid yaml files==============================
     @log_capture()
     def test_parse_valid_yml(self, l):
