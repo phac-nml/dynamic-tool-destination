@@ -400,6 +400,7 @@ class RuleValidator:
             lower_bound = str_to_bytes(rule["lower_bound"])
 
             if upper_bound != -1 and lower_bound > upper_bound:
+
                 error = "lower_bound exceeds upper_bound for rule " + str(counter)
                 error += " in '" + str(tool) + "'."
                 if not return_bool:
@@ -846,6 +847,7 @@ def str_to_bytes(size):
     '''
     units = ["", "b", "kb", "mb", "gb", "tb", "pb", "eb", "zb", "yb"]
     curr_size = size
+
     try:
         if size.lower() != "infinity":
             # Get the number
@@ -859,10 +861,9 @@ def str_to_bytes(size):
                 curr_unit = curr_item[-1].strip().lower()
                 curr_item = curr_item[0:-1]
                 curr_size = "".join(curr_item)
-                curr_size = curr_size.translate(None, string.punctuation)
 
                 try:
-                    curr_size = int(curr_size)
+                    curr_size = float(curr_size)
                 except ValueError:
                     error = "Unable to convert size " + str(size)
                     raise MalformedYMLException(error)
