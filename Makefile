@@ -24,7 +24,6 @@
 #
 ####################################
 # author: Daniel Bouchard          #
-# 		                   #
 # creation date: Jun. 22nd, 2015   #
 ####################################
 GALAXY_PATH=./galaxy
