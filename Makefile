@@ -24,7 +24,7 @@
 #
 ####################################
 # author: Daniel Bouchard          #
-# 								   #
+# 		                   #
 # creation date: Jun. 22nd, 2015   #
 ####################################
 GALAXY_PATH=./galaxy
@@ -42,6 +42,9 @@ test:
 install:
 	cp ./dynamic_tool_destination/DynamicToolDestination.py $(GALAXY_PATH)/lib/galaxy/jobs/rules/
 	cp ./dynamic_tool_destination/tool_destinations.yml $(GALAXY_PATH)/config/
+
+upgrade:
+	cp ./dynamic_tool_destination/DynamicToolDestination.py $(GALAXY_PATH)/lib/galaxy/jobs/rules/
 
 clean:
 	rm $(GALAXY_PATH)/lib/galaxy/jobs/rules/DynamicToolDestination.py
