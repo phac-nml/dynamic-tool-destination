@@ -977,14 +977,14 @@ def map_tool_to_destination(
         for da in inp_data:
             try:
                 # If the input is a file, check and add the size
-                if os.path.isfile(str(inp_data[da].file_name)):
+                if inp_data[da] is not None and os.path.isfile(inp_data[da].file_name):
                     if verbose:
                         message = "Loading file: " + str(da)
                         message += str(inp_data[da].file_name)
                         log.debug(message)
 
                     # Add to records if the file type is fasta
-                    if inp_data[da].datatype.file_ext == "fasta":
+                    if inp_data[da].ext == "fasta":
                         if records_rule_present:
                             inp_db = open(inp_data[da].file_name)
 

@@ -59,6 +59,7 @@ class Dataset(object):
 	def __init__(self, file_name, file_ext, value):
 		self.file_name = file_name
 		self.datatype = Datatype(file_ext)
+		self.ext = file_ext
 		self.metadata = dict()
 		self.metadata['sequences'] = value
 
