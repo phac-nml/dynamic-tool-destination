@@ -24,7 +24,7 @@ specific language governing permissions and limitations under the License.
 # =============================================================================
 """
 #=============================================Valid XML===================================================
-# One job, one condition
+# One job, one rule
 vYMLTest1 = """
     tools:
       spades:
@@ -55,7 +55,7 @@ vdictTest1_yml = {
     'default_destination': "waffles_default"
 }
 
-# Multiple jobs, multiple conditions
+# Multiple jobs, multiple rules
 vYMLTest2 ='''
     tools:
       spades:
@@ -106,7 +106,7 @@ vdictTest2_yml = {
     'default_destination': "waffles_low"
 }
 
-# Condition with extra attribute
+# Rule with extra attribute
 vYMLTest3 = '''
     tools:
       spades:
@@ -206,6 +206,53 @@ vdictTest5_yml = {
     'default_destination': "waffles_default"
 }
 
+# Num_input_datasets type
+vYMLTest6 ='''
+    tools:
+      spades:
+        default_destination: waffles_default
+      smalt:
+        rules:
+          - rule_type: num_input_datasets
+            nice_value: 0
+            lower_bound: 0
+            upper_bound: 200
+            destination: cluster_low_4
+          - rule_type: num_input_datasets
+            nice_value: 0
+            lower_bound: 200
+            upper_bound: Infinity
+            destination: cluster_high_32
+    default_destination: waffles_low
+    verbose: True
+'''
+
+vdictTest6_yml = {
+    "tools": {
+        "spades": {
+            "default_destination": "waffles_default"
+        },
+        "smalt": {
+            "rules": [
+                {
+                  "rule_type": "num_input_datasets",
+                  'nice_value': 0,
+                  "lower_bound": 0,
+                  "upper_bound": 200,
+                  "destination": "cluster_low_4"
+                },{
+                  "rule_type": "num_input_datasets",
+                  'nice_value': 0,
+                  "lower_bound": 200,
+                  "upper_bound": "Infinity",
+                  "destination": "cluster_high_32"
+                }
+            ]
+        }
+    },
+    'default_destination': "waffles_low"
+}
+
 #=====================================================Invalid XML tests==========================================================
 
 # Empty file
@@ -228,7 +275,7 @@ iv3dict = {
     'default_destination': "waffles_default"
 }
 
-# Condition missing type
+# Rule missing type
 ivYMLTest4 = '''
     tools:
       spades:
@@ -242,7 +289,7 @@ ivYMLTest4 = '''
     verbose: True
 '''
 
-# Condition missing attribute
+# Rule missing attribute
 ivYMLTest51 = '''
     tools:
       spades:
@@ -256,7 +303,7 @@ ivYMLTest51 = '''
     verbose: True
 '''
 
-# Condition missing attribute
+# Rule missing attribute
 ivYMLTest52 = '''
     tools:
       spades:
@@ -270,7 +317,7 @@ ivYMLTest52 = '''
     verbose: True
 '''
 
-# Condition missing attribute
+# Rule missing attribute
 ivYMLTest53 = '''
     tools:
       spades:
@@ -304,7 +351,7 @@ ivDict53 = {
     }
 }
 
-# Condition unknown type
+# Rule unknown type
 ivYMLTest6 = '''
     tools:
       spades:
@@ -335,7 +382,7 @@ ivYMLTest8= '''
     verbose: True
 '''
 
-# Tool condition fail no fail_message and apparently no nice_value
+# Tool rule fail no fail_message and apparently no nice_value
 ivYMLTest91 = '''
     tools:
       spades:
@@ -741,6 +788,68 @@ iv141dict = {
                     'lower_bound': 200,
                     'nice_value': 0,
                     'destination': 'waffles_high'
+                }
+            ]
+        }
+    }
+}
+
+# Bad bounds setup for num_input_datasets
+ivYMLTest142 ='''
+    tools:
+      smalt:
+        rules:
+          - rule_type: num_input_datasets
+            nice_value: 0
+            lower_bound: Infinity
+            upper_bound: 200
+            destination: cluster_low_4
+    default_destination: waffles_low
+    verbose: True
+'''
+
+iv142dict = {
+    'default_destination': 'waffles_low',
+    'tools': {
+        'smalt': {
+            'rules': [
+                {
+                    'rule_type': 'num_input_datasets',
+                    'upper_bound': 200,
+                    'lower_bound': 0,
+                    'nice_value': 0,
+                    'destination': 'cluster_low_4'
+                }
+            ]
+        }
+    }
+}
+
+# Even worse bounds setup for num_input_datasets
+ivYMLTest143 ='''
+    tools:
+      smalt:
+        rules:
+          - rule_type: num_input_datasets
+            nice_value: 0
+            lower_bound: Infinity
+            upper_bound: Infinity
+            destination: cluster_low_4
+    default_destination: waffles_low
+    verbose: True
+'''
+
+iv143dict = {
+    'default_destination': 'waffles_low',
+    'tools': {
+        'smalt': {
+            'rules': [
+                {
+                    'rule_type': 'num_input_datasets',
+                    'upper_bound': 'Infinity',
+                    'lower_bound': 0,
+                    'nice_value': 0,
+                    'destination': 'cluster_low_4'
                 }
             ]
         }
