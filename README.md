@@ -38,6 +38,7 @@ This project dynamically maps tools to destinations based on the following rules
 
 2. In the root directory of this project on the command line, type in:
 ```make install GALAXY_PATH="your-galaxy-path"```
+
 **Note**: To simply update your copy of Dynamic Tool Destination with the latest version, but
 keep the same configuration file, you may use ```make upgrade GALAXY_PATH="your-galaxy-path"```
 
