@@ -157,7 +157,6 @@ does not use quote symbols), using spades and smalt as an example
 (spades for showing what each field is for, and smalt
 to give a fairly real-world example):
 
-Ex:  
 ```
 tools:
   spades:
@@ -210,9 +209,7 @@ Similarly, ```records``` rules are based on how many records are in the supplied
 and num_input_datasets rules are based on how many files are submitted.
 
 file_size, num_input_datasets, and records rules have the following required parameters on top of the base
-mandatory parameters:
-```upper_bound```
-```lower_bound```
+mandatory parameters: **upper_bound** and **lower_bound**.
 
 Bounds are allowed to be specified in bytes (48000 for example) or a higher size unit,
 including the unit abbreviation (4 GB or 10 TB for file_size, for example). Additionally, upper_bound
