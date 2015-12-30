@@ -212,8 +212,10 @@ file_size, num_input_datasets, and records rules have the following required par
 mandatory parameters: **upper_bound** and **lower_bound**.
 
 Bounds are allowed to be specified in bytes (48000 for example) or a higher size unit,
-including the unit abbreviation (4 GB or 10 TB for file_size, for example). Additionally, upper_bound
-is allowed to be Infinite; simply specify ```Infinite``` in order to do so.
+including the unit abbreviation (4 GB or 10 TB, for example). Additionally, upper_bound
+is allowed to be Infinite; simply specify ```Infinite``` in order to do so. For num_input_datasets rules,
+upper_bound is the maximum number of files to fall within the rule (including supplied reference/index/misc files),
+and lower_bound is the minimum.
 
 **The rule will allow the lower_bound, up to but not including the upper_bound  
 
@@ -260,12 +262,11 @@ user email addresses of users that are allowed to run the specified rule:
 tools:
   spades:
     rules:
-      - rule_type: arguments
-        nice_value: -19
-        destination: fail
-        fail_message: Don't do that
-        arguments:
-          careful: true
+      - rule_type: num_input_datasets
+        nice_value: -15
+        lower_bound: 0
+        upper_bound: 20
+        destination: cluster_high_48
         users:
           - test@email.com
           - sample@corporate.ca
