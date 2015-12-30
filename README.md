@@ -194,33 +194,33 @@ verbose: True
 Looking at this example, some things must be clarified: each entry in the list of
 rules per tool is specified by '-'. Per rule, regardless of rule type,
 the following fields are mandatory:
-rule_type, nice_value, and destination.
+**rule_type**, **nice_value**, and **destination**.
 
 Some of the other fields are mandatory only for specific rule types, which will be
 further discussed below.
 
-Starting with rule_type, there are currently 4 rule types: file_size, num_input_datasets, records,
-and arguments.
+Starting with rule_type, there are currently 4 rule types: **file_size**, **num_input_datasets**, **records**,
+and **arguments**.
 
-file_size rules are based on how large the files are: if they fall
+```file_size``` rules are based on how large the files are: if they fall
 within specified limits, then the rule is satisfied, and the tool may proceed
 with the appropriate destination.
 
-Similarly, records rules are based on how many records are in the supplied ```.fasta``` files
+Similarly, ```records``` rules are based on how many records are in the supplied ```.fasta``` files
 and num_input_datasets rules are based on how many files are submitted.
 
 file_size, num_input_datasets, and records rules have the following required parameters on top of the base
 mandatory parameters:
-upper_bound
-lower_bound
+```upper_bound```
+```lower_bound```
 
 Bounds are allowed to be specified in bytes (48000 for example) or a higher size unit,
 including the unit abbreviation (4 GB or 10 TB for file_size, for example). Additionally, upper_bound
-is allowed to be Infinite; simply specify Infinite in order to do so.
+is allowed to be Infinite; simply specify ```Infinite``` in order to do so.
 
 **The rule will allow the lower_bound, up to but not including the upper_bound  
 
-The fourth rule_type is arguments, which has arguments as a mandatory parameter ontop of
+The fourth rule_type is ```arguments```, which has arguments as a mandatory parameter ontop of
 the base mandatory parameters. The arguments parameter is specified using the following
 template:
 
@@ -246,7 +246,7 @@ default_destination: cluster
 verbose: False
 ```
 
-Next up, nice_value is used for prioritizing rules over others in case two rules
+Next up, ```nice_value``` is used for prioritizing rules over others in case two rules
 match. nice_value basically translates to, "the higher the nice_value, the 'nicer'
 the tool is about being picked last". So based off of that idea, a rule with a nice
 value of -5 is guaranteed to be picked over a rule with a nice value of 10. nice_value
@@ -254,10 +254,10 @@ is allowed to go from -20 to 20. If two rules have the same nice value and both 
 satisfied, the first rule in the config file will be picked. In summary, first-come-
 first-serve basis unless nice_value overrides that.
 
-Additionally, the administrator can optionally specify a users list for each rule in order to 
+The administrator can optionally specify a users list for each rule in order to 
 grant or deny access to the specific rule (for example, using a certain cluster configuration
-that is only intended for users running critical jobs). The users list is then simply a list of 
-user email addresses, which Dynamic Tool Destination checks against when running jobs:
+that is only intended for users running critical jobs). The ```users``` list is then simply a list of 
+user email addresses of users that are allowed to run the specified rule:
 
 ```
 tools:
