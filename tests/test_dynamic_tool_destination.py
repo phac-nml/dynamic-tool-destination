@@ -67,19 +67,19 @@ runJob.add_input_dataset( mg.InputDataset("input1", mg.Dataset( (os.getcwd() + "
 
 vfJob = mg.Job()
 vfJob.add_input_dataset( mg.InputDataset("input1", mg.Dataset( (os.getcwd() + "/tests/data/test3.full"), "txt", 15)) )
-vfJob.set_param_value( "mlst_or_genedb", {"vfdb_in": "-bact"} )
+vfJob.set_arg_value( "mlst_or_genedb", {"vfdb_in": "-bact"} )
 
-paramJob = mg.Job()
-paramJob.add_input_dataset( mg.InputDataset("input1", mg.Dataset( (os.getcwd() + "/tests/data/test3.full"), "txt", 15)) )
-paramJob.set_param_value( "careful", True )
+argJob = mg.Job()
+argJob.add_input_dataset( mg.InputDataset("input1", mg.Dataset( (os.getcwd() + "/tests/data/test3.full"), "txt", 15)) )
+argJob.set_arg_value( "careful", True )
 
 argNotFoundJob = mg.Job()
 argNotFoundJob.add_input_dataset( mg.InputDataset("input1", mg.Dataset( (os.getcwd() + "/tests/data/test3.full"), "txt", 15)) )
-argNotFoundJob.set_param_value( "careful", False )
+argNotFoundJob.set_arg_value( "careful", False )
 
 notvfJob = mg.Job()
 notvfJob.add_input_dataset( mg.InputDataset("input1", mg.Dataset( (os.getcwd() + "/tests/data/test3.full"), "txt", 15)) )
-notvfJob.set_param_value( "mlst_or_genedb", {"vfdb_in": "-not_here"} )
+notvfJob.set_arg_value( "mlst_or_genedb", {"vfdb_in": "-not_here"} )
 
 dbJob = mg.Job()
 dbJob.add_input_dataset( mg.InputDataset("input1", mg.Dataset( (os.getcwd() + "/tests/data/test.fasta"), "fasta", 10)) )
@@ -89,7 +89,7 @@ dbcountJob.add_input_dataset( mg.InputDataset("input1", mg.Dataset( (os.getcwd()
 
 vfdbJob = mg.Job()
 vfdbJob.add_input_dataset( mg.InputDataset("input1", mg.Dataset( (os.getcwd() + "/tests/data/test.fasta"), "fasta", 6)) )
-vfdbJob.set_param_value( "mlst_or_genedb", {"vfdb_in": "-bact"} )
+vfdbJob.set_arg_value( "mlst_or_genedb", {"vfdb_in": "-bact"} )
 
 #======================Tools===================================
 vanillaTool = mg.Tool( 'test' )
@@ -103,7 +103,7 @@ defaultTool = mg.Tool( 'test_tooldefault' )
 dbTool = mg.Tool( 'test_db' )
 dbinfTool = mg.Tool( 'test_db_high' )
 
-paramTool = mg.Tool( 'test_arguments' )
+argTool = mg.Tool( 'test_arguments' )
 
 vfdbTool = mg.Tool( 'test_db' )
 vfdbTool.add_tool_dependency( mg.ToolDependency("vfdb", os.getcwd() + "/tests") )
@@ -112,11 +112,14 @@ noVBTool = mg.Tool( 'test_no_verbose' )
 
 usersTool = mg.Tool( 'test_users' )
 
+numinputsTool = mg.Tool( 'test_num_input_datasets' )
+
 #=======================YML file================================
 path = os.getcwd() + "/tests/data/tool_destination.yml"
 broken_default_dest_path = os.getcwd() + "/tests/data/dest_fail.yml"
 no_verbose_path = os.getcwd() + "/tests/data/test_no_verbose.yml"
 users_test_path = os.getcwd() + "/tests/data/test_users.yml"
+num_input_datasets_test_path = os.getcwd() + "/tests/data/test_num_input_datasets.yml"
 
 #======================Test Variables=========================
 value = 1
@@ -157,7 +160,8 @@ class TestDynamicToolDestination(unittest.TestCase):
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Loading file: input1' + os.getcwd() + '/tests/data/test.empty'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total size: 0.00 B')
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total size: 0.00 B'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total number of files: 1')
         )
 
     @log_capture()
@@ -167,7 +171,8 @@ class TestDynamicToolDestination(unittest.TestCase):
         l.check(
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total size: 0.00 B')
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total size: 0.00 B'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total number of files: 0')
         )
 
     @log_capture()
@@ -178,7 +183,8 @@ class TestDynamicToolDestination(unittest.TestCase):
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Loading file: input1' + os.getcwd() + '/tests/data/test1.full'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total size: 293.00 B')
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total size: 293.00 B'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total number of files: 1')
         )
 
     @log_capture()
@@ -191,6 +197,7 @@ class TestDynamicToolDestination(unittest.TestCase):
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Loading file: input1' + os.getcwd() + '/tests/data/test3.full'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total size: 3.23 KB'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total number of files: 1'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Running 'test' with 'Destination1'.")
         )
 
@@ -207,8 +214,8 @@ class TestDynamicToolDestination(unittest.TestCase):
         )
 
     @log_capture()
-    def test_parameter_tool(self, l):
-        job = map_tool_to_destination( paramJob, theApp, paramTool, "user@email.com", True, path )
+    def test_arguments_tool(self, l):
+        job = map_tool_to_destination( argJob, theApp, argTool, "user@email.com", True, path )
         self.assertEquals( job, 'Destination6' )
 
         l.check(
@@ -218,8 +225,8 @@ class TestDynamicToolDestination(unittest.TestCase):
         )
 
     @log_capture()
-    def test_parameter_arg_not_found(self, l):
-        job = map_tool_to_destination( argNotFoundJob, theApp, paramTool, "user@email.com", True, path )
+    def test_arguments_arg_not_found(self, l):
+        job = map_tool_to_destination( argNotFoundJob, theApp, argTool, "user@email.com", True, path )
         self.assertEquals( job, 'waffles_default' )
 
         l.check(
@@ -322,6 +329,7 @@ class TestDynamicToolDestination(unittest.TestCase):
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Running 'test_users' with 'lame_cluster'.")
         )
 
+
 #================================Invalid yaml files==============================
     @log_capture()
     def test_no_file(self, l):
@@ -353,7 +361,7 @@ class TestDynamicToolDestination(unittest.TestCase):
         )
 
     @log_capture()
-    def test_no_cond_type(self, l):
+    def test_no_rule_type(self, l):
         self.assertEquals(dt.parse_yaml(path=yt.ivYMLTest4, test=True), yt.ivDict)
         l.check(
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
@@ -362,7 +370,7 @@ class TestDynamicToolDestination(unittest.TestCase):
         )
 
     @log_capture()
-    def test_no_cond_lbound(self, l):
+    def test_no_rule_lower_bound(self, l):
         self.assertEquals(dt.parse_yaml(path=yt.ivYMLTest51, test=True), yt.ivDict)
         l.check(
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
@@ -371,7 +379,7 @@ class TestDynamicToolDestination(unittest.TestCase):
         )
 
     @log_capture()
-    def test_no_cond_hbound(self, l):
+    def test_no_rule_upper_bound(self, l):
         self.assertEquals(dt.parse_yaml(path=yt.ivYMLTest52, test=True), yt.ivDict)
         l.check(
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
@@ -380,7 +388,7 @@ class TestDynamicToolDestination(unittest.TestCase):
         )
 
     @log_capture()
-    def test_no_cond_param(self, l):
+    def test_no_rule_arg(self, l):
         self.assertEquals(dt.parse_yaml(path=yt.ivYMLTest53, test=True), yt.ivDict53)
         l.check(
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
@@ -389,7 +397,7 @@ class TestDynamicToolDestination(unittest.TestCase):
         )
 
     @log_capture()
-    def test_bad_cond_type(self, l):
+    def test_bad_rule_type(self, l):
         self.assertEquals(dt.parse_yaml(path=yt.ivYMLTest6, test=True), yt.ivDict)
         l.check(
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
@@ -427,7 +435,7 @@ class TestDynamicToolDestination(unittest.TestCase):
         )
 
     @log_capture()
-    def test_parameter_no_err_msg(self, l):
+    def test_arguments_no_err_msg(self, l):
         self.assertEquals(dt.parse_yaml(path=yt.ivYMLTest12, test=True), yt.iv12dict)
         l.check(
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
@@ -437,7 +445,7 @@ class TestDynamicToolDestination(unittest.TestCase):
         )
 
     @log_capture()
-    def test_parameter_no_args(self, l):
+    def test_arguments_no_args(self, l):
         self.assertEquals(dt.parse_yaml(path=yt.ivYMLTest131, test=True), yt.iv131dict)
         l.check(
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
@@ -447,7 +455,7 @@ class TestDynamicToolDestination(unittest.TestCase):
         )
 
     @log_capture()
-    def test_parameter_no_param(self, l):
+    def test_arguments_no_arg(self, l):
         self.assertEquals(dt.parse_yaml(path=yt.ivYMLTest132, test=True), yt.iv132dict)
         l.check(
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
@@ -530,7 +538,7 @@ class TestDynamicToolDestination(unittest.TestCase):
         )
 
     @log_capture()
-    def test_return_bool_for_unauthorized_user(self, l):
+    def test_return_bool_for_malformed_users(self, l):
         self.assertFalse(dt.parse_yaml(path=yt.ivYMLTest138, test=True, return_bool=True))
         l.check(
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Entry '123' in users for rule 1 in tool 'spades' is in an invalid format!"),
@@ -538,7 +546,7 @@ class TestDynamicToolDestination(unittest.TestCase):
         )
 
     @log_capture()
-    def test_return_rule_for_unauthorized_user(self, l):
+    def test_return_rule_for_malformed_users(self, l):
         self.assertEquals(dt.parse_yaml(path=yt.ivYMLTest138, test=True), yt.iv138dict)
         l.check(
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
@@ -548,14 +556,14 @@ class TestDynamicToolDestination(unittest.TestCase):
         )
 
     @log_capture()
-    def test_return_bool_for_malformed_users(self, l):
+    def test_return_bool_for_no_users(self, l):
         self.assertFalse(dt.parse_yaml(path=yt.ivYMLTest139, test=True, return_bool=True))
         l.check(
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Couldn't find a list under 'users:'!")
         )
 
     @log_capture()
-    def test_return_rule_for_malformed_users(self, l):
+    def test_return_rule_for_no_users(self, l):
         self.assertEquals(dt.parse_yaml(path=yt.ivYMLTest139, test=True), yt.iv139dict)
         l.check(
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
@@ -564,7 +572,7 @@ class TestDynamicToolDestination(unittest.TestCase):
         )
 
     @log_capture()
-    def test_return_bool_for_malformed_users(self, l):
+    def test_return_bool_for_malformed_user_email(self, l):
         self.assertFalse(dt.parse_yaml(path=yt.ivYMLTest140, test=True, return_bool=True))
         l.check(
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Supplied email 'invalid.user2@com' for rule 2 in tool 'spades' is in an invalid format!"),
@@ -573,7 +581,7 @@ class TestDynamicToolDestination(unittest.TestCase):
         )
 
     @log_capture()
-    def test_return_rule_for_malformed_users(self, l):
+    def test_return_rule_for_malformed_user_email(self, l):
         self.assertEquals(dt.parse_yaml(path=yt.ivYMLTest140, test=True), yt.iv140dict)
         l.check(
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
@@ -584,7 +592,7 @@ class TestDynamicToolDestination(unittest.TestCase):
         )
 
     @log_capture()
-    def test_return_bool_for_malformed_users(self, l):
+    def test_return_bool_for_empty_users(self, l):
         self.assertFalse(dt.parse_yaml(path=yt.ivYMLTest141, test=True, return_bool=True))
         l.check(
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Entry 'None' in users for rule 2 in tool 'spades' is in an invalid format!"),
@@ -593,13 +601,46 @@ class TestDynamicToolDestination(unittest.TestCase):
         )
 
     @log_capture()
-    def test_return_rule_for_malformed_users(self, l):
+    def test_return_rule_for_empty_users(self, l):
         self.assertEquals(dt.parse_yaml(path=yt.ivYMLTest141, test=True), yt.iv141dict)
         l.check(
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Entry 'None' in users for rule 2 in tool 'spades' is in an invalid format! Ignoring entry."),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Entry 'None' in users for rule 2 in tool 'spades' is in an invalid format! Ignoring entry."),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "No valid user emails were specified for rule 2 in tool 'spades'! Ignoring rule."),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.')
+        )
+
+    @log_capture()
+    def test_return_bool_for_bad_num_input_datasets_bounds(self, l):
+        self.assertFalse(dt.parse_yaml(path=yt.ivYMLTest142, test=True, return_bool=True))
+        l.check(
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Error: lower_bound is set to Infinity, but must be lower than upper_bound!"),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "lower_bound exceeds upper_bound for rule 1 in 'smalt'.")
+        )
+
+    @log_capture()
+    def test_return_rule_for_bad_num_input_datasets_bound(self, l):
+        self.assertEquals(dt.parse_yaml(path=yt.ivYMLTest142, test=True), yt.iv142dict)
+        l.check(
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Error: lower_bound is set to Infinity, but must be lower than upper_bound! Setting lower_bound to 0!"),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.')
+        )
+
+    @log_capture()
+    def test_return_bool_for_worse_num_input_datasets_bounds(self, l):
+        self.assertFalse(dt.parse_yaml(path=yt.ivYMLTest143, test=True, return_bool=True))
+        l.check(
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Error: lower_bound is set to Infinity, but must be lower than upper_bound!")
+        )
+
+    @log_capture()
+    def test_return_rule_for_worse_num_input_datasets_bound(self, l):
+        self.assertEquals(dt.parse_yaml(path=yt.ivYMLTest143, test=True), yt.iv143dict)
+        l.check(
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Error: lower_bound is set to Infinity, but must be lower than upper_bound! Setting lower_bound to 0!"),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.')
         )
 
@@ -613,7 +654,11 @@ class TestDynamicToolDestination(unittest.TestCase):
         self.assertEqual(dt.parse_yaml(yt.vYMLTest4, test=True), yt.vdictTest4_yml)
         self.assertTrue(dt.parse_yaml(yt.vYMLTest5, test=True, return_bool=True))
         self.assertEqual(dt.parse_yaml(yt.vYMLTest5, test=True), yt.vdictTest5_yml)
+        self.assertTrue(dt.parse_yaml(yt.vYMLTest6, test=True, return_bool=True))
+        self.assertEqual(dt.parse_yaml(yt.vYMLTest6, test=True), yt.vdictTest6_yml)
         l.check(
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),

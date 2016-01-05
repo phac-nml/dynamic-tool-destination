@@ -88,6 +88,9 @@ class RuleValidator:
         if rule_type == 'file_size':
             return cls.__validate_file_size_rule(return_bool, *args, **kwargs)
 
+        elif rule_type == 'num_input_datasets':
+            return cls.__validate_num_input_datasets_rule(return_bool, *args, **kwargs)
+
         elif rule_type == 'records':
             return cls.__validate_records_rule(return_bool, *args, **kwargs)
 
@@ -99,6 +102,59 @@ class RuleValidator:
             cls, return_bool, original_rule, counter, tool):
         """
         This function is responsible for validating 'file_size' rules.
+
+        @type return_bool: bool
+        @param return_bool: True when we are only interested in the result of the
+                              validation, and not the validated rule itself.
+
+        @type original_rule: dict
+        @param original_rule: contains the original received rule
+
+        @type counter: int
+        @param counter: this counter is used to identify what rule # is currently being
+                        validated. Necessary for log output.
+
+        @type tool: str
+        @param tool: the name of the current tool. Necessary for log output.
+
+        @rtype: bool, dict (depending on return_bool)
+        @return: validated rule or result of validation (depending on return_bool)
+        """
+
+        rule = copy.deepcopy(original_rule)
+        valid_rule = True
+
+        # Users Verification #
+        if rule is not None:
+            valid_rule, rule = cls.__validate_users(
+                valid_rule, return_bool, rule, tool, counter)
+
+        # Nice_value Verification #
+        if rule is not None:
+            valid_rule, rule = cls.__validate_nice_value(
+                valid_rule, return_bool, rule, tool, counter)
+
+        # Destination Verification #
+        if rule is not None:
+            valid_rule, rule = cls.__validate_destination(
+                valid_rule, return_bool, rule, tool, counter)
+
+        # Bounds Verification #
+        if rule is not None:
+            valid_rule, rule = cls.__validate_bounds(
+                valid_rule, return_bool, rule, tool, counter)
+
+        if return_bool:
+            return valid_rule
+
+        else:
+            return rule
+
+    @classmethod
+    def __validate_num_input_datasets_rule(
+            cls, return_bool, original_rule, counter, tool):
+        """
+        This function is responsible for validating 'num_input_datasets' rules.
 
         @type return_bool: bool
         @param return_bool: True when we are only interested in the result of the
@@ -396,8 +452,26 @@ class RuleValidator:
         """
 
         if "upper_bound" in rule and "lower_bound" in rule:
-            upper_bound = str_to_bytes(rule["upper_bound"])
-            lower_bound = str_to_bytes(rule["lower_bound"])
+            if rule["rule_type"] == "file_size":
+                upper_bound = str_to_bytes(rule["upper_bound"])
+                lower_bound = str_to_bytes(rule["lower_bound"])
+            else:
+                upper_bound = rule["upper_bound"]
+                lower_bound = rule["lower_bound"]
+
+            if lower_bound == "Infinity":
+                error = "Error: lower_bound is set to Infinity, but must be lower than "
+                error += "upper_bound!"
+                if not return_bool:
+                    error += " Setting lower_bound to 0!"
+                    lower_bound = 0
+                    rule["lower_bound"] = 0
+                if verbose:
+                    log.debug(error)
+                valid_rule = False
+
+            if upper_bound == "Infinity":
+                upper_bound = -1
 
             if upper_bound != -1 and lower_bound > upper_bound:
 
@@ -492,12 +566,10 @@ class RuleValidator:
         """
 
         emailregex = "^[A-Za-z0-9\.\+_-]+@[A-Za-z0-9\._-]+\.[a-zA-Z]*$"
-        index = -1
 
         if "users" in rule:
             if isinstance(rule["users"], list):
                 for user in reversed(rule["users"]):
-                    index += 1
                     if not isinstance(user, str):
                         error = "Entry '" + str(user) + "' in users for rule "
                         error += str(counter) + " in tool '" + str(tool) + "' is in an "
@@ -532,7 +604,7 @@ class RuleValidator:
 
             # post-processing checking to make sure we didn't just remove all the users
             # if we did, we should ignore the rule
-            if len(rule["users"]) == 0:
+            if rule is not None and rule["users"] is not None and len(rule["users"]) == 0:
                 error = "No valid user emails were specified for rule " + str(counter)
                 error += " in tool '" + str(tool) + "'!"
                 if not return_bool:
@@ -644,7 +716,7 @@ def validate_config(obj, return_bool=False):
         log.debug("Missing mandatory field 'verbose' in config!")
 
     # a list with the available rule_types. Can be expanded on easily in the future
-    available_rule_types = ['file_size', 'records', 'arguments']
+    available_rule_types = ['file_size', 'num_input_datasets', 'records', 'arguments']
 
     if obj is not None:
         # in obj, there should always be only 3 categories: tools, default_destination,
@@ -926,6 +998,7 @@ def map_tool_to_destination(
     global verbose
     verbose = True
     filesize_rule_present = False
+    num_input_datasets_rule_present = False
     records_rule_present = False
 
     # Get configuration from tool_destinations.yml
@@ -958,13 +1031,17 @@ def map_tool_to_destination(
                 if rule["rule_type"] == "file_size":
                     filesize_rule_present = True
 
+                if rule["rule_type"] == "num_input_datasets":
+                    num_input_datasets_rule_present = True
+
                 if rule["rule_type"] == "records":
                     records_rule_present = True
 
     file_size = 0
     records = 0
+    num_input_datasets = 0
 
-    if filesize_rule_present or records_rule_present:
+    if filesize_rule_present or records_rule_present or num_input_datasets_rule_present:
         # Loop through the database and look for amount of records
         try:
             for line in inp_db:
@@ -978,6 +1055,7 @@ def map_tool_to_destination(
             try:
                 # If the input is a file, check and add the size
                 if inp_data[da] is not None and os.path.isfile(inp_data[da].file_name):
+                    num_input_datasets += 1
                     if verbose:
                         message = "Loading file: " + str(da)
                         message += str(inp_data[da].file_name)
@@ -1010,6 +1088,8 @@ def map_tool_to_destination(
                 log.debug("Total size: " + bytes_to_str(file_size))
             if records_rule_present:
                 log.debug("Total amount of records: " + str(records))
+            if num_input_datasets_rule_present:
+                log.debug("Total number of files: " + str(num_input_datasets))
 
     matched_rule = None
     user_authorized = None
@@ -1049,6 +1129,26 @@ def map_tool_to_destination(
                                 else:
                                     if (lower_bound <= file_size
                                        and file_size < upper_bound):
+                                        # nice_value comparisons
+                                        if (matched_rule is None or rule["nice_value"]
+                                                < matched_rule["nice_value"]):
+                                            matched_rule = rule
+
+                            elif rule["rule_type"] == "num_input_datasets":
+
+                                # bounds comparisons
+                                upper_bound = rule["upper_bound"]
+                                lower_bound = rule["lower_bound"]
+
+                                if upper_bound == "Infinity":
+                                    if lower_bound <= num_input_datasets:
+                                        # nice_value comparisons
+                                        if (matched_rule is None or rule["nice_value"]
+                                                < matched_rule["nice_value"]):
+                                            matched_rule = rule
+                                else:
+                                    if (lower_bound <= num_input_datasets
+                                       and num_input_datasets < upper_bound):
                                         # nice_value comparisons
                                         if (matched_rule is None or rule["nice_value"]
                                                 < matched_rule["nice_value"]):

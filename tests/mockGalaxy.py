@@ -41,7 +41,7 @@ class Job(object):
 	def get_param_values(self, app, ignore_errors=False):
 		return self.param_values
 
-	def set_param_value(self, key, value):
+	def set_arg_value(self, key, value):
 		self.param_values[key] = value
 
 	def add_input_dataset(self, dataset):
