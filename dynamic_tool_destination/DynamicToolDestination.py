@@ -1062,7 +1062,7 @@ def map_tool_to_destination(
                         log.debug(message)
 
                     # Add to records if the file type is fasta
-                    if inp_data[da].datatype.file_ext == "fasta":
+                    if inp_data[da].ext == "fasta":
                         if records_rule_present:
                             inp_db = open(inp_data[da].file_name)
 

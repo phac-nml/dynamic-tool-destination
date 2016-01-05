@@ -10,6 +10,8 @@ Copyright Government of Canada 2015
 
 Written by: Eric Enns, Public Health Agency of Canada,
                        National Microbiology Laboratory
+            Mark Iskander, Public Health Agency of Canada,
+                       National Microbiology Laboratory
             Daniel Bouchard, Public Health Agency of Canada,
                        National Microbiology Laboratory
 
