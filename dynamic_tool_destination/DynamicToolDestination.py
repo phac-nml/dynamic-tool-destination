@@ -35,6 +35,8 @@ Created on May 13, 2015
 @originalauthor: Daniel Bouchard
 """
 
+__version__ = '1.0.0'
+
 from yaml import load
 
 import argparse
@@ -1265,6 +1267,9 @@ if __name__ == '__main__':
         help='Use this option to validate tool_destinations.yml.'
         + ' Optionally, provide the path to the tool_destinations.yml'
         + ' that you would like to check. Default: galaxy/config/tool_destinations.yml')
+
+    parser.add_argument(
+        '-V', '--version', action='version', version="%(prog)s " + __version__)
 
     args = parser.parse_args()
 
