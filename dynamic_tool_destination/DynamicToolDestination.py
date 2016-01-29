@@ -403,8 +403,9 @@ class RuleValidator:
 
             rule["destination"] = "fail"
 
-        if "destination" in rule and isinstance(rule["destination"], str):
-            if rule["destination"] == "fail" and "fail_message" not in rule:
+        if "destination" in rule:
+            if isinstance(rule["destination"], str):
+                if rule["destination"] == "fail" and "fail_message" not in rule:
                     error = "Missing a fail_message for rule " + str(counter)
                     error += " in '" + str(tool) + "'."
                     if not return_bool:
@@ -415,6 +416,43 @@ class RuleValidator:
                     if verbose:
                         log.debug(error)
                     valid_rule = False
+            elif isinstance(rule["destination"], dict):
+                if "priority" in rule["destination"] and isinstance(rule["destination"]["priority"], dict):
+                    if "med" not in rule["destination"]["priority"]:
+                        error = "No 'med' priority destination for rule " + str(counter)
+                        error += " in '" + str(tool) + "'."
+                        if not return_bool:
+                            error += " Ignoring..."
+                        if verbose:
+                            log.debug(error)
+                        valid_rule = False
+                    else:
+                        for priority in rule["destination"]["priority"]:
+                            if (priority not in ["low", "med", "high"] or
+                                    not isinstance(rule["destination"]["priority"][priority], str)):
+                                error = "No '" + str(priority) + "'priority destination for rule " + str(counter)
+                                error += " in '" + str(tool) + "'."
+                                if not return_bool:
+                                    error += " Ignoring..."
+                                if verbose:
+                                    log.debug(error)
+                                valid_rule = False
+                else:
+                    error = "No destination specified for rule " + str(counter)
+                    error += " in '" + str(tool) + "'."
+                    if not return_bool:
+                        error += " Ignoring..."
+                    if verbose:
+                        log.debug(error)
+                    valid_rule = False
+            else:
+                error = "No destination specified for rule " + str(counter)
+                error += " in '" + str(tool) + "'."
+                if not return_bool:
+                    error += " Ignoring..."
+                if verbose:
+                    log.debug(error)
+                valid_rule = False
         else:
             error = "No destination specified for rule " + str(counter)
             error += " in '" + str(tool) + "'."
@@ -724,13 +762,70 @@ def validate_config(obj, return_bool=False):
         # in obj, there should always be only 3 categories: tools, default_destination,
         # and verbose
 
-        if 'default_destination' in obj and isinstance(obj['default_destination'], str):
-            new_config["default_destination"] = obj['default_destination']
+        if 'default_destination' in obj:
+            if isinstance(obj['default_destination'], str):
+                new_config["default_destination"] = obj['default_destination']
+            elif isinstance(obj['default_destination'], dict):
+                if 'priority' in obj['default_destination'] and isinstance(obj['default_destination']['priority'], dict):
+                    if 'med' not in obj['default_destination']['priority']:
+                        error = "No default 'med' priority destination!"
+                        if verbose:
+                            log.debug(error)
+                        valid_config = False
+                    else:
+                        for priority in obj['default_destination']['priority']:
+                            if priority in ['low', 'med', 'high'] and isinstance(obj['default_destination']['priority'][priority], str):
+                                new_config['default_destination']['priority'][priority] = obj['default_destination']['priority'][priority]
+                            else:
+                                error = "No default '" + str(priority) + "' priority destination in config!"
+                                if verbose:
+                                    log.debug(error)
+                                valid_config = False
+                else:
+                    error = "No default priority destinations specified in config!"
+                    if verbose:
+                        log.debug(error)
+                    valid_config = False
+            else:
+                error = "No global default destination specified in config!"
+                if verbose:
+                    log.debug(error)
+                valid_config = False
         else:
             error = "No global default destination specified in config!"
             if verbose:
                 log.debug(error)
             valid_config = False
+
+        if 'users' in obj:
+            if isinstance(obj['users'], dict):
+                for user in obj['users']:
+                    curr = obj['users'][user]
+
+                    if isinstance(curr, dict):
+                        if 'priority' in curr and isinstance(curr['priority'], str):
+                            if curr['priority'] in ['low', 'med', 'high']:
+                                new_config['users'][user]['priority'] = curr['priority']
+                            else:
+                                error = "User '" + user + "', priority is not valid! Must be either low, med, or high."
+                                if verbose:
+                                    log.debug(error)
+                                valid_config = False
+                        else:
+                            error = "User '" + user + "' is missing a priority!"
+                            if verbose:
+                                log.debug(error)
+                            valid_config = False
+                    else:
+                        error = "User '" + user + "' is missing a priority!"
+                        if verbose:
+                            log.debug(error)
+                        valid_config = False
+            else:
+                error = "Users option is not a dictionary!"
+                if verbose:
+                    log.debug(error)
+                valid_config = False
 
         if 'tools' in obj:
             for tool in obj['tools']:
@@ -840,8 +935,8 @@ def validate_config(obj, return_bool=False):
 
         # quickly run through categories to detect unrecognized types
         for category in obj.keys():
-            if not (category == 'verbose' or category == 'tools'
-                    or category == 'default_destination'):
+            if not (category == 'verbose' or category == 'tools' or
+                    category == 'default_destination' or category == 'users'):
                 error = "Unrecognized category '" + category
                 error += "' found in config file!"
                 if verbose:
@@ -1100,9 +1195,24 @@ def map_tool_to_destination(
     # For each different rule for the tool that's running
     fail_message = None
 
+    # set default priority to med
+    default_priority = 'med'
+    priority = default_priority
+
     if config is not None:
+        # get the users priority
+        if "users" in config:
+            if user_email in config["users"]:
+                priority = config["users"][user_email]["priority"]
+
         if "default_destination" in config:
-            destination = config['default_destination']
+            if isinstance(config['default_destination'], str):
+                destination = config['default_destination']
+            else:
+                if priority in config['default_destination']['priority']:
+                    destination = config['default_destination']['priority'][priority]
+                else:
+                    destination = config['default_destination']['priority'][default_priority]
             config = config['tools']
             if str(tool.old_id) in config:
                 if 'rules' in config[str(tool.old_id)]:
@@ -1216,9 +1326,21 @@ def map_tool_to_destination(
 
             if matched_rule is None:
                 if "default_destination" in config[str(tool.old_id)]:
-                    destination = config[str(tool.old_id)]['default_destination']
+                    if isinstance(config[str(tool.old_id)]['default_destination'], str):
+                        destination = config[str(tool.old_id)]['default_destination']
+                    else:
+                        if priority in config[str(tool.old_id)]['default_destination']['priority']:
+                            destination = config[str(tool.old_id)]['default_destination']['priority'][priority]
+                        else:
+                            destination = config[str(tool.old_id)]['default_destination']['priority'][default_priority]
             else:
-                destination = matched_rule["destination"]
+                if isinstance(matched_rule["destination"], str):
+                    destination = matched_rule["destination"]
+                else:
+                    if priority in matched_rule["destination"]["priority"]:
+                        destination = matched_rule["destination"]["priority"][priority]
+                    else:
+                        destination = matched_rule["destination"]["priority"][default_priority]
 
         # if "default_destination" in config
         else:
