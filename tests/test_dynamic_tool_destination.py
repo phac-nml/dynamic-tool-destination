@@ -116,6 +116,7 @@ numinputsTool = mg.Tool( 'test_num_input_datasets' )
 
 #=======================YML file================================
 path = os.getcwd() + "/tests/data/tool_destination.yml"
+priority_path = os.getcwd() + "/tests/data/priority_tool_destination.yml"
 broken_default_dest_path = os.getcwd() + "/tests/data/dest_fail.yml"
 no_verbose_path = os.getcwd() + "/tests/data/test_no_verbose.yml"
 users_test_path = os.getcwd() + "/tests/data/test_users.yml"
@@ -155,8 +156,14 @@ class TestDynamicToolDestination(unittest.TestCase):
     @log_capture()
     def test_filesize_empty(self, l):
         self.assertRaises(mg.JobMappingException, map_tool_to_destination, emptyJob, theApp, vanillaTool, "user@email.com", True, path)
+        self.assertRaises(mg.JobMappingException, map_tool_to_destination, emptyJob, theApp, vanillaTool, "user@email.com", True, priority_path)
 
         l.check(
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Loading file: input1' + os.getcwd() + '/tests/data/test.empty'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total size: 0.00 B'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total number of files: 1'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Loading file: input1' + os.getcwd() + '/tests/data/test.empty'),
@@ -167,8 +174,13 @@ class TestDynamicToolDestination(unittest.TestCase):
     @log_capture()
     def test_filesize_zero(self, l):
         self.assertRaises(mg.JobMappingException, map_tool_to_destination, zeroJob, theApp, vanillaTool, "user@email.com", True, path)
+        self.assertRaises(mg.JobMappingException, map_tool_to_destination, zeroJob, theApp, vanillaTool, "user@email.com", True, priority_path)
 
         l.check(
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total size: 0.00 B'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total number of files: 0'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total size: 0.00 B'),
@@ -178,8 +190,14 @@ class TestDynamicToolDestination(unittest.TestCase):
     @log_capture()
     def test_filesize_fail(self, l):
         self.assertRaises(mg.JobMappingException, map_tool_to_destination, failJob, theApp, vanillaTool, "user@email.com", True, path)
+        self.assertRaises(mg.JobMappingException, map_tool_to_destination, failJob, theApp, vanillaTool, "user@email.com", True, priority_path)
 
         l.check(
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Loading file: input1' + os.getcwd() + '/tests/data/test1.full'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total size: 293.00 B'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total number of files: 1'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Loading file: input1' + os.getcwd() + '/tests/data/test1.full'),
@@ -191,6 +209,8 @@ class TestDynamicToolDestination(unittest.TestCase):
     def test_filesize_run(self, l):
         job = map_tool_to_destination( runJob, theApp, vanillaTool, "user@email.com", True, path )
         self.assertEquals( job, 'Destination1' )
+        priority_job = map_tool_to_destination( runJob, theApp, vanillaTool, "user@email.com", True, priority_path )
+        self.assertEquals( priority_job, 'Destination1_high' )
 
         l.check(
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
@@ -198,85 +218,143 @@ class TestDynamicToolDestination(unittest.TestCase):
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Loading file: input1' + os.getcwd() + '/tests/data/test3.full'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total size: 3.23 KB'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total number of files: 1'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Running 'test' with 'Destination1'.")
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Running 'test' with 'Destination1'."),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Loading file: input1' + os.getcwd() + '/tests/data/test3.full'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total size: 3.23 KB'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total number of files: 1'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Running 'test' with 'Destination1_high'.")
         )
 
     @log_capture()
     def test_default_tool(self, l):
         job = map_tool_to_destination( runJob, theApp, defaultTool, "user@email.com", True, path )
         self.assertEquals( job, 'waffles_default' )
+        priority_job = map_tool_to_destination( runJob, theApp, defaultTool, "user@email.com", True, priority_path )
+        self.assertEquals( priority_job, 'waffles_default_high' )
 
         l.check(
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Tool 'test_tooldefault' not specified in config. Using default destination."),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Running 'test_tooldefault' with 'waffles_default'.")
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Running 'test_tooldefault' with 'waffles_default'."),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Tool 'test_tooldefault' not specified in config. Using default destination."),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Running 'test_tooldefault' with 'waffles_default_high'.")
         )
 
     @log_capture()
     def test_arguments_tool(self, l):
         job = map_tool_to_destination( argJob, theApp, argTool, "user@email.com", True, path )
         self.assertEquals( job, 'Destination6' )
+        priority_job = map_tool_to_destination( argJob, theApp, argTool, "user@email.com", True, priority_path )
+        self.assertEquals( priority_job, 'Destination6_med' )
 
         l.check(
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Running 'test_arguments' with 'Destination6'.")
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Running 'test_arguments' with 'Destination6'."),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Running 'test_arguments' with 'Destination6_med'.")
         )
 
     @log_capture()
     def test_arguments_arg_not_found(self, l):
         job = map_tool_to_destination( argNotFoundJob, theApp, argTool, "user@email.com", True, path )
         self.assertEquals( job, 'waffles_default' )
+        priority_job = map_tool_to_destination( argNotFoundJob, theApp, argTool, "user@email.com", True, priority_path )
+        self.assertEquals( priority_job, 'waffles_default_high' )
 
         l.check(
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Running 'test_arguments' with 'waffles_default'.")
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Running 'test_arguments' with 'waffles_default'."),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Running 'test_arguments' with 'waffles_default_high'.")
         )
 
     @log_capture()
     def test_tool_not_found(self, l):
-        job = map_tool_to_destination( runJob, theApp, unTool, True, "user@email.com", path )
+        job = map_tool_to_destination( runJob, theApp, unTool, "user@email.com", True, path )
         self.assertEquals( job, 'waffles_default' )
+        priority_job = map_tool_to_destination( runJob, theApp, unTool, "user@email.com", True, priority_path )
+        self.assertEquals( priority_job, 'waffles_default_high' )
 
         l.check(
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Tool 'unregistered' not specified in config. Using default destination."),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Running 'unregistered' with 'waffles_default'.")
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Running 'unregistered' with 'waffles_default'."),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Tool 'unregistered' not specified in config. Using default destination."),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Running 'unregistered' with 'waffles_default_high'.")
         )
 
     @log_capture()
     def test_fasta(self, l):
-        job = map_tool_to_destination( dbJob, theApp, dbTool, True, "user@email.com", path )
+        job = map_tool_to_destination( dbJob, theApp, dbTool, "user@email.com", True, path )
         self.assertEquals( job, 'Destination4' )
+        priority_job = map_tool_to_destination( dbJob, theApp, dbTool, "user@email.com", True, priority_path )
+        self.assertEquals( priority_job, 'Destination4_high' )
 
         l.check(
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Loading file: input1' + os.getcwd() + '/tests/data/test.fasta'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total amount of records: 10'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Running 'test_db' with 'Destination4'.")
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Running 'test_db' with 'Destination4'."),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Loading file: input1' + os.getcwd() + '/tests/data/test.fasta'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total amount of records: 10'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Running 'test_db' with 'Destination4_high'.")
         )
 
     @log_capture()
     def test_fasta_count(self, l):
-        job = map_tool_to_destination( dbcountJob, theApp, dbTool, True, "user@email.com", path )
+        job = map_tool_to_destination( dbcountJob, theApp, dbTool, "user@email.com", True, path )
         self.assertEquals( job, 'Destination4' )
+        priority_job = map_tool_to_destination( dbcountJob, theApp, dbTool, "user@email.com", True, priority_path )
+        self.assertEquals( priority_job, 'Destination4_high' )
 
         l.check(
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Loading file: input1' + os.getcwd() + '/tests/data/test.fasta'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total amount of records: 6'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Running 'test_db' with 'Destination4'.")
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Running 'test_db' with 'Destination4'."),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Loading file: input1' + os.getcwd() + '/tests/data/test.fasta'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total amount of records: 6'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Running 'test_db' with 'Destination4_high'.")
         )
 
     @log_capture()
     def test_vf(self, l):
-        job = map_tool_to_destination( vfJob, theApp, vfdbTool, True, "user@email.com", path )
+        job = map_tool_to_destination( vfJob, theApp, vfdbTool, "user@email.com", True, path )
         self.assertEquals( job, 'Destination4' )
+        priority_job = map_tool_to_destination( vfJob, theApp, vfdbTool, "user@email.com", True, priority_path )
+        l.check(
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Loading file: ' + os.getcwd() + '/tests/vfdb/?bact.test'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Loading file: input1' + os.getcwd() + '/tests/data/test3.full'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total amount of records: 4'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Running 'test_db' with 'Destination4'."),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Loading file: ' + os.getcwd() + '/tests/vfdb/?bact.test'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Loading file: input1' + os.getcwd() + '/tests/data/test3.full'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total amount of records: 4'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Running 'test_db' with 'Destination4_high'.")
+        )
+        self.assertEquals( priority_job, 'Destination4_high' )
 
         l.check(
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
@@ -284,13 +362,21 @@ class TestDynamicToolDestination(unittest.TestCase):
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Loading file: ' + os.getcwd() + '/tests/vfdb/?bact.test'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Loading file: input1' + os.getcwd() + '/tests/data/test3.full'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total amount of records: 4'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Running 'test_db' with 'Destination4'.")
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Running 'test_db' with 'Destination4'."),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Loading file: ' + os.getcwd() + '/tests/vfdb/?bact.test'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Loading file: input1' + os.getcwd() + '/tests/data/test3.full'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total amount of records: 4'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Running 'test_db' with 'Destination4_high'.")
         )
 
     @log_capture()
     def test_vf_not_found(self, l):
         job = map_tool_to_destination( notvfJob, theApp, vfdbTool, "user@email.com", True, path )
         self.assertEquals( job, 'Destination4' )
+        priority_job = map_tool_to_destination( notvfJob, theApp, vfdbTool, "user@email.com", True, priority_path )
+        self.assertEquals( priority_job, 'Destination4_high' )
 
         l.check(
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
@@ -299,7 +385,14 @@ class TestDynamicToolDestination(unittest.TestCase):
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG',
              'Loading file: input1' + os.getcwd() + '/tests/data/test3.full'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total amount of records: 0'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Running 'test_db' with 'Destination4'.")
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Running 'test_db' with 'Destination4'."),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'INFO', 'No virulence factors database'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG',
+             'Loading file: input1' + os.getcwd() + '/tests/data/test3.full'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Total amount of records: 0'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Running 'test_db' with 'Destination4_high'.")
         )
 
     @log_capture()
@@ -656,6 +749,8 @@ class TestDynamicToolDestination(unittest.TestCase):
         self.assertEqual(dt.parse_yaml(yt.vYMLTest5, test=True), yt.vdictTest5_yml)
         self.assertTrue(dt.parse_yaml(yt.vYMLTest6, test=True, return_bool=True))
         self.assertEqual(dt.parse_yaml(yt.vYMLTest6, test=True), yt.vdictTest6_yml)
+        self.assertTrue(dt.parse_yaml(yt.vYMLTest7, test=True, return_bool=True))
+        self.assertEqual(dt.parse_yaml(yt.vYMLTest7, test=True), yt.vdictTest7_yml)
         l.check(
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.'),
@@ -668,7 +763,9 @@ class TestDynamicToolDestination(unittest.TestCase):
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.'),
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
-            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.')
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.'),
         )
 
 #================================Testing str_to_bytes==========================

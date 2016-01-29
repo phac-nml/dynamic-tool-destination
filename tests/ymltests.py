@@ -253,6 +253,56 @@ vdictTest6_yml = {
     'default_destination': "waffles_low"
 }
 
+# One job, one rule, and priority destinations
+vYMLTest7 = """
+    tools:
+      spades:
+        rules:
+          - rule_type: file_size
+            nice_value: 0
+            lower_bound: 0
+            upper_bound: 100000000
+            destination:
+              priority:
+                med: things
+    default_destination:
+      priority:
+        med: waffles_default
+    users:
+      user@example.com:
+        priority: med
+    verbose: True
+"""
+
+vdictTest7_yml = {
+    "tools": {
+        "spades": {
+            "rules": [
+                {
+                    "rule_type": "file_size",
+                    "nice_value": 0,
+                    "lower_bound": 0,
+                    "upper_bound": 100000000,
+                    "destination": {
+                      'priority': {
+                        'med': 'things'
+                      }
+                    }
+                },
+            ]
+        }
+    },
+    'default_destination': {
+      'priority': {
+        'med': 'waffles_default'
+      }
+    },
+    'users': {
+      'user@example.com': {
+         'priority': 'med'
+      }
+    }
+}
 #=====================================================Invalid XML tests==========================================================
 
 # Empty file
