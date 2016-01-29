@@ -33,6 +33,8 @@
 #         destination: how should this tool be run?
 #         lower_bound: what's the max file size?
 #         upper_bound: what's the minimum file size?
+#         users: (optional) which users does this rule apply to
+#           - user@example.com
 # 	default_destination: this tool-specific field is optional
 #   smalt_map:
 #     rules:
