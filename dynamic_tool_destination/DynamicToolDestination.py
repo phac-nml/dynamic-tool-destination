@@ -28,15 +28,6 @@ specific language governing permissions and limitations under the License.
 # =============================================================================
 """
 
-"""
-Created on May 13, 2015
-
-@currentauthor: Mark Iskander
-@originalauthor: Daniel Bouchard
-"""
-
-__version__ = '1.0.0'
-
 from yaml import load
 
 import argparse
@@ -48,6 +39,8 @@ import copy
 import string
 import collections
 import re
+
+__version__ = '1.0.0'
 
 
 # log to galaxy's logger
@@ -881,8 +874,8 @@ def validate_config(obj, return_bool=False):
                                         # if we got a rule back that seems to be
                                         # valid (or was fixable) then append it to
                                         # list of ready-to-use tools
-                                        if (not return_bool
-                                                and validated_rule is not None):
+                                        if (not return_bool and
+                                                validated_rule is not None):
                                             curr_tool_rules.append(
                                                 copy.deepcopy(validated_rule))
 
@@ -1226,6 +1219,7 @@ def map_tool_to_destination(
                             user_authorized = True
 
                         if user_authorized:
+                            matched = False
                             if rule["rule_type"] == "file_size":
 
                                 # bounds comparisons
@@ -1234,17 +1228,12 @@ def map_tool_to_destination(
 
                                 if upper_bound == -1:
                                     if lower_bound <= file_size:
-                                        # nice_value comparisons
-                                        if (matched_rule is None or rule["nice_value"]
-                                                < matched_rule["nice_value"]):
-                                            matched_rule = rule
+                                        matched = True
+
                                 else:
-                                    if (lower_bound <= file_size
-                                       and file_size < upper_bound):
-                                        # nice_value comparisons
-                                        if (matched_rule is None or rule["nice_value"]
-                                                < matched_rule["nice_value"]):
-                                            matched_rule = rule
+                                    if (lower_bound <= file_size and
+                                            file_size < upper_bound):
+                                        matched = True
 
                             elif rule["rule_type"] == "num_input_datasets":
 
@@ -1254,17 +1243,11 @@ def map_tool_to_destination(
 
                                 if upper_bound == "Infinity":
                                     if lower_bound <= num_input_datasets:
-                                        # nice_value comparisons
-                                        if (matched_rule is None or rule["nice_value"]
-                                                < matched_rule["nice_value"]):
-                                            matched_rule = rule
+                                        matched = True
                                 else:
-                                    if (lower_bound <= num_input_datasets
-                                       and num_input_datasets < upper_bound):
-                                        # nice_value comparisons
-                                        if (matched_rule is None or rule["nice_value"]
-                                                < matched_rule["nice_value"]):
-                                            matched_rule = rule
+                                    if (lower_bound <= num_input_datasets and
+                                            num_input_datasets < upper_bound):
+                                        matched = True
 
                             elif rule["rule_type"] == "records":
 
@@ -1274,17 +1257,11 @@ def map_tool_to_destination(
 
                                 if upper_bound == -1:
                                     if lower_bound <= records:
-                                        # nice_value comparisons
-                                        if (matched_rule is None or rule["nice_value"]
-                                                < matched_rule["nice_value"]):
-                                            matched_rule = rule
+                                        matched = True
 
                                 else:
                                     if lower_bound <= records and records < upper_bound:
-                                        # nice_value comparisons
-                                        if (matched_rule is None or rule["nice_value"]
-                                                < matched_rule["nice_value"]):
-                                            matched_rule = rule
+                                        matched = True
 
                             elif rule["rule_type"] == "arguments":
                                 options = job.get_param_values(app)
@@ -1303,11 +1280,11 @@ def map_tool_to_destination(
                                             error = + "' not recognized!"
                                             log.debug(error)
 
-                                    if matched is True:
-                                        if (matched_rule is None or rule["nice_value"]
-                                                < matched_rule["nice_value"]):
-                                            matched_rule = rule
-
+                            # if we matched a rule
+                            if matched:
+                                if (matched_rule is None or rule["nice_value"] <
+                                        matched_rule["nice_value"]):
+                                    matched_rule = rule
                         # if user_authorized
                         else:
                             if verbose:
@@ -1386,9 +1363,9 @@ if __name__ == '__main__':
 
     parser.add_argument(
         '-c', '--check-config', dest='check_config', nargs='?',
-        help='Use this option to validate tool_destinations.yml.'
-        + ' Optionally, provide the path to the tool_destinations.yml'
-        + ' that you would like to check. Default: galaxy/config/tool_destinations.yml')
+        help='Use this option to validate tool_destinations.yml.' +
+        ' Optionally, provide the path to the tool_destinations.yml' +
+        ' that you would like to check. Default: galaxy/config/tool_destinations.yml')
 
     parser.add_argument(
         '-V', '--version', action='version', version="%(prog)s " + __version__)
