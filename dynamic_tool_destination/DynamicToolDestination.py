@@ -410,7 +410,8 @@ class RuleValidator:
                         log.debug(error)
                     valid_rule = False
             elif isinstance(rule["destination"], dict):
-                if "priority" in rule["destination"] and isinstance(rule["destination"]["priority"], dict):
+                if ("priority" in rule["destination"] and
+                        isinstance(rule["destination"]["priority"], dict)):
                     if "med" not in rule["destination"]["priority"]:
                         error = "No 'med' priority destination for rule " + str(counter)
                         error += " in '" + str(tool) + "'."
@@ -752,14 +753,15 @@ def validate_config(obj, return_bool=False):
     available_rule_types = ['file_size', 'num_input_datasets', 'records', 'arguments']
 
     if obj is not None:
-        # in obj, there should always be only 3 categories: tools, default_destination,
-        # and verbose
+        # in obj, there should always be only 4 categories: tools, default_destination,
+        # users, and verbose
 
         if 'default_destination' in obj:
             if isinstance(obj['default_destination'], str):
                 new_config["default_destination"] = obj['default_destination']
             elif isinstance(obj['default_destination'], dict):
-                if 'priority' in obj['default_destination'] and isinstance(obj['default_destination']['priority'], dict):
+                if ('priority' in obj['default_destination'] and
+                        isinstance(obj['default_destination']['priority'], dict)):
                     if 'med' not in obj['default_destination']['priority']:
                         error = "No default 'med' priority destination!"
                         if verbose:
@@ -767,10 +769,12 @@ def validate_config(obj, return_bool=False):
                         valid_config = False
                     else:
                         for priority in obj['default_destination']['priority']:
-                            if priority in ['low', 'med', 'high'] and isinstance(obj['default_destination']['priority'][priority], str):
+                            if (priority in ['low', 'med', 'high'] and
+                                    isinstance(obj['default_destination']['priority'][priority], str)):
                                 new_config['default_destination']['priority'][priority] = obj['default_destination']['priority'][priority]
                             else:
-                                error = "No default '" + str(priority) + "' priority destination in config!"
+                                error = ("No default '" + str(priority) +
+                                         "' priority destination in config!")
                                 if verbose:
                                     log.debug(error)
                                 valid_config = False
@@ -800,7 +804,8 @@ def validate_config(obj, return_bool=False):
                             if curr['priority'] in ['low', 'med', 'high']:
                                 new_config['users'][user]['priority'] = curr['priority']
                             else:
-                                error = "User '" + user + "', priority is not valid! Must be either low, med, or high."
+                                error = ("User '" + user + "', priority is not valid!" +
+                                         " Must be either low, med, or high.")
                                 if verbose:
                                     log.debug(error)
                                 valid_config = False
@@ -1205,7 +1210,8 @@ def map_tool_to_destination(
                 if priority in config['default_destination']['priority']:
                     destination = config['default_destination']['priority'][priority]
                 else:
-                    destination = config['default_destination']['priority'][default_priority]
+                    destination = (
+                        config['default_destination']['priority'][default_priority])
             config = config['tools']
             if str(tool.old_id) in config:
                 if 'rules' in config[str(tool.old_id)]:
@@ -1303,13 +1309,16 @@ def map_tool_to_destination(
 
             if matched_rule is None:
                 if "default_destination" in config[str(tool.old_id)]:
-                    if isinstance(config[str(tool.old_id)]['default_destination'], str):
-                        destination = config[str(tool.old_id)]['default_destination']
+                    default_tool_destination = (
+                        config[str(tool.old_id)]['default_destination'])
+                    if isinstance(default_tool_destination, str):
+                        destination = default_tool_destination
                     else:
-                        if priority in config[str(tool.old_id)]['default_destination']['priority']:
-                            destination = config[str(tool.old_id)]['default_destination']['priority'][priority]
+                        if priority in default_tool_destination['priority']:
+                            destination = default_tool_destination['priority'][priority]
                         else:
-                            destination = config[str(tool.old_id)]['default_destination']['priority'][default_priority]
+                            destination = (
+                                default_tool_destination['priority'][default_priority])
             else:
                 if isinstance(matched_rule["destination"], str):
                     destination = matched_rule["destination"]
@@ -1317,7 +1326,8 @@ def map_tool_to_destination(
                     if priority in matched_rule["destination"]["priority"]:
                         destination = matched_rule["destination"]["priority"][priority]
                     else:
-                        destination = matched_rule["destination"]["priority"][default_priority]
+                        destination = (
+                            matched_rule["destination"]["priority"][default_priority])
 
         # if "default_destination" in config
         else:
