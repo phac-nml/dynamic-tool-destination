@@ -737,6 +737,51 @@ class TestDynamicToolDestination(unittest.TestCase):
             ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.')
         )
 
+    @log_capture()
+    def test_priority_default_destination_without_med_priority_destination(self, l):
+        dt.parse_yaml(path=yt.ivYMLTest144, test=True)
+        l.check(
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "No default 'med' priority destination!"),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.')
+        )
+
+    @log_capture()
+    def test_priority_default_destination_with_invalid_priority_destination(self, l):
+        dt.parse_yaml(path=yt.ivYMLTest145, test=True)
+        l.check(
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Invalid default priority destination 'mine' found in config!"),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.')
+        )
+
+    @log_capture()
+    def test_tool_without_med_priority_destination(self, l):
+        dt.parse_yaml(path=yt.ivYMLTest146, test=True)
+        l.check(
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "No 'med' priority destination for rule 1 in 'smalt'. Ignoring..."),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.')
+        )
+
+    @log_capture()
+    def test_tool_with_invalid_priority_destination(self, l):
+        dt.parse_yaml(path=yt.ivYMLTest147, test=True)
+        l.check(
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "Invalid priority destination 'mine' for rule 1 in 'smalt'. Ignoring..."),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.')
+        )
+
+    @log_capture()
+    def test_users_with_invalid_priority(self, l):
+        dt.parse_yaml(path=yt.ivYMLTest148, test=True)
+        l.check(
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Running config validation...'),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', "User 'user@email.com', priority is not valid! Must be either low, med, or high."),
+            ('dynamic_tool_destination.DynamicToolDestination', 'DEBUG', 'Finished config validation.')
+        )
+
 #================================Valid yaml files==============================
     @log_capture()
     def test_parse_valid_yml(self, l):

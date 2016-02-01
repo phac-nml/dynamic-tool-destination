@@ -422,8 +422,15 @@ class RuleValidator:
                         valid_rule = False
                     else:
                         for priority in rule["destination"]["priority"]:
-                            if (priority not in ["low", "med", "high"] or
-                                    not isinstance(rule["destination"]["priority"][priority], str)):
+                            if priority not in ["low", "med", "high"]:
+                                error = "Invalid priority destination '" + str(priority) + "' for rule " + str(counter)
+                                error += " in '" + str(tool) + "'."
+                                if not return_bool:
+                                    error += " Ignoring..."
+                                if verbose:
+                                    log.debug(error)
+                                valid_rule = False
+                            elif not isinstance(rule["destination"]["priority"][priority], str):
                                 error = "No '" + str(priority) + "'priority destination for rule " + str(counter)
                                 error += " in '" + str(tool) + "'."
                                 if not return_bool:
@@ -769,12 +776,18 @@ def validate_config(obj, return_bool=False):
                         valid_config = False
                     else:
                         for priority in obj['default_destination']['priority']:
-                            if (priority in ['low', 'med', 'high'] and
-                                    isinstance(obj['default_destination']['priority'][priority], str)):
-                                new_config['default_destination']['priority'][priority] = obj['default_destination']['priority'][priority]
+                            if priority in ['low', 'med', 'high']:
+                                if isinstance(obj['default_destination']['priority'][priority], str):
+                                    new_config['default_destination']['priority'][priority] = obj['default_destination']['priority'][priority]
+                                else:
+                                    error = ("No default '" + str(priority) +
+                                             "' priority destination in config!")
+                                    if verbose:
+                                        log.debug(error)
+                                    valid_config = False
                             else:
-                                error = ("No default '" + str(priority) +
-                                         "' priority destination in config!")
+                                error = ("Invalid default priority destination '" + str(priority) +
+                                         "' found in config!")
                                 if verbose:
                                     log.debug(error)
                                 valid_config = False
