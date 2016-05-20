@@ -851,11 +851,36 @@ def validate_config(obj, return_bool=False):
 
                         # in each tool, there should always be only 2 sub-categories:
                         # default_destination (not mandatory) and rules (mandatory)
-                        if ("default_destination" in curr and
-                                isinstance(curr['default_destination'], str)):
-                            new_config['tools'][tool]['default_destination'] = (
-                                curr['default_destination'])
-                            tool_has_default = True
+                        if ("default_destination" in curr
+                            if isinstance(curr['default_destination'], str):
+                                new_config['tools'][tool]['default_destination'] = (
+                                    curr['default_destination'])
+                                tool_has_default = True
+                            elif isinstance(curr['default_destination'], dict):
+                                if ('priority' in curr['default_destination'] and
+                                        isinstance(curr['default_destination']['priority'], dict)):
+                                        for priority in curr['default_destination']['priority']:
+                                            if priority in ['low', 'med', 'high']:
+                                                if isinstance(curr['default_destination']['priority'][priority], str):
+                                                    new_config['default_destination']['priority'][priority] = curr['default_destination']['priority'][priority]
+                                                    tool_has_default = True
+                                                else:
+                                                    error = ("No default '" + str(priority) +
+                                                             "' priority destination for "+str(tool)+" in config!")
+                                                    if verbose:
+                                                        log.debug(error)
+                                                    valid_config = False
+                                            else:
+                                                error = ("Invalid default priority destination '" + str(priority) +
+                                                        "' for "+str(tool)+ "found in config!")
+                                                if verbose:
+                                                    log.debug(error)
+                                                valid_config = False
+                                else:
+                                    error = "No default priority destinations specified for "+str(tool)+" in config!"
+                                    if verbose:
+                                        log.debug(error)
+                                    valid_config = False
 
                         if "rules" in curr and isinstance(curr['rules'], list):
                             # under rules, there should only be a list of rules
