@@ -851,7 +851,7 @@ def validate_config(obj, return_bool=False):
 
                         # in each tool, there should always be only 2 sub-categories:
                         # default_destination (not mandatory) and rules (mandatory)
-                        if ("default_destination" in curr
+                        if "default_destination" in curr:
                             if isinstance(curr['default_destination'], str):
                                 new_config['tools'][tool]['default_destination'] = (
                                     curr['default_destination'])
@@ -859,6 +859,12 @@ def validate_config(obj, return_bool=False):
                             elif isinstance(curr['default_destination'], dict):
                                 if ('priority' in curr['default_destination'] and
                                         isinstance(curr['default_destination']['priority'], dict)):
+                                    if 'med' not in curr['default_destination']['priority']:
+                                        error = "No default 'med' priority destination for "+str(tool)+"!"
+                                        if verbose:
+                                            log.debug(error)
+                                        valid_config = False
+                                    else:
                                         for priority in curr['default_destination']['priority']:
                                             if priority in ['low', 'med', 'high']:
                                                 if isinstance(curr['default_destination']['priority'][priority], str):
@@ -866,7 +872,7 @@ def validate_config(obj, return_bool=False):
                                                     tool_has_default = True
                                                 else:
                                                     error = ("No default '" + str(priority) +
-                                                             "' priority destination for "+str(tool)+" in config!")
+                                                             "' priority destination for " + str(tool) + " in config!")
                                                     if verbose:
                                                         log.debug(error)
                                                     valid_config = False
@@ -877,7 +883,7 @@ def validate_config(obj, return_bool=False):
                                                     log.debug(error)
                                                 valid_config = False
                                 else:
-                                    error = "No default priority destinations specified for "+str(tool)+" in config!"
+                                    error = "No default priority destinations specified for " + str(tool) + " in config!"
                                     if verbose:
                                         log.debug(error)
                                     valid_config = False
