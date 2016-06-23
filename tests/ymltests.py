@@ -253,6 +253,56 @@ vdictTest6_yml = {
     'default_destination': "waffles_low"
 }
 
+# One job, one rule, and priority destinations
+vYMLTest7 = """
+    tools:
+      spades:
+        rules:
+          - rule_type: file_size
+            nice_value: 0
+            lower_bound: 0
+            upper_bound: 100000000
+            destination:
+              priority:
+                med: things
+    default_destination:
+      priority:
+        med: waffles_default
+    users:
+      user@example.com:
+        priority: med
+    verbose: True
+"""
+
+vdictTest7_yml = {
+    "tools": {
+        "spades": {
+            "rules": [
+                {
+                    "rule_type": "file_size",
+                    "nice_value": 0,
+                    "lower_bound": 0,
+                    "upper_bound": 100000000,
+                    "destination": {
+                      'priority': {
+                        'med': 'things'
+                      }
+                    }
+                },
+            ]
+        }
+    },
+    'default_destination': {
+      'priority': {
+        'med': 'waffles_default'
+      }
+    },
+    'users': {
+      'user@example.com': {
+         'priority': 'med'
+      }
+    }
+}
 #=====================================================Invalid XML tests==========================================================
 
 # Empty file
@@ -855,3 +905,68 @@ iv143dict = {
         }
     }
 }
+
+# No med priority destination in default destination
+ivYMLTest144 ='''
+    default_destination:
+      priority:
+        low: waffles_low
+    verbose: True
+'''
+
+# invalid priority destination in default destination
+ivYMLTest145 ='''
+    default_destination:
+      priority:
+        med: waffles_low
+        mine: waffles_low
+    verbose: True
+'''
+
+# No med priority destination in tool config
+ivYMLTest146 ='''
+    tools:
+      smalt:
+        rules:
+          - rule_type: num_input_datasets
+            nice_value: 0
+            lower_bound: 0
+            upper_bound: Infinity
+            destination:
+              priority:
+                low: cluster_low_4
+    default_destination:
+      priority:
+        med: waffles_low
+    verbose: True
+'''
+
+# Invalid priority destination in tool config
+ivYMLTest147 ='''
+    tools:
+      smalt:
+        rules:
+          - rule_type: num_input_datasets
+            nice_value: 0
+            lower_bound: 0
+            upper_bound: Infinity
+            destination:
+              priority:
+                med: cluster_med_4
+                mine: cluster_low_4
+    default_destination:
+      priority:
+        med: waffles_low
+    verbose: True
+'''
+
+# invalid priority in users section
+ivYMLTest148 ='''
+    default_destination:
+      priority:
+        med: waffles_low
+    users:
+      user@email.com:
+        priority: mine
+    verbose: True
+'''

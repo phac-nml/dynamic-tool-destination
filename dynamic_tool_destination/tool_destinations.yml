@@ -10,10 +10,15 @@
 # paremeters. DynamicToolDestination.py is set up to allow and fix a few light errors
 # in the config, but it's best to follow the specified template.
 #
-# default_destination, the second key property, specifies which global destination
-# to default to in case none of the rules apply.
+# users, the second key property, specifies what priority a user has. By default all users
+# have med priority. This determines which destination a user goes to when a tool has priority
+# destinations.
 #
-# A third key property is verbose. When this is set to True, Dynamic Tool Destination
+# default_destination, the third key property, specifies which global destination
+# to default to in case none of the rules apply. Can be a string or be a hash with name priority
+# and keys low, med, and high.
+#
+# A fourth key property is verbose. When this is set to True, Dynamic Tool Destination
 # gives much more descriptive output regarding the steps it's taking in mapping your tools to
 # the appropriate destinations, including config validation and any potential errors found in the
 # config.
@@ -33,6 +38,8 @@
 #         destination: how should this tool be run?
 #         lower_bound: what's the max file size?
 #         upper_bound: what's the minimum file size?
+#         users: (optional) which users does this rule apply to
+#           - user@example.com
 # 	default_destination: this tool-specific field is optional
 #   smalt_map:
 #     rules:
@@ -52,6 +59,13 @@
 #         upper_bound: Infinity
 #         destination: cluster_low_16
 #     default_destination: cluster_default
+# users:
+#   user_low@example.com:
+#     priority: low
+#   user_med@example.com:
+#     priority: med
+#   user_high@example.com:
+#     priority: high
 # default_destination: this global field is mandatory
 # verbose: True
 #
@@ -158,12 +172,20 @@ tools:
         nice_value: 0
         lower_bound: 10 MB
         upper_bound: 2 GB
-        destination: waffles_low_24
+        destination:
+          priority:
+            low: waffles_low_24
+            med: waffles_med_24
+            high: waffles_high_24
       - rule_type: file_size
         nice_value: 0
         lower_bound: 2 GB
         upper_bound: 4 GB
-        destination: waffles_low_48
+        destination:
+          priority:
+            low: waffles_low_48
+            med: waffles_med_48
+            high: waffles_high_48
       - rule_type: file_size
         nice_value: 0
         lower_bound: 4 GB
@@ -174,8 +196,16 @@ tools:
         nice_value: 0
         arguments:
           careful: true
-        destination: waffles_low_48
-    default_destination: waffles_low_16
+        destination:
+          priority:
+            low: waffles_low_48
+            med: waffles_med_48
+            high: waffles_high_48
+    default_destination:
+      priority:
+        low: waffles_low_16
+        med: waffles_med_16
+        high: waffles_high_16
 
   srst2:
     rules:
@@ -183,24 +213,35 @@ tools:
         nice_value: 0
         lower_bound: 0
         upper_bound: 100
-        destination: waffles_low_4
+        destination:
+          priority:
+            low: waffles_low_4
+            med: waffles_med_4
+            high: waffles_high_4
       - rule_type: records
         nice_value: 0
         lower_bound: 100
         upper_bound: 1000
-        destination: waffles_low_8
+        destination:
+          priority:
+            low: waffles_low_8
+            med: waffles_med_8
+            high: waffles_high_8
       - rule_type: records
         nice_value: 0
         lower_bound: 1000
         upper_bound: 10000
-        destination: waffles_low_8
+        destination:
+          priority:
+            low: waffles_low_8
+            med: waffles_med_8
+            high: waffles_high_8
       - rule_type: records
         nice_value: 0
         lower_bound: 1000000
         upper_bound: Infinity
         fail_message: Using the wrong tool
         destination: fail
-    default_destination: waffles_default
 
   smalt_map:
     rules:
@@ -208,18 +249,29 @@ tools:
         nice_value: 0
         lower_bound: 0
         upper_bound: 2 GB
-        destination: waffles_low_4
+        destination:
+          priority:
+            low: waffles_low_4
+            med: waffles_med_4
+            high: waffles_high_4
       - rule_type: file_size
         nice_value: 0
         lower_bound: 2 GB
         upper_bound: 4 GB
-        destination: waffles_low_8
+        destination:
+          priority:
+            low: waffles_low_8
+            med: waffles_med_8
+            high: waffles_high_8
       - rule_type: file_size
         nice_value: 0
         lower_bound: 4 GB
         upper_bound: Infinity
-        destination: waffles_low_16
-    default_destination: waffles_default
+        destination:
+          priority:
+            low: waffles_low_16
+            med: waffles_med_16
+            high: waffles_high_16
 
   fastqc:
     rules:
@@ -233,8 +285,23 @@ tools:
         nice_value: 0
         lower_bound: 400 MB
         upper_bound: Infinity
-        destination: waffles_low_4
-    default_destination: waffles_low_16
+        destination:
+          priority:
+            low: waffles_low_4
+            med: waffles_med_4
+            high: waffles_high_4
+    default_destination:
+      priority:
+        low: waffles_low_16
+        med: waffles_med_16
+        high: waffles_high_16
 
-default_destination: waffles_default
+default_destination:
+  priority:
+    low: waffles_low_default
+    med: waffles_med_default
+    high: waffles_high_default
+users:
+  user@email.com:
+    priority: high
 verbose: True
