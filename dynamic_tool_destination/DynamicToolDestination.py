@@ -735,7 +735,9 @@ def validate_config(obj, return_bool=False):
     @return: validated rule or result of validation (depending on return_bool)
     """
 
-    infinite_defaultdict = lambda: collections.defaultdict(infinite_defaultdict)
+    def infinite_defaultdict():
+        return collections.defaultdict(infinite_defaultdict)
+
     # Allow new_config to expand automatically when adding values to new levels
     new_config = infinite_defaultdict()
 
