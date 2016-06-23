@@ -423,15 +423,18 @@ class RuleValidator:
                     else:
                         for priority in rule["destination"]["priority"]:
                             if priority not in ["low", "med", "high"]:
-                                error = "Invalid priority destination '" + str(priority) + "' for rule " + str(counter)
+                                error = "Invalid priority destination '" + str(priority)
+                                error += "' for rule " + str(counter)
                                 error += " in '" + str(tool) + "'."
                                 if not return_bool:
                                     error += " Ignoring..."
                                 if verbose:
                                     log.debug(error)
                                 valid_rule = False
-                            elif not isinstance(rule["destination"]["priority"][priority], str):
-                                error = "No '" + str(priority) + "'priority destination for rule " + str(counter)
+                            elif not isinstance(
+                                    rule["destination"]["priority"][priority], str):
+                                error = "No '" + str(priority)
+                                error += "'priority destination for rule " + str(counter)
                                 error += " in '" + str(tool) + "'."
                                 if not return_bool:
                                     error += " Ignoring..."
@@ -732,7 +735,9 @@ def validate_config(obj, return_bool=False):
     @return: validated rule or result of validation (depending on return_bool)
     """
 
-    infinite_defaultdict = lambda: collections.defaultdict(infinite_defaultdict)
+    def infinite_defaultdict():
+        return collections.defaultdict(infinite_defaultdict)
+
     # Allow new_config to expand automatically when adding values to new levels
     new_config = infinite_defaultdict()
 
@@ -778,8 +783,12 @@ def validate_config(obj, return_bool=False):
                     else:
                         for priority in obj['default_destination']['priority']:
                             if priority in ['low', 'med', 'high']:
-                                if isinstance(obj['default_destination']['priority'][priority], str):
-                                    new_config['default_destination']['priority'][priority] = obj['default_destination']['priority'][priority]
+                                if isinstance(
+                                        obj['default_destination']['priority'][priority],
+                                        str):
+                                    new_config['default_destination']['priority'][
+                                        priority] = obj[
+                                            'default_destination']['priority'][priority]
                                 else:
                                     error = ("No default '" + str(priority) +
                                              "' priority destination in config!")
@@ -787,8 +796,8 @@ def validate_config(obj, return_bool=False):
                                         log.debug(error)
                                     valid_config = False
                             else:
-                                error = ("Invalid default priority destination '" + str(priority) +
-                                         "' found in config!")
+                                error = ("Invalid default priority destination '" +
+                                         str(priority) + "' found in config!")
                                 if verbose:
                                     log.debug(error)
                                 valid_config = False
@@ -859,32 +868,46 @@ def validate_config(obj, return_bool=False):
                                 tool_has_default = True
                             elif isinstance(curr['default_destination'], dict):
                                 if ('priority' in curr['default_destination'] and
-                                        isinstance(curr['default_destination']['priority'], dict)):
-                                    if 'med' not in curr['default_destination']['priority']:
-                                        error = "No default 'med' priority destination for "+str(tool)+"!"
+                                        isinstance(
+                                            curr['default_destination']['priority'],
+                                            dict)):
+                                    if ('med' not in
+                                            curr['default_destination']['priority']):
+                                        error = "No default 'med' priority destination "
+                                        error += "for " + str(tool) + "!"
                                         if verbose:
                                             log.debug(error)
                                         valid_config = False
                                     else:
-                                        for priority in curr['default_destination']['priority']:
+                                        for priority, destination in (
+                                                curr['default_destination']['priority']):
                                             if priority in ['low', 'med', 'high']:
-                                                if isinstance(curr['default_destination']['priority'][priority], str):
-                                                    new_config['tools'][tool]['default_destination']['priority'][priority] = curr['default_destination']['priority'][priority]
+                                                if isinstance(destination, str):
+                                                    new_config['tools'][tool][
+                                                        'default_destination'][
+                                                            'priority'][
+                                                                priority] = destination
                                                     tool_has_default = True
                                                 else:
-                                                    error = ("No default '" + str(priority) +
-                                                             "' priority destination for " + str(tool) + " in config!")
+                                                    error = ("No default '" +
+                                                             str(priority) +
+                                                             "' priority destination " +
+                                                             "for " + str(tool) +
+                                                             " in config!")
                                                     if verbose:
                                                         log.debug(error)
                                                     valid_config = False
                                             else:
-                                                error = ("Invalid default priority destination '" + str(priority) +
-                                                        "' for "+str(tool)+ "found in config!")
+                                                error = ("Invalid default priority " +
+                                                         "destination '" + str(priority) +
+                                                         "' for " + str(tool) +
+                                                         "found in config!")
                                                 if verbose:
                                                     log.debug(error)
                                                 valid_config = False
                                 else:
-                                    error = "No default priority destinations specified for " + str(tool) + " in config!"
+                                    error = "No default priority destinations specified"
+                                    error += " for " + str(tool) + " in config!"
                                     if verbose:
                                         log.debug(error)
                                     valid_config = False
