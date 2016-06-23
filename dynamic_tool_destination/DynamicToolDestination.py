@@ -3,7 +3,7 @@ from __future__ import print_function
 """
 # =============================================================================
 
-Copyright Government of Canada 2015
+Copyright Government of Canada 2016
 
 Written by: Eric Enns, Public Health Agency of Canada,
                        National Microbiology Laboratory
@@ -40,7 +40,7 @@ import string
 import collections
 import re
 
-__version__ = '1.0.0'
+__version__ = '1.1.0'
 
 
 # log to galaxy's logger

@@ -10,10 +10,15 @@
 # paremeters. DynamicToolDestination.py is set up to allow and fix a few light errors
 # in the config, but it's best to follow the specified template.
 #
-# default_destination, the second key property, specifies which global destination
-# to default to in case none of the rules apply.
+# users, the second key property, specifies what priority a user has. By default all users
+# have med priority. This determines which destination a user goes to when a tool has priority
+# destinations.
 #
-# A third key property is verbose. When this is set to True, Dynamic Tool Destination
+# default_destination, the third key property, specifies which global destination
+# to default to in case none of the rules apply. Can be a string or be a hash with name priority
+# and keys low, med, and high.
+#
+# A fourth key property is verbose. When this is set to True, Dynamic Tool Destination
 # gives much more descriptive output regarding the steps it's taking in mapping your tools to
 # the appropriate destinations, including config validation and any potential errors found in the
 # config.

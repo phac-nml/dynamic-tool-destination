@@ -6,7 +6,7 @@
 
 Dynamic Tool Destination
 
-Copyright Government of Canada 2015
+Copyright Government of Canada 2016
 
 Written by: Eric Enns, Public Health Agency of Canada,
                        National Microbiology Laboratory
@@ -29,14 +29,14 @@ CONDITIONS OF ANY KIND, either express or implied. See the License for the
 specific language governing permissions and limitations under the License.
 
 ## Description
----
+--- 
 This project dynamically maps tools to destinations based on the following rules, file_size, records, arguments.
 
 
 ## Installation  
 ---
 1. Clone this repository:
-```git clone git@gitlab.corefacility.ca:nml/dynamic-tool-destination.git```
+```https://github.com/phac-nml/dynamic-tool-destination.git```
 
 2. In the root directory of this project on the command line, type in:
 ```make install GALAXY_PATH="your-galaxy-path"```
@@ -107,8 +107,7 @@ may decide that her files are eligible for use on cluster_low_32. This XML file 
 checked to see if such destination with an ID of ```cluster_low_32``` exists. If it does,
 the arguments contained inside the destination's params are passed to the cluster.
 In this case, the job would be run with parameters ```-q test.q -pe galaxy 32 -l h_vmem=2G```
-
-
+ 
 ## Testing  
 ---
 To run the test suit on this project, from the root directory in the
@@ -131,7 +130,7 @@ tox -e py27
 ```
 tox -e flake8
 ```
-
+ 
 ## Configuration  
 ---
 The configuration for each tool is done in tool_destinations.yml. You may either edit
@@ -146,10 +145,14 @@ distinct. In each tool is a list of rules, each of which contain rule-specific
 paremeters. DynamicToolDestination.py is set up to allow and fix a few light errors
 in the config, but it's best to follow the specified template.
 
-```default_destination```, the second key property, specifies which global destination 
+```users```, the second key property, specifies what priority a user has. By default all users
+have med priority. This determines which destination a user does to when a tool has priority
+destinations.
+
+```default_destination```, the third key property, specifies which global destination 
 to default to in case none of the rules apply. 
 
-A third key property is ```verbose```. When this is set to True, Dynamic Tool Destination
+A fourth key property is ```verbose```. When this is set to True, Dynamic Tool Destination
 gives much more descriptive output regarding the steps it's taking in mapping your tools to
 the appropriate destinations, including config validation and any potential errors found in the
 config.
@@ -185,8 +188,19 @@ tools:
         nice_value: 0
         lower_bound: 4 GB
         upper_bound: Infinity
-        destination: cluster_low_16
+        destination:
+          priority:
+            low: cluster_low_16
+            med: cluster_med_16
+            high: cluster_high_16
     default_destination: cluster_default
+users:
+  user_low@example.com:
+    priority: low
+  user_med@example.com:
+    priority: med
+  user_high@example.com:
+    priority: high
 default_destination: this global field is mandatory
 verbose: True
 
@@ -305,7 +319,7 @@ As shown above, a rule with 'fail' as the destination requires an additional
 parameter, 'fail_message', which DynamicToolDestination uses to print a helpful error
 message to the user indicating why the job failed (showing up inside the job log in
 Galaxy's history panel).
-
+ 
 ## Usage  
 ---
 
@@ -336,7 +350,7 @@ python DynamicToolDestination.py -c /path/to/tool_destinations.yml
 Note that the output when running Dynamic Tool Destination from a commandline depends on
 whether or not you have ```verbose``` turned on. It is advisable to turn it on for checking configs
 as it gives descriptive error messages if issues are encountered.
-
+ 
 ## Contact
 ---
 
